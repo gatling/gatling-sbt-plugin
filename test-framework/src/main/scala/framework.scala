@@ -53,25 +53,6 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
 
   def runSimulation(className:String,  handler: EventHandler, args: Array[String]) = 
     gatling(loadClassOf[Simulation](className, loader), handler) // // PerfTest extends Simulation
-
-
-
-  private def createInstanceFor[T <: AnyRef](klass: Class[T])(implicit m: ClassManifest[T]) = {
-      val constructor = klass.getDeclaredConstructors()(0)
-      constructor.setAccessible(true)
-      try {
-          val instance: AnyRef = constructor.newInstance().asInstanceOf[AnyRef]
-          if (!m.erasure.isInstance(instance)) {
-            error(instance + " is not an instance of " + m.erasure.getName)
-          }
-          instance.asInstanceOf[T]
-      } catch {
-          case e: java.lang.reflect.InvocationTargetException => {
-            loggers.foreach(_.error(s"Unable to create test instance: ${e.getMessage}"))
-            throw e
-          }
-      }
-  }
   
   private def loadClassOf[T <: AnyRef](className: String = "", loader: ClassLoader = Thread.currentThread.getContextClassLoader): Class[T] = 
       loader.loadClass(className).asInstanceOf[Class[T]]
