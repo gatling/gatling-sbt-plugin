@@ -4,7 +4,7 @@ import org.scalatools.testing._
 
 import io.gatling.core.Predef._
 //import io.gatling.core.result.message.RunRecord
-import io.gatling.core.runner.Runner
+import io.gatling.core.runner.{Runner, Selection}
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.charts.config.ChartsFiles._
 
@@ -28,7 +28,7 @@ class GatlingFramework extends Framework {
 }
 
 trait GatlingSimulationFingerprint extends TestFingerprint {
-  def superClassName = "gatling.sbt.PerfTest"
+  def superClassName = "gatling.sbt.PerfTest" // it extends Simulation
 }
 
 object GatlingFingerprints {
@@ -52,7 +52,7 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     }
 
   def runSimulation(className:String,  handler: EventHandler, args: Array[String]) = 
-    gatling(createInstanceFor[PerfTest](loadClassOf(className, loader)), handler)
+    gatling(loadClassOf[Simulation](className, loader), handler) // // PerfTest extends Simulation
 
 
 
@@ -87,12 +87,16 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     val error = null
   }
 
-  def gatling(s: PerfTest, handler:EventHandler) {
+  def gatling(s: Class[Simulation], handler:EventHandler) {
     println("Creating run record")
     //val runInfo = new RunRecord(now, "run-test", "stress-test")
     //println("Run record created > run scenario")
 
-    s.exec(/*runInfo*/)
+    //val configurations = simulation.scenarios
+    val selection = Selection(s, "test", "test")
+
+    //WARN :: pre and post wont' be used... 
+    new Runner(selection).run
 
     //println("Simulation Finished.")
     //runInfo.runUuid
