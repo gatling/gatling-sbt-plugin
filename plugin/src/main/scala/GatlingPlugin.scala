@@ -1,3 +1,5 @@
+package gatling.sbt
+
 /**
  *
  *
@@ -27,12 +29,13 @@ object GatlingPlugin extends Plugin {
   val gatlingParent = "com.excilys.ebi.gatling" % "gatling-parent" % gatlingVersion
   val gatlingCharts = "com.excilys.ebi.gatling" % "gatling-charts" % gatlingVersion
   val gatlingHighcharts = "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion
-  
+
   // PerfTest configuration to hold all gatling sources, under src/perf/scala
   val PerfTest = config("perf") extend (Runtime)
 
   //lazy val runRecorder = TaskKey[Unit]("gatling-recorder", "Start the Gatling Recorder utility")
   lazy val gatlingConfFile = SettingKey[File]("gatling-conf-file", "The Gatling-Tool configuration file") in PerfTest
+  lazy val gatlingResultDir = SettingKey[File]("gatling-result-dir", "The dir where Gatling-Tool will gererate results") in PerfTest
 
   //def runRecorderTask = runRecorder <<= (sourceDirectory) map {
   //  (sourceDirectory:File) =>
@@ -58,8 +61,12 @@ object GatlingPlugin extends Plugin {
     testGrouping <<= definedTests in PerfTest map singleTests,
 
     //runRecorderTask,
-    gatlingConfFile <<= baseDirectory { _ / "src" / "perf" / "resources" / "galing.conf" }
+    gatlingConfFile <<= baseDirectory { _ / "src" / "perf" / "resources" / "galing.conf" },
     gatlingResultDir <<= target { _ / "gatling-test" / "result" },
+
+    testOptions in PerfTest += Tests.Setup( () => println("Setup perf tests") ),
+    testOptions in PerfTest += Tests.Cleanup( () => println("Cleanup perf tests") )
+
     //logLevel := Level.Debug
   )
 

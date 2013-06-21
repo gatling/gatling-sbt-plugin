@@ -16,8 +16,8 @@ import GatlingFingerprints._
 class GatlingFramework extends Framework {
   
   GatlingBootstrap(
-    sys.props.get("sbt.gatling.conf.file").get, 
-    sys.props.get("sbt.gatling.result.dir").get
+    sys.props.get("sbt.gatling.conf.file").getOrElse("gatling.conf"), 
+    sys.props.get("sbt.gatling.result.dir").getOrElse("results")
   )
 
   def name = "gatling"
