@@ -6,17 +6,21 @@ import io.gatling.core.Predef._
 
 import scala.concurrent.duration._
 
+import akkaio.http.SimpleSprayApp
 
-class GooglePerf extends PerfTest {
-  val pre = ()
-  val post = ()
+class SprayPerf extends PerfTest {
+  lazy val app = SimpleSprayApp()
 
-  val httpConf = http.baseURL("http://www.google.com")
+  lazy val pre:Unit = app.start
+  lazy val post:Unit = app.stop
+
+
+  val httpConf = http.baseURL("http://localhost:1111/ping")
                       .acceptHeader("*/*")
                       .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
 
   val scn = 
-     scenario("GGL")
+      scenario("spray")
         .exec(
           http("request_1")
             .get("/")

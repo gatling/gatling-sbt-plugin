@@ -26,6 +26,7 @@ object GatlingSbtBuild extends Build {
     version := "0.0.1-SNAPSHOT",
     scalaVersion := "2.10.1",
     //resolvers ++= Seq(gatlingReleases),
+    resolvers += "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
     libraryDependencies += "gatling" %% "gatling-sbt-test-framework" % "0.0.1-SNAPSHOT"
     //libraryDependencies ++= gatlingDependencies,
     //publishMavenStyle := true,

@@ -4,7 +4,7 @@ import org.scalatools.testing._
 
 import io.gatling.core.Predef._
 //import io.gatling.core.result.message.RunRecord
-import io.gatling.core.runner.{Runner, Selection}
+import io.gatling.core.runner.{Selection}
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.charts.config.ChartsFiles._
 
@@ -52,7 +52,7 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     }
 
   def runSimulation(className:String,  handler: EventHandler, args: Array[String]) = 
-    gatling(loadClassOf[Simulation](className, loader), handler) // // PerfTest extends Simulation
+    gatling(loadClassOf[PerfTest](className, loader), handler) // // PerfTest extends Simulation
   
   private def loadClassOf[T <: AnyRef](className: String = "", loader: ClassLoader = Thread.currentThread.getContextClassLoader): Class[T] = 
       loader.loadClass(className).asInstanceOf[Class[T]]
@@ -68,16 +68,22 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     val error = null
   }
 
-  def gatling(s: Class[Simulation], handler:EventHandler) {
-    println("Creating run record")
+  def gatling(s: Class[PerfTest], handler:EventHandler) {
+    val simulation = s.newInstance
+   
+    //println("Creating run record")
     //val runInfo = new RunRecord(now, "run-test", "stress-test")
     //println("Run record created > run scenario")
 
     //val configurations = simulation.scenarios
-    val selection = Selection(s, "test", "test")
+    //val selection = Selection(s, "test", "test")
 
     //WARN :: pre and post wont' be used... 
-    new Runner(selection).run
+    val runner = new AdaptedRunner[PerfTest](simulation)
+
+    simulation.pre    
+    runner.run
+    simulation.post    
 
     //println("Simulation Finished.")
     //runInfo.runUuid
