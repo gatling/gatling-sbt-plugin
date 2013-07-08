@@ -1,10 +1,14 @@
 package gatling.sbt
 
+import java.lang.System.currentTimeMillis
+
 import org.scalatools.testing._
 
 import io.gatling.core.Predef._
-//import io.gatling.core.result.message.RunRecord
-import io.gatling.core.runner.{Selection}
+import io.gatling.core.config.GatlingFiles
+import io.gatling.core.runner.Selection
+import io.gatling.core.result.reader.DataReader
+
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.charts.config.ChartsFiles._
 
@@ -14,9 +18,9 @@ import org.joda.time.DateTime._
 import GatlingFingerprints._
 
 class GatlingFramework extends Framework {
-  
+
   GatlingBootstrap(
-    sys.props.get("sbt.gatling.conf.file").getOrElse("gatling.conf"), 
+    sys.props.get("sbt.gatling.conf.file").getOrElse("gatling.conf"),
     sys.props.get("sbt.gatling.result.dir").getOrElse("results")
   )
 
@@ -42,7 +46,7 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
   def run(className: String, fingerprint: TestFingerprint, handler: EventHandler, args: Array[String]) = {
     runTest(className, fingerprint, handler, args)
   }
-  
+
 
   def runTest(className: String, fingerprint: TestFingerprint, handler: EventHandler, args: Array[String]) =
     if (fingerprint.superClassName == simulationClass.superClassName) {
@@ -51,10 +55,10 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
       loggers.foreach(_.warn(s"Skipped test: $fingerprint"))
     }
 
-  def runSimulation(className:String,  handler: EventHandler, args: Array[String]) = 
+  def runSimulation(className:String,  handler: EventHandler, args: Array[String]) =
     gatling(loadClassOf[PerfTest](className, loader), handler) // // PerfTest extends Simulation
-  
-  private def loadClassOf[T <: AnyRef](className: String = "", loader: ClassLoader = Thread.currentThread.getContextClassLoader): Class[T] = 
+
+  private def loadClassOf[T <: AnyRef](className: String = "", loader: ClassLoader = Thread.currentThread.getContextClassLoader): Class[T] =
       loader.loadClass(className).asInstanceOf[Class[T]]
 
 
@@ -70,7 +74,7 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
 
   def gatling(s: Class[PerfTest], handler:EventHandler) {
     val simulation = s.newInstance
-   
+
     //println("Creating run record")
     //val runInfo = new RunRecord(now, "run-test", "stress-test")
     //println("Run record created > run scenario")
@@ -78,12 +82,12 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     //val configurations = simulation.scenarios
     //val selection = Selection(s, "test", "test")
 
-    //WARN :: pre and post wont' be used... 
+    //WARN :: pre and post wont' be used...
     val runner = new AdaptedRunner[PerfTest](simulation)
 
-    simulation.pre    
+    simulation.pre
     runner.run
-    simulation.post    
+    simulation.post
 
     //println("Simulation Finished.")
     //runInfo.runUuid
@@ -96,12 +100,21 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
   }
 
   def generateReports(runUuid: String = "<none>") {
-    //println("Generating reports...")
-    //val start = System.currentTimeMillis
-    //ReportsGenerator.generateFor(runUuid)
-    //println("Reports generated in " + (System.currentTimeMillis - start) / 1000 + "s.")
+    val outputDirectoryName = GatlingFiles.reportsOnlyDirectory
+                                          .getOrElse(
+                                            throw new RuntimeException("Temp exception : due to missing CONF_CORE_DIRECTORY_REPORTS_ONLY value")
+                                          )
 
-    println("TODO: api changed :/")
+
+    lazy val dataReader = DataReader.newInstance(outputDirectoryName)
+
+    println("Generating reports...")
+    val start = currentTimeMillis
+
+    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
+
+    println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
+    println(s"Please open the following file : $indexFile")
   }
 
 }

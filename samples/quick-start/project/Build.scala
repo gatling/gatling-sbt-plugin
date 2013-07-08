@@ -13,19 +13,19 @@ object MinimalBuild extends Build {
   val gatSbtTestVersion = "0.0.1-SNAPSHOT"
 
   val libDependencies = Seq(
-    "gatling" %% "gatling-sbt-test-framework" % gatSbtTestVersion % "perf",
+    "gatling" %% "gatling-sbt-test-framework" % gatSbtTestVersion % "perf"
 
-    "com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
-    "com.typesafe.akka" %% "akka-slf4j" % "2.2.0-RC1",
-    "ch.qos.logback" % "logback-classic" % "1.0.13",
-    "io.spray" % "spray-routing" % "1.2-M8",
-    "io.spray" % "spray-can" % "1.2-M8"
+    //"com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
+    //"com.typesafe.akka" %% "akka-slf4j" % "2.2.0-RC1",
+    //"ch.qos.logback" % "logback-classic" % "1.0.13",
+    //"io.spray" % "spray-routing" % "1.2-M8",
+    //"io.spray" % "spray-can" % "1.2-M8"
   )
 
 
-  lazy val allSettings = 
-    Project.defaultSettings ++ 
-    GatlingPlugin.gatlingSettings ++ 
+  lazy val allSettings =
+    Project.defaultSettings ++
+    GatlingPlugin.gatlingSettings ++
     Seq(
       scalaVersion := "2.10.1",
       version := buildVersion,
@@ -38,5 +38,5 @@ object MinimalBuild extends Build {
     )
 
   lazy val root = Project(id = appName, base = file(".")).configs(GatlingPlugin.PerfTest).settings(allSettings: _*)
-  
+
 }

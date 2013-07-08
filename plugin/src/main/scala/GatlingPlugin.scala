@@ -31,7 +31,7 @@ object GatlingPlugin extends Plugin {
   val gatlingHighcharts = "com.excilys.ebi.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion
 
   // PerfTest configuration to hold all gatling sources, under src/perf/scala
-  val PerfTest = config("perf") extend (Runtime)
+  val PerfTest = config("perf") extend (Test)
 
   //lazy val runRecorder = TaskKey[Unit]("gatling-recorder", "Start the Gatling Recorder utility")
   lazy val gatlingConfFile = SettingKey[File]("gatling-conf-file", "The Gatling-Tool configuration file") in PerfTest
