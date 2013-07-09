@@ -1,6 +1,5 @@
-*/target/**
-*/project/target/**
-samples/quick-start/project/target/**
-samples/quick-start/project/project/target/**
-samples/quick-start/target
-
+target/
+.classpath
+.project
+.settings/
+.cache
