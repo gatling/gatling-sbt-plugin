@@ -1,9 +1,9 @@
 package gatling.sbt
 
+import io.gatling.app.CommandLineConstants ._
 import io.gatling.core.config._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.ConfigurationConstants._
-import io.gatling.app.CommandLineConstants ._
 
 import scala.collection.mutable
 
@@ -18,12 +18,16 @@ case class GatlingBootstrap(gatlingFile:String, resultsFolder:String) {
 
   val gatlingConfiguration = GatlingConfiguration.setUp(mutable.Map[String,Any](
       // gatlingFile
-      CLI_DATA_FOLDER -> sys.props("java.io.tmpdir"), //todo dataFolder.getAbsolutePath
-      CLI_REQUEST_BODIES_FOLDER -> sys.props("java.io.tmpdir"), //todo requestBodiesFolder.getAbsolutePath
-      CLI_RESULTS_FOLDER -> resultsFolder,
-      CLI_SIMULATIONS_FOLDER -> sys.props("java.io.tmpdir"),//todo simulationSourcesFolder.getAbsolutePath
+      //DATA_FOLDER -> sys.props("java.io.tmpdir"), //todo dataFolder.getAbsolutePath
+      //REQUEST_BODIES_FOLDER -> sys.props("java.io.tmpdir"), //todo requestBodiesFolder.getAbsolutePath
+      //RESULTS_FOLDER -> resultsFolder,
+      //SIMULATIONS_FOLDER -> sys.props("java.io.tmpdir"),//todo simulationSourcesFolder.getAbsolutePath
+
+      CONF_CORE_DIRECTORY_SIMULATIONS -> sys.props("java.io.tmpdir"),//todo simulationSourcesFolder.getAbsolutePath
+      CONF_CORE_DIRECTORY_DATA -> sys.props("java.io.tmpdir"), //todo dataFolder.getAbsolutePath
+      CONF_CORE_DIRECTORY_REQUEST_BODIES -> sys.props("java.io.tmpdir"), //todo requestBodiesFolder.getAbsolutePath
       CONF_CORE_DIRECTORY_RESULTS -> resultsFolder,
-      CONF_CORE_DIRECTORY_REPORTS_ONLY -> (resultsFolder + "/" + "reports")
+      CONF_CORE_DIRECTORY_REPORTS_ONLY -> "reports"
     )
   )
 

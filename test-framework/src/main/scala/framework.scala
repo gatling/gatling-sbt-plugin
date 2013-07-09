@@ -21,7 +21,7 @@ class GatlingFramework extends Framework {
 
   GatlingBootstrap(
     sys.props.get("sbt.gatling.conf.file").getOrElse("gatling.conf"),
-    sys.props.get("sbt.gatling.result.dir").getOrElse("results")
+    sys.props.get("sbt.gatling.result.dir").getOrElse("target/results")
   )
 
   def name = "gatling"
@@ -75,46 +75,37 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
   def gatling(s: Class[PerfTest], handler:EventHandler) {
     val simulation = s.newInstance
 
-    //println("Creating run record")
-    //val runInfo = new RunRecord(now, "run-test", "stress-test")
-    //println("Run record created > run scenario")
-
-    //val configurations = simulation.scenarios
-    //val selection = Selection(s, "test", "test")
-
-    //WARN :: pre and post wont' be used...
     val runner = new AdaptedRunner[PerfTest](simulation)
 
     simulation.pre
-    runner.run
+    val (runId, sim) = runner.run
     simulation.post
 
-    //println("Simulation Finished.")
-    //runInfo.runUuid
+    println(s"Simulation Finished: $runId")
 
-    println("scenarion ran > generate reports")
-    generateReports(/*runInfo.runUuid*/)
+    println("scenarios ran > generate reports")
+    generateReports(runId)
     println("reports generated")
 
     handler.handle(createEvent)
   }
 
-  def generateReports(runUuid: String = "<none>") {
-    val outputDirectoryName = GatlingFiles.reportsOnlyDirectory
+  def generateReports(runId: String = "<none>") {
+    val outputDirectory = GatlingFiles.reportsOnlyDirectory
+                                          .map(_ + "/" + runId)
                                           .getOrElse(
                                             throw new RuntimeException("Temp exception : due to missing CONF_CORE_DIRECTORY_REPORTS_ONLY value")
                                           )
 
-
-    lazy val dataReader = DataReader.newInstance(outputDirectoryName)
+    lazy val dataReader = DataReader.newInstance(runId)
 
     println("Generating reports...")
     val start = currentTimeMillis
 
-    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
+    val indexFile = ReportsGenerator.generateFor(outputDirectory, dataReader)
 
     println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
-    println(s"Please open the following file : $indexFile")
+    println(s"Please open the following file : ${indexFile.toAbsolute}")
   }
 
 }

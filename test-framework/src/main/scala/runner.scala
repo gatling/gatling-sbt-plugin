@@ -24,9 +24,9 @@ import io.gatling.core.runner.Selection
 class AdaptedRunner[S <: Simulation](simulation: S) extends AkkaDefaults with Logging {
 
   def run: (String, Simulation) = {
-    
+
     try {
-      val runMessage = RunMessage(now, util.Random.nextString(10), util.Random.nextString(10))
+      val runMessage = RunMessage(now, "to-change", "to be changed")
 
       val scenarios = simulation.scenarios
 

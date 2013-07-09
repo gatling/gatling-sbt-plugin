@@ -35,4 +35,6 @@
 //         .protocols(httpConf)
 // }
 
-object T12345 {}
+object T12345 {
+    println("Seems to need an update of Spray-can before being able to run this test against akka-2.2.0")
+}

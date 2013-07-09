@@ -5,7 +5,8 @@ object GTFBuild extends Build {
 
   lazy val gatlingProject = Project("gatling-sbt", file("."), settings = gatlingTestFrameworkSettings)
 
-  val gatlingVersion = "2.0.0-M3"
+  val gatlingVersion = "2.0.0-SNAPSHOT"
+  val gatlingVersionHC = "2.0.0-M3"
 
   val gatlingTestFrameworkSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.10.1",
@@ -21,13 +22,13 @@ object GTFBuild extends Build {
   ),
     libraryDependencies ++= Seq(
       "org.scala-tools.testing" % "test-interface" % "0.5",
-      //"com.typesafe.akka" %% "akka-actor" % "2.2.0-RC1",
+      //"com.typesafe.akka" %% "akka-actor" % "2.2.0",
       "io.gatling" % "gatling-app" % gatlingVersion ,
       "io.gatling" % "gatling-core" % gatlingVersion ,
       "io.gatling" % "gatling-http" % gatlingVersion ,
       "io.gatling" % "gatling-recorder" % gatlingVersion ,
       "io.gatling" % "gatling-charts" % gatlingVersion ,
-      "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-M3"
+      "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersionHC
       ),
     sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
       val file = dir / "gatling" / "sbt" / "genconf.scala"

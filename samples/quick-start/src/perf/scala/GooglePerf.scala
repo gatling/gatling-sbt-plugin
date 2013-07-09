@@ -15,7 +15,7 @@ class GooglePerf extends PerfTest {
                       .acceptHeader("*/*")
                       .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
 
-  val scn = 
+  val scn =
      scenario("GGL")
         .exec(
           http("request_1")
