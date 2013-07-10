@@ -18,8 +18,8 @@ object MinimalBuild extends Build {
     "com.typesafe.akka" %% "akka-actor" % "2.2.0",
     "com.typesafe.akka" %% "akka-slf4j" % "2.2.0",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
-    "io.spray" % "spray-routing" % "1.2-M8",
-    "io.spray" % "spray-can" % "1.2-M8"
+    "io.spray" % "spray-routing" % "1.2-20130710",
+    "io.spray" % "spray-can" % "1.2-20130710"
   )
 
 
@@ -32,6 +32,7 @@ object MinimalBuild extends Build {
       organization := "gatling",
       resolvers += localIvyRepo,
       resolvers += "spray repo" at "http://repo.spray.io",
+      resolvers += "spray nightlies repo" at "http://nightlies.spray.io",
       resolvers += "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
       javacOptions += "-Xlint:unchecked",
       libraryDependencies ++= libDependencies
