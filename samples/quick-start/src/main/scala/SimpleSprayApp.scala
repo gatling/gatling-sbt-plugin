@@ -59,7 +59,7 @@ class HttpServiceActor(host:String, port:Int) extends Actor with SampleHttpServi
 
     case Http.Bound(localAddress) => this.boundTo = Some(localAddress.toString)
 
-    case "isConnected" => boundTo.isDefined
+    case "isConnected" => sender ! boundTo.isDefined
   }
 
   import context.system

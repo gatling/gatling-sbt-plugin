@@ -22,8 +22,8 @@ class SprayPerf extends PerfTest {
   lazy val app = SimpleSprayApp()
   
   def checkConnected(act:ActorRef):Future[Boolean] = {
-    implicit val timout:Timeout = Timeout(10)
-    (act ? "isConnected").flatMap {
+    implicit val timout:Timeout = Timeout(1000)
+    (act ? "isConnected").mapTo[Boolean].flatMap { 
       case false => checkConnected(act)
       case true => Future.successful(true)
     }
@@ -32,19 +32,20 @@ class SprayPerf extends PerfTest {
   lazy val pre:Unit = {
     val act= app.start
     val checking = checkConnected(act)
-    val d:Duration = 1 milliseconds
+    val d:Duration = 10 seconds
     val started = Await.result(checking, d)
     if (!started) {
       throw new IllegalStateException(s"The Spray App didn't started after $d")
     }
   }
-  lazy val post:Unit = app.stop
 
+  lazy val post:Unit = app.stop
 
 
   val httpConf = http.baseURL("http://localhost:1111/ping")
                       .acceptHeader("*/*")
                       .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
+                      
   val scn =
       scenario("spray")
         .exec(
