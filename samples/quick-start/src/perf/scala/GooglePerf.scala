@@ -1,5 +1,6 @@
 package perf
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 import com.typesafe.config.{ Config, ConfigFactory }
@@ -15,8 +16,8 @@ class GooglePerf extends PerfTest {
 
   lazy val config = ConfigFactory.parseResources(classLoader, "misc.conf")
 
-  val pre = ()
-  val post = ()
+  val pre = Future.successful(true)
+  val post = Future.successful(true)
 
 
   implicit class SH(s:String) {

@@ -2,7 +2,6 @@ package perf
 
 import scala.concurrent.duration._
 import scala.concurrent.{Future, Await}
-//import scala.concurrent.ExecutionContext.Implicits.global
 
 
 import akka.actor.ActorRef
@@ -29,23 +28,18 @@ class SprayPerf extends PerfTest {
     }
   }
 
-  lazy val pre:Unit = {
-    val act= app.start
-    val checking = checkConnected(act)
-    val d:Duration = 10 seconds
-    val started = Await.result(checking, d)
-    if (!started) {
-      throw new IllegalStateException(s"The Spray App didn't started after $d")
-    }
-  }
+  lazy val pre = checkConnected(app.start)
 
-  lazy val post:Unit = app.stop
+  lazy val post = {
+    app.stop
+    Future.successful(true)
+  }
 
 
   val httpConf = http.baseURL("http://localhost:1111/ping")
                       .acceptHeader("*/*")
                       .acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
-                      
+
   val scn =
       scenario("spray")
         .exec(

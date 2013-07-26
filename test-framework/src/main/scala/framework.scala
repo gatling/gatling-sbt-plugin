@@ -1,5 +1,8 @@
 package gatling.sbt
 
+import scala.concurrent.duration._
+import scala.concurrent.{Future, Await}
+
 import java.lang.System.currentTimeMillis
 
 import org.scalatools.testing._
@@ -76,17 +79,31 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
 
     val runner = new AdaptedRunner[PerfTest](simulation)
 
-    simulation.pre
-    val (runId, sim) = runner.run
-    simulation.post
+    implicit val ex =  io.gatling.core.action.system.dispatcher
 
-    println(s"Simulation Finished: $runId")
 
-    println("scenarios ran > generate reports")
-    generateReports(runId)
-    println("reports generated")
 
-    handler.handle(createEvent)
+    val d:Duration = 30 seconds
+
+    val started = Await.result(simulation.pre, d) 
+
+    if (started) {
+
+      println("STARTEDDDDDDDDDDDDDDDDD")
+
+      val (runId, sim) = runner.run
+
+      simulation.post
+
+      println(s"Simulation Finished: $runId")
+
+      println("scenarios ran > generate reports")
+      generateReports(runId)
+      println("reports generated")
+
+      handler.handle(createEvent)
+    }
+
   }
 
   def generateReports(runId: String = "<none>") {

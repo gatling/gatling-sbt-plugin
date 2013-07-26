@@ -1,9 +1,11 @@
 package gatling.sbt
 
+import scala.concurrent.Future
+
 import io.gatling.core.Predef._
 
 trait PerfTest extends Simulation {
-  def pre:Unit
+  def pre:Future[Boolean]
 
-  def post:Unit
+  def post:Future[Boolean]
 }
