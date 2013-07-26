@@ -20,7 +20,6 @@ import GatlingFingerprints._
 class GatlingFramework extends Framework {
 
   GatlingBootstrap(
-    sys.props.get("sbt.gatling.conf.file").getOrElse("gatling.conf"),
     sys.props.get("sbt.gatling.result.dir").getOrElse("target/results")
   )
 

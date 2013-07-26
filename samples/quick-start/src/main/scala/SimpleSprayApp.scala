@@ -48,12 +48,18 @@ object HttpServiceActor {
 
 class HttpServiceActor(host:String, port:Int) extends Actor with SampleHttpService with  ActorLogging {
 
+  var boundTo:Option[String] = None
+
   def actorRefFactory = context
 
   def receive = runRoute(sampleRoute) orElse {
     case Http.Connected(remote, _) =>
       log.debug("Remote address {} connected", remote)
       sender ! Http.Register(context.actorOf(EchoConnectionHandler(remote, sender)))
+
+    case Http.Bound(localAddress) => this.boundTo = Some(localAddress.toString)
+
+    case "isConnected" => boundTo.isDefined
   }
 
   import context.system

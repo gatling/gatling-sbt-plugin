@@ -7,7 +7,7 @@ import io.gatling.core.ConfigurationConstants._
 
 import scala.collection.mutable
 
-case class GatlingBootstrap(gatlingFile:String, resultsFolder:String) {
+case class GatlingBootstrap(resultsFolder:String) {
 
   // took back from  https://github.com/excilys/gatling/blob/1.5.X/gatling-maven-plugin/src/main/java/com/excilys/ebi/gatling/mojo/GatlingMojo.java
   /*public static final String[] JVM_ARGS = new String[] { "-server", "-XX:+UseThreadPriorities", "-XX:ThreadPriorityPolicy=42", "-Xms512M", "-Xmx512M", "-Xmn100M", "-Xss2M",
@@ -17,15 +17,6 @@ case class GatlingBootstrap(gatlingFile:String, resultsFolder:String) {
   */
 
   val gatlingConfiguration = GatlingConfiguration.setUp(mutable.Map[String,Any](
-      // gatlingFile
-      //DATA_FOLDER -> sys.props("java.io.tmpdir"), //todo dataFolder.getAbsolutePath
-      //REQUEST_BODIES_FOLDER -> sys.props("java.io.tmpdir"), //todo requestBodiesFolder.getAbsolutePath
-      //RESULTS_FOLDER -> resultsFolder,
-      //SIMULATIONS_FOLDER -> sys.props("java.io.tmpdir"),//todo simulationSourcesFolder.getAbsolutePath
-
-      CONF_CORE_DIRECTORY_SIMULATIONS -> sys.props("java.io.tmpdir"),//todo simulationSourcesFolder.getAbsolutePath
-      CONF_CORE_DIRECTORY_DATA -> sys.props("java.io.tmpdir"), //todo dataFolder.getAbsolutePath
-      CONF_CORE_DIRECTORY_REQUEST_BODIES -> sys.props("java.io.tmpdir"), //todo requestBodiesFolder.getAbsolutePath
       CONF_CORE_DIRECTORY_RESULTS -> resultsFolder,
       CONF_CORE_DIRECTORY_REPORTS_ONLY -> "reports"
     )
