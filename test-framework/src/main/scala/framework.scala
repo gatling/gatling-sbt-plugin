@@ -82,15 +82,11 @@ class TestInterfaceGatling(loader: ClassLoader, val loggers: Array[Logger]) exte
     implicit val ex =  io.gatling.core.action.system.dispatcher
 
 
-
-    val d:Duration = 30 seconds
+    val d:Duration = simulation.maxInitializationTime
 
     val started = Await.result(simulation.pre, d) 
 
     if (started) {
-
-      println("STARTEDDDDDDDDDDDDDDDDD")
-
       val (runId, sim) = runner.run
 
       simulation.post
