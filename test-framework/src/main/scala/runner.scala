@@ -45,10 +45,11 @@ class AdaptedRunner[S <: Simulation](simulation: S) extends AkkaDefaults with Lo
 
       Await.result(init, defaultTimeOut.duration)
 
-      logger.debug("Launching All Scenarios")
+      val runUUID = java.util.UUID.randomUUID.getMostSignificantBits
+      logger.debug(s"Launching All Scenarios with UUID:$runUUID")
 
       scenarios.foldLeft(0) { (i, scenario) =>
-        scenario.run(i)
+        scenario.run(runUUID + "-", i)
         i + scenario.injectionProfile.users
       }
       logger.debug("Finished Launching scenarios executions")

@@ -14,6 +14,7 @@ object GatlingSbtBuild extends Build {
     //todo: revisit, on final versions
     publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
     resolvers += "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
+    resolvers += "Gatling Cloudbees" at "http://repository-gatling.forge.cloudbees.com/snapshot",
     libraryDependencies += "gatling" %% "gatling-sbt-test-framework" % "0.0.1-SNAPSHOT"
   )
 }

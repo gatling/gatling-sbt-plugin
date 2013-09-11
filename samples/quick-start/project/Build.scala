@@ -7,7 +7,6 @@ object MinimalBuild extends Build {
   val appName = "gatling-sbt-quickstart"
   val buildVersion =  "0.0.1-SNAPSHOT"
 
-
   val localIvyRepo =  Resolver.file("Local ivy2 Repository", file(Path.userHome.absolutePath+"/.ivy2/local"))(Resolver.ivyStylePatterns)
 
   val gatSbtTestVersion = "0.0.1-SNAPSHOT"
@@ -15,13 +14,10 @@ object MinimalBuild extends Build {
   val libDependencies = Seq(
     "gatling" %% "gatling-sbt-test-framework" % gatSbtTestVersion % "perf",
 
-    "com.typesafe.akka" %% "akka-actor" % "2.2.0",
-    "com.typesafe.akka" %% "akka-slf4j" % "2.2.0",
     "ch.qos.logback" % "logback-classic" % "1.0.13",
     "io.spray" % "spray-routing" % "1.2-20130710",
     "io.spray" % "spray-can" % "1.2-20130710"
   )
-
 
   lazy val allSettings =
     Project.defaultSettings ++
@@ -34,6 +30,7 @@ object MinimalBuild extends Build {
       resolvers += "spray repo" at "http://repo.spray.io",
       resolvers += "spray nightlies repo" at "http://nightlies.spray.io",
       resolvers += "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
+      resolvers += "Gatling Cloudbees" at "http://repository-gatling.forge.cloudbees.com/snapshot",
       javacOptions += "-Xlint:unchecked",
       libraryDependencies ++= libDependencies
     )
