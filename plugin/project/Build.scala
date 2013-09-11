@@ -2,27 +2,18 @@ import sbt._
 import Keys._
 
 object GatlingSbtBuild extends Build {
-  //val buildVersion = "0.0.1-SNAPSHOT"
 
   lazy val gatlingProject = Project("gatling-sbt", file("."), settings = gatlingSettings)
 
-  //REPOs
-  //val gatlingSnapshots = "Gatling Snapshot Repo" at "https://repository-gatling.forge.cloudbees.com/snapshot/"
-
-  //val gatlingReleases = "Excilys" at "http://repository.excilys.com/content/groups/public"
-
-  //DEPENDENCIES
   lazy val gatlingSettings = Defaults.defaultSettings ++ Seq(
     sbtPlugin := true,
     organization := "gatling",
     name := "gatling-sbt-plugin",
     version := "0.0.1-SNAPSHOT",
-    scalaVersion := "2.10.1",
-    //resolvers ++= Seq(gatlingReleases),
+    scalaVersion := "2.10.2",
+    //todo: revisit, on final versions
+    publishTo := Some(Resolver.file("file",  new File(Path.userHome.absolutePath+"/.m2/repository"))),
     resolvers += "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
     libraryDependencies += "gatling" %% "gatling-sbt-test-framework" % "0.0.1-SNAPSHOT"
-    //libraryDependencies ++= gatlingDependencies,
-    //publishMavenStyle := true,
-    //publishTo := Some(Resolver.mavenLocal)
   )
 }
