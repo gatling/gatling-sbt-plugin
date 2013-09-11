@@ -9,7 +9,7 @@ object GTFBuild extends Build {
   val gatlingVersionHC = "2.0.0-M3a"
 
   val gatlingTestFrameworkSettings = Defaults.defaultSettings ++ Seq(
-    scalaVersion := "2.10.1",
+    scalaVersion := "2.10.2",
     organization := "gatling",
     name := "gatling-sbt-test-framework",
     version := "0.0.1-SNAPSHOT",

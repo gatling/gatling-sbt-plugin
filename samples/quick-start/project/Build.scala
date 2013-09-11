@@ -27,7 +27,7 @@ object MinimalBuild extends Build {
     Project.defaultSettings ++
     GatlingPlugin.gatlingSettings ++
     Seq(
-      scalaVersion := "2.10.1",
+      scalaVersion := "2.10.2",
       version := buildVersion,
       organization := "gatling",
       resolvers += localIvyRepo,
