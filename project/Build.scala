@@ -7,7 +7,8 @@ object GatlingSbtBuild extends Build {
     id = "root", 
     base = file("."), 
     aggregate = Seq(testFramework, gatlingPlugin, quickStart),
-    settings = Defaults.defaultSettings ++ buildSettings)
+    settings = Defaults.defaultSettings ++ buildSettings ++ org.sbtidea.SbtIdeaPlugin.settings)
+    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
 
   lazy val testFramework = ProjectRef(file("./test-framework"), "gatling-sbt")
   lazy val gatlingPlugin = ProjectRef(file("./plugin"), "gatling-sbt")

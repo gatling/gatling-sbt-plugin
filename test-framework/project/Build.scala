@@ -4,9 +4,9 @@ import Keys._
 object GTFBuild extends Build {
 
   lazy val gatlingProject = Project("gatling-sbt", file("."), settings = gatlingTestFrameworkSettings)
+    .settings(net.virtualvoid.sbt.graph.Plugin.graphSettings: _*)
 
-  val gatlingVersion = "2.0.0-M3a"
-  val gatlingVersionHC = "2.0.0-M3a"
+  val gatlingVersion = "2.0.0-SNAPSHOT"
 
   val gatlingTestFrameworkSettings = Defaults.defaultSettings ++ Seq(
     scalaVersion := "2.10.2",
@@ -19,8 +19,8 @@ object GTFBuild extends Build {
     resolvers ++= Seq(
       "Local Maven Repository" at file(Path.userHome.absolutePath+"/.m2/repository").toURI.toURL.toString,
       "Gatling Releases Repo" at "http://repository.excilys.com/content/repositories/releases",
-      "Gatling Snaps Repo" at "http://repository.excilys.com/content/repositories/snapshots",
-      "Gatling Third-Party Repo" at "http://repository.excilys.com/content/repositories/thirdparty"
+      "Gatling Third-Party Repo" at "http://repository.excilys.com/content/repositories/thirdparty",
+      "Gatling Cloudbees" at "http://repository-gatling.forge.cloudbees.com/snapshot"
 
   ),
     libraryDependencies ++= Seq(
@@ -30,7 +30,7 @@ object GTFBuild extends Build {
       "io.gatling" % "gatling-http" % gatlingVersion ,
       "io.gatling" % "gatling-recorder" % gatlingVersion ,
       "io.gatling" % "gatling-charts" % gatlingVersion ,
-      "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersionHC
+      "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion
       ),
     sourceGenerators in Compile <+= sourceManaged in Compile map { dir =>
       val file = dir / "gatling" / "sbt" / "genconf.scala"
