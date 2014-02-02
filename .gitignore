@@ -3,3 +3,6 @@ target/
 .project
 .settings/
 .cache
+.idea
+.idea_modules
+*.iml
