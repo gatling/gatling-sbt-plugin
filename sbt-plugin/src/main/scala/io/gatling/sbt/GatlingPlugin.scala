@@ -22,7 +22,8 @@ object GatlingPlugin extends Plugin {
 		parallelExecution in Gatling := false,
 		fork in Gatling := true,
 		testGrouping in Gatling := (definedTests in Gatling).value map singleTestGroup,
-		startRecorder in Gatling := recorderRunner((dependencyClasspath in Test).value.map(_.data), organization.value, (scalaSource in Test).value))
+		startRecorder in Gatling := recorderRunner((dependencyClasspath in Test).value.map(_.data), organization.value, (scalaSource in Test).value),
+		lastReport in Gatling := openLastReport((target in Gatling).value))
 
 	def singleTestGroup(test: TestDefinition) = new Group(test.name, Seq(test), SubProcess(ForkOptions()))
 
