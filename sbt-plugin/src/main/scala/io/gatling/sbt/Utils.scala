@@ -1,6 +1,6 @@
 package io.gatling.sbt
 
-import java.awt.Desktop
+import java.awt.{ Desktop, GraphicsEnvironment }
 import java.net.URI
 
 object Utils {
@@ -12,7 +12,7 @@ object Utils {
 	}
 
 	def openInBrowser(location: URI): Unit = {
-		if (!Desktop.isDesktopSupported) {
+		if (!Desktop.isDesktopSupported || GraphicsEnvironment.isHeadless) {
 			throw new UnsupportedOperationException("Opening a report from SBT is currently not supported on your platform.")
 		} else {
 			val desktop = Desktop.getDesktop
