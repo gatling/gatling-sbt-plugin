@@ -18,7 +18,7 @@ object GatlingPlugin extends Plugin {
 		testFrameworks in Gatling := Seq(gatlingTestFramework),
 		target in Gatling := target.value / "gatling",
 		testOptions in Gatling += Argument("-m", "-rf", (target in Gatling).value.getPath),
-		scalaSource in Gatling := (scalaSource in Test).value,
+		sourceDirectory in Gatling := (sourceDirectory in Test).value,
 		parallelExecution in Gatling := false,
 		fork in Gatling := true,
 		testGrouping in Gatling := (definedTests in Gatling).value map singleTestGroup,
