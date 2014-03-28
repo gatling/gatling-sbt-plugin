@@ -25,7 +25,7 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
 					val sw = new StringWriter
 					e.printStackTrace(new PrintWriter(sw))
 					loggers.map(_.error(sw.toString))
-					(GatlingStatusCodes.assertionsFailed, Some(e))
+					(GatlingStatusCodes.AssertionsFailed, Some(e))
 			}
 		val duration = (System.nanoTime() - before) / 1000
 
@@ -38,15 +38,15 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
 		// Check return code and fire appropriate event
 		val event = returnCode match {
 
-			case GatlingStatusCodes.success =>
+			case GatlingStatusCodes.Success =>
 				loggers.map(_.info(s"Simulation $simulationName successful."))
 				SimulationSuccessful(className, fingerprint, selector, optionalThrowable, duration)
 
-			case GatlingStatusCodes.assertionsFailed =>
+			case GatlingStatusCodes.AssertionsFailed =>
 				loggers.map(_.error(s"Simulation $simulationName failed."))
 				SimulationFailed(className, fingerprint, selector, optionalThrowable, duration)
 
-			case GatlingStatusCodes.invalidArguments =>
+			case GatlingStatusCodes.InvalidArguments =>
 				val formattedArgs = args.mkString("(", "", ")")
 				loggers.map(_.error(s"Provided arguments $formattedArgs are not valid."))
 				InvalidArguments(className, fingerprint, selector, optionalThrowable, duration)
