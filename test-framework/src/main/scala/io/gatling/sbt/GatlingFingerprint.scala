@@ -6,9 +6,9 @@ import io.gatling.core.scenario.Simulation
 
 sealed abstract class GatlingFingerprint extends SubclassFingerprint {
 
-	override val superclassName = classOf[Simulation].getName
+  override val superclassName = classOf[Simulation].getName
 
-	override val requireNoArgConstructor = false
+  override val requireNoArgConstructor = false
 }
 
 class GatlingClassFingerprint extends GatlingFingerprint { val isModule = false }
