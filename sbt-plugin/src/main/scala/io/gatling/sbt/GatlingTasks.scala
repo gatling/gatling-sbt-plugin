@@ -24,4 +24,8 @@ object GatlingTasks {
     dirsSortedByDate.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
 
+  def cleanReports(folder: File): Unit = {
+    IO.delete(folder)
+  }
+
 }
