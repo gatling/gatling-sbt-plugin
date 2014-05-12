@@ -5,7 +5,11 @@ This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testin
 
 ## Setup 
 
+Snapshots are available on Sonatype.
+
 In `projects/plugins.sbt`, add: 
+
+    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
     addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0-SNAPSHOT")
     
@@ -26,6 +30,8 @@ lazy val project = Project(...)
                      .settings(gatlingSettings: _*)
 				     .configs(Gatling)
 				     .settings(libraryDependencies ++= /* gatling dependencies */)
+				     .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+
 ```
 
 ## Usage 
