@@ -1,2 +1,2 @@
 language: scala
-script: sbt test publishLocal scripted
+script: sbt test publishLocal scripted publish

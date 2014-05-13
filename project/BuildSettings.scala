@@ -15,7 +15,7 @@ object BuildSettings {
     organization         := "io.gatling",
     organizationHomepage := Some(new URL("http://gatling.io")),
     startYear            := Some(2011),
-    licenses             := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    licenses             := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion         := "2.10.4",
     crossPaths           := false,
     resolvers            += Resolver.sonatypeRepo("snapshots"),
@@ -27,7 +27,7 @@ object BuildSettings {
       "-feature",
       "-unchecked"
     )
-  )
+  ) ++ Publish.sonatypeSettings // Switch to Publish.bintraySettings when releasing
 
   lazy val gatlingSbtModuleSettings =
     basicSettings ++ formattingSettings ++ graphSettings
@@ -42,9 +42,9 @@ object BuildSettings {
     scriptedBufferLog   := true
   )
 
-  /** ***********************/
+  /*************************/
   /** Formatting settings **/
-  /** ***********************/
+  /*************************/
 
   lazy val formattingSettings = SbtScalariform.scalariformSettings ++ Seq(
     ScalariformKeys.preferences := formattingPreferences
