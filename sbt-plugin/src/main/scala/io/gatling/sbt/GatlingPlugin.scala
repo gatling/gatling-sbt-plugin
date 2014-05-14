@@ -45,8 +45,8 @@ object GatlingPlugin extends Plugin {
     fork in config := true,
     testGrouping in config := (definedTests in config).value map singleTestGroup,
     startRecorder in config := recorderRunner((dependencyClasspath in parent).value.map(_.data), organization.value, (scalaSource in config).value),
-    lastReport in config := openLastReport((target in config).value),
-    clean in config := cleanReports((target in config).value))
+    clean in config := cleanReports((target in config).value),
+    lastReport in config := openLastReport(config).evaluated)
 
   private def singleTestGroup(test: TestDefinition) = new Group(test.name, Seq(test), SubProcess(ForkOptions()))
 

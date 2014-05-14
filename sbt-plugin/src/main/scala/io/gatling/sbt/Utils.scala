@@ -1,5 +1,6 @@
 package io.gatling.sbt
 
+import sbt.File
 import java.awt.{ Desktop, GraphicsEnvironment }
 import java.net.URI
 
@@ -20,4 +21,7 @@ object Utils {
     }
   }
 
+  case class Report(path: File, simulationId: String, timestamp: String)
+
+  implicit val reportOrdering = Ordering.fromLessThan[Report](_.timestamp > _.timestamp)
 }
