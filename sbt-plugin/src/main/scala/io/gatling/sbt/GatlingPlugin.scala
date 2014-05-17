@@ -44,7 +44,7 @@ object GatlingPlugin extends Plugin {
     parallelExecution in config := false,
     fork in config := true,
     testGrouping in config := (definedTests in config).value map singleTestGroup,
-    startRecorder in config := recorderRunner((dependencyClasspath in parent).value.map(_.data), organization.value, (scalaSource in config).value),
+    startRecorder in config := recorderRunner(config, parent).evaluated,
     clean in config := cleanReports((target in config).value),
     lastReport in config := openLastReport(config).evaluated)
 
