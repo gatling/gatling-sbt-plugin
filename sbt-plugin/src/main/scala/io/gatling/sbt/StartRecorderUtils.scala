@@ -6,13 +6,14 @@ import sbt.complete.DefaultParsers._
 object StartRecorderUtils {
 
   private val shortRecorderArgs = Set(
-    "h", "lp", "lps", "ph", "pp", "pps",
-    "rbf", "cn", "pkg", "enc", "fr")
+    "h", "lp", "lps", "ph", "pp", "pps", "ar",
+    "rbf", "cn", "pkg", "enc", "fr", "fhr")
 
   private val fullRecorderArgs = Set(
     "help", "local-port", "local-port-ssl", "proxy-host",
     "proxy-port", "proxy-port-ssl", "request-bodies-folder",
-    "class-name", "package", "encoding", "follow-redirect")
+    "class-name", "package", "encoding", "follow-redirect",
+    "automatic-referer", "fetch-html-resources")
 
   def argParser(prefix: String, examples: Set[String]): Parser[Seq[String]] = {
     // Match a string provided in examples, prefixed by the provided prefix
