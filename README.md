@@ -7,7 +7,7 @@ This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testin
 
 Snapshots are available on Sonatype.
 
-In `projects/plugins.sbt`, add: 
+In `project/plugins.sbt`, add: 
 
     resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
@@ -43,7 +43,7 @@ As with any SBT testing framework, you'll be able to run Gatling simulations usi
 * By default, Gatling simulations must be in `src/test/scala`, configurable using the `scalaSource in Gatling` setting.
 * By default, Gatling reports are written to `target/gatling`, configurable using the `target in Gatling` setting.
  
-## Additionnal tasks
+## Additional tasks
 
 Gatling's SBT plugin also offers two others tasks:
 
