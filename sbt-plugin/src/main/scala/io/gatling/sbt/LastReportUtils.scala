@@ -8,15 +8,13 @@ import sbt.complete.DefaultParsers._
 
 object LastReportUtils {
 
-  val reportFolderRegex = "(\\w+)-(\\d+)".r
+  val reportFolderRegex = """(\w+)-(\d+)""".r
 
   def openInBrowser(location: URI): Unit = {
-    if (!Desktop.isDesktopSupported || GraphicsEnvironment.isHeadless) {
+    if (!Desktop.isDesktopSupported || GraphicsEnvironment.isHeadless)
       throw new UnsupportedOperationException("Opening a report from SBT is currently not supported on your platform.")
-    } else {
-      val desktop = Desktop.getDesktop
-      desktop.browse(location)
-    }
+    else
+      Desktop.getDesktop.browse(location)
   }
 
   def simulationIdParser(allSimulationIds: Set[String]): Parser[Option[String]] =
