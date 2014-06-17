@@ -8,9 +8,13 @@ import io.gatling.sbt.StartRecorderUtils._
 
 object GatlingTasks {
 
+  val configFilesNames = Seq("gatling.conf", "recorder.conf")
+
   val startRecorder = inputKey[Unit]("Start Gatling's Recorder")
 
   val lastReport = inputKey[Unit]("Open last Gatling report in browser")
+
+  val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
 
   // TODO : See if it's possible to circumvent the "illegal dynamic reference" compilation error
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
@@ -32,4 +36,20 @@ object GatlingTasks {
     val reportsPaths = filteredReports.map(_.path)
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
+
+  def copyConfigurationFiles(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): Set[File] = {
+    updateReport.select(artifact = artifactFilter(new ExactFilter("gatling-bundle"))).headOption match {
+      case Some(bundlePath) =>
+        val tmpDir = targetDir / "bundle-extract"
+        val sourceFiles = IO.unzip(bundlePath, tmpDir).filter(file => configFilesNames.contains(file.getName))
+        val sourcesAndTargets = sourceFiles.map(file => (file, resourceDirectory / file.getName))
+        val files = IO.copy(sources = sourcesAndTargets, overwrite = false)
+        IO.delete(tmpDir)
+        files
+      case None =>
+        logger.error("Gatling's bundle not found, please add it to your dependencies.")
+        Set.empty
+    }
+  }
+
 }

@@ -46,7 +46,8 @@ object GatlingPlugin extends Plugin {
     testGrouping in config := (definedTests in config).value map singleTestGroup,
     startRecorder in config := recorderRunner(config, parent).evaluated,
     clean in config := cleanReports((target in config).value),
-    lastReport in config := openLastReport(config).evaluated)
+    lastReport in config := openLastReport(config).evaluated,
+    copyConfigFiles in config := copyConfigurationFiles((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log))
 
   private def singleTestGroup(test: TestDefinition) = new Group(test.name, Seq(test), SubProcess(ForkOptions()))
 
