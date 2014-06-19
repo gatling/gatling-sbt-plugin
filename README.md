@@ -20,20 +20,32 @@ You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` co
 "io.gatling" % "test-framework" % "1.0-SNAPSHOT" % "test"
 ```
 
-And then, in your `.scala` build (this currently doesn't work with `.sbt` files, this limitation will be dropped ASAP) :
+And then, in your `.scala` build :
 
 ```scala
 
 import io.gatling.sbt.GatlingPlugin._
 
 lazy val project = Project(...)
-                     .settings(gatlingSettings: _*)
+                     .settings(gatlingSettings: _*) // or .settings(gatlingItSettings: _*) or both : .settings(gatlingAllSettings: _*)
 				     .configs(Gatling) // or .configs(IntegrationTest, GatlingIt), or both : .configs(Gatling, IntegrationTest, GatlingIt)
 				     .settings(libraryDependencies ++= /* gatling dependencies */)
 				     .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
 
 ```
 
+or in your `.sbt` file :
+
+```scala
+
+resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
+libraryDepencies += /* gatling dependencies */
+
+gatlingSettings // or gatlingItSettings, or both: gatlingAllSettings
+
+val myproject = project.configs(Gatling) // or .configs(IntegrationTest, GatlingIt), or both : .configs(Gatling, IntegrationTest, GatlingIt)
+```
 ## Usage 
 
 As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks. Note however that they must be prefixed by `gatling:` (or `gatling-it` if you're using the `GatlingIt` configuration), eg. `gatling:test`, `gatling:testOnly`, `gatling:testQuick`, etc...
