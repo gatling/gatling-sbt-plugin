@@ -4,6 +4,7 @@ import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
+import sbt.ScriptedPlugin._
 
 import Resolvers._
 
@@ -33,6 +34,12 @@ object BuildSettings {
 
 	lazy val noCodeToPublish = Seq(
 		publishArtifact in Compile := false
+	)
+
+	lazy val pluginSettings = scriptedSettings ++ Seq(
+		sbtPlugin           := true,
+		scriptedLaunchOpts ++= Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value),
+		scriptedBufferLog   := true
 	)
 
 	/*************************/

@@ -1,0 +1,6 @@
+val test = project.in(file("."))
+	.configs(Gatling, IntegrationTest, GatlingIt)
+	.settings(gatlingAllSettings: _*)
+	.settings(libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-SNAPSHOT" % "it,test")
+	.settings(libraryDependencies += "io.gatling" % "gatling-bundle" % "2.0.0-SNAPSHOT" % "test" artifacts Artifact("gatling-bundle", "zip", "zip", "bundle"))
+	.settings(libraryDependencies += "io.gatling" % "test-framework" % "1.0-SNAPSHOT" % "it,test")

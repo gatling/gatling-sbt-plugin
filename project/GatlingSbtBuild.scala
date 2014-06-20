@@ -32,5 +32,5 @@ object GatlingSbtBuild extends Build {
 	lazy val plugin = gatlingSbtModule("sbt-plugin")
 		.dependsOn(testFramework)
 		.settings(libraryDependencies ++= pluginDeps)
-		.settings(sbtPlugin := true)
+		.settings(pluginSettings : _*)
 }
