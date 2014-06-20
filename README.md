@@ -40,7 +40,7 @@ or in your `.sbt` file :
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
-libraryDepencies += /* gatling dependencies */
+libraryDependencies += /* gatling dependencies */
 
 gatlingSettings // or gatlingItSettings, or both: gatlingAllSettings
 
