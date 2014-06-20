@@ -6,31 +6,31 @@ import Dependencies._
 
 object GatlingSbtBuild extends Build {
 
-	override lazy val settings = super.settings ++ {
-		shellPrompt := { state => Project.extract(state).currentProject.id + " > " }
-	}
+  override lazy val settings = super.settings ++ {
+    shellPrompt := { state => Project.extract(state).currentProject.id + " > "}
+  }
 
-	/******************/
-	/** Root project **/
-	/******************/
+  /******************/
+  /** Root project **/
+  /******************/
 
-	lazy val root = Project("gatling-sbt", file("."))
-		.aggregate(plugin, testFramework)
-		.settings(basicSettings: _*)
-		.settings(noCodeToPublish: _*)
+  lazy val root = Project("gatling-sbt", file("."))
+    .aggregate(plugin, testFramework)
+    .settings(basicSettings: _*)
+    .settings(noCodeToPublish: _*)
 
-	/*************/
-	/** Modules **/
-	/*************/
+  /*************/
+  /** Modules **/
+  /*************/
 
-	def gatlingSbtModule(id: String) = 
-		Project(id, file(id)).settings(gatlingSbtModuleSettings: _*)
+  def gatlingSbtModule(id: String) =
+    Project(id, file(id)).settings(gatlingSbtModuleSettings: _*)
 
-	lazy val testFramework = gatlingSbtModule("test-framework")
-		.settings(libraryDependencies ++= testFrameworkDeps)
+  lazy val testFramework = gatlingSbtModule("test-framework")
+    .settings(libraryDependencies ++= testFrameworkDeps)
 
-	lazy val plugin = gatlingSbtModule("sbt-plugin")
-		.dependsOn(testFramework)
-		.settings(libraryDependencies ++= pluginDeps)
-		.settings(pluginSettings : _*)
+  lazy val plugin = gatlingSbtModule("sbt-plugin")
+    .dependsOn(testFramework)
+    .settings(libraryDependencies ++= pluginDeps)
+    .settings(pluginSettings: _*)
 }
