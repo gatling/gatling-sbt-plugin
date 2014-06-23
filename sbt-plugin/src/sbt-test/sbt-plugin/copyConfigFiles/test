@@ -2,14 +2,14 @@
 ## Gatling configuration tests ##
 #################################
 
-# check that configs files are not already there
+# Check that configs files are not already there
 $ absent src/test/resources/gatling.conf
 $ absent src/test/resources/recorder.conf
 
-# Run the copyConfigFile task
+# Run the copyConfigFiles task:
+# * Expect that the task succeeds
+# * Expect that the config files have been copied
 > gatling:copyConfigFiles
-
-# Checks that config files have been copied
 $ exists src/test/resources/gatling.conf
 $ exists src/test/resources/recorder.conf
 
@@ -17,13 +17,13 @@ $ exists src/test/resources/recorder.conf
 ## GatlingIt configuration tests ##
 ###################################
 
-# check that configs files are not there
+# Check that configs files are not there
 $ absent src/it/resources/gatling.conf
 $ absent src/it/resources/recorder.conf
 
-# Run the copyConfigFile task
+# Run the copyConfigFiles task:
+# * Expect that the task succeeds
+# * Expect that the config files have been copied
 > gatling-it:copyConfigFiles
-
-# Checks that config files have been copied
 $ exists src/it/resources/gatling.conf
 $ exists src/it/resources/recorder.conf

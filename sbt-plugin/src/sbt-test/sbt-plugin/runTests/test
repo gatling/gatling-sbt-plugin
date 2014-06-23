@@ -1,0 +1,47 @@
+#################################
+## Gatling configuration tests ##
+#################################
+
+# check that there no reports before running test
+$ absent target/gatling
+
+# Run the BasicExampleSimulationSucceeds simulation:
+# * Expect that the task succeeds
+# * Expect that a new report has been created in target/gatling
+> gatling:testOnly basic.BasicExampleSimulationSucceeds
+$ exists target/gatling
+
+# Run the clean task:
+# * Expect that the task succeeds
+# * Expect that the target/gatling folder has been deleted
+> gatling:clean
+$ absent target/gatling
+
+# Run the BasicExampleSimulationFails simulation:
+# * Expect that the task fails
+-> gatling:testOnly basic.BasicExampleSimulationFails
+
+###################################
+## GatlingIt configuration tests ##
+###################################
+
+## TODO : Fix tests when https://github.com/sbt/sbt/issues/1420 gets fixed (or solved)
+
+# check that there no reports before running test
+$ absent target/gatling-it
+
+# Run the BasicExampleSimulationSucceeds simulation:
+# * Expect that the task succeeds
+# * Expect that a new report has been created in target/gatling
+#> gatling-it:testOnly basic.BasicExampleSimulationSucceeds
+#$ exists target/gatling-it
+
+# Run the clean task:
+# * Expect that the task succeeds
+# * Expect that the target/gatling folder has been deleted
+#> gatling-it:clean
+#$ absent target/gatling-it
+
+# Run the BasicExampleSimulationFails simulation:
+# * Expect that the task fails
+#-> gatling-it:testOnly basic.BasicExampleSimulationFails
