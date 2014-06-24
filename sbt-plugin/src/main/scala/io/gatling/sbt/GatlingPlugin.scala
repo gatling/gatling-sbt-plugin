@@ -28,7 +28,7 @@ object GatlingPlugin extends Plugin {
 
   lazy val gatlingSettings = inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
 
-  lazy val gatlingItSettings = inConfig(GatlingIt)(Defaults.itSettings ++ gatlingBaseSettings(GatlingIt, IntegrationTest))
+  lazy val gatlingItSettings = inConfig(GatlingIt)(Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest))
 
   lazy val gatlingAllSettings = gatlingSettings ++ gatlingItSettings
 
