@@ -24,12 +24,11 @@ And then, in your `.scala` build :
 
 ```scala
 
-import io.gatling.sbt.GatlingPlugin._
+import io.gatling.sbt.GatlingPlugin
 
 lazy val project = Project(...)
-                     .settings(gatlingSettings: _*) // or .settings(gatlingItSettings: _*) or both : .settings(gatlingAllSettings: _*)
-				     .configs(Gatling) // or .configs(IntegrationTest, GatlingIt), or both : .configs(Gatling, IntegrationTest, GatlingIt)
-				     .settings(libraryDependencies ++= /* gatling dependencies */)
+                     .enablePlugins(GatlingPlugin)
+				     .settings(libraryDependencies ++= /* Gatling dependencies */)
 				     .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
 
 ```
@@ -38,13 +37,11 @@ or in your `.sbt` file :
 
 ```scala
 
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+val test = project.in(file("."))
+  .enablePlugins(GatlingPlugin)
+  .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+  .settings(libraryDependencies ++= /* Gatling dependencies */)
 
-libraryDependencies += /* gatling dependencies */
-
-gatlingSettings // or gatlingItSettings, or both: gatlingAllSettings
-
-val myproject = project.configs(Gatling) // or .configs(IntegrationTest, GatlingIt), or both : .configs(Gatling, IntegrationTest, GatlingIt)
 ```
 ## Usage 
 
