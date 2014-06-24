@@ -6,14 +6,16 @@ import sbt.complete.DefaultParsers._
 object StartRecorderUtils {
 
   private val shortRecorderArgs = Set(
-    "h", "lp", "lps", "ph", "pp", "pps", "ar",
+    "lp", "lps", "ph", "pp", "pps", "ar",
     "rbf", "cn", "pkg", "enc", "fr", "fhr")
 
   private val fullRecorderArgs = Set(
-    "help", "local-port", "local-port-ssl", "proxy-host",
+    "local-port", "local-port-ssl", "proxy-host",
     "proxy-port", "proxy-port-ssl", "request-bodies-folder",
     "class-name", "package", "encoding", "follow-redirect",
     "automatic-referer", "fetch-html-resources")
+
+  def helpParser: Parser[Seq[String]] = (token(Space) ~> ("-h" | "--help")) map { s => Seq(s) }
 
   def argParser(prefix: String, examples: Set[String]): Parser[Seq[String]] = {
     // Match a string provided in examples, prefixed by the provided prefix
@@ -23,7 +25,7 @@ object StartRecorderUtils {
   }
 
   val argsParser: Parser[Seq[String]] =
-    (argParser("-", shortRecorderArgs) | argParser("--", fullRecorderArgs)).* map (_.flatten)
+    helpParser | ((argParser("-", shortRecorderArgs) | argParser("--", fullRecorderArgs)).* map (_.flatten))
 
   def toShortArgument(argument: (String, String)): Seq[String] =
     argument match { case (arg, value) => List("-" + arg, value) }
