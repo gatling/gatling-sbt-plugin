@@ -6,7 +6,15 @@ import sbt.Tests.{ Argument, Group, SubProcess }
 
 import io.gatling.sbt.GatlingTasks._
 
-object GatlingPlugin extends Plugin {
+object GatlingPlugin extends AutoPlugin {
+
+  val autoImport = GatlingKeys
+
+  import autoImport._
+
+  override def projectConfigurations = Seq(Gatling, IntegrationTest, GatlingIt)
+
+  override def projectSettings = gatlingAllSettings
 
   /*************/
   /** Configs **/

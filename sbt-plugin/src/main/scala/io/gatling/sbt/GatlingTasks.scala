@@ -10,12 +10,6 @@ object GatlingTasks {
 
   val configFilesNames = Seq("gatling.conf", "recorder.conf")
 
-  val startRecorder = inputKey[Unit]("Start Gatling's Recorder")
-
-  val lastReport = inputKey[Unit]("Open last Gatling report in browser")
-
-  val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
-
   // TODO : See if it's possible to circumvent the "illegal dynamic reference" compilation error
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
