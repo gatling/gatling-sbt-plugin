@@ -35,7 +35,5 @@ class BasicExampleSimulationSucceeds extends Simulation {
 					.check(status.is(302)))
 		}
 
-	setUp(scn.inject(atOnceUsers(1)))
-		.protocols(httpProtocol)
-		.assertions(global.successfulRequests.percent.greaterThan(0))
+	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }
