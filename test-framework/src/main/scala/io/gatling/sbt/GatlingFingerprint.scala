@@ -8,7 +8,7 @@ sealed abstract class GatlingFingerprint extends SubclassFingerprint {
 
   override val superclassName = classOf[Simulation].getName
 
-  override val requireNoArgConstructor = false
+  override val requireNoArgConstructor = true
 }
 
 class GatlingClassFingerprint extends GatlingFingerprint { val isModule = false }
