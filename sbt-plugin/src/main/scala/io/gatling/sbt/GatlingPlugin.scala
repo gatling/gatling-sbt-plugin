@@ -51,12 +51,12 @@ object GatlingPlugin extends AutoPlugin {
     sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
     fork in config := true,
-    testGrouping in config := (definedTests in config).value map singleTestGroup,
+    testGrouping in config := (testGrouping in config).value flatMap singleTestGroup,
     startRecorder in config := recorderRunner(config, parent).evaluated,
     clean in config := cleanReports((target in config).value),
     lastReport in config := openLastReport(config).evaluated,
     copyConfigFiles in config := copyConfigurationFiles((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log))
 
-  private def singleTestGroup(test: TestDefinition) = new Group(test.name, Seq(test), SubProcess(ForkOptions()))
+  private def singleTestGroup(group: Group) = group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
 
 }
