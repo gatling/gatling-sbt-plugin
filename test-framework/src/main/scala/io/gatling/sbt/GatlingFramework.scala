@@ -2,6 +2,10 @@ package io.gatling.sbt
 
 import sbt.testing.{ Fingerprint, Framework }
 
+/**
+ * Gatling's test framework.
+ * Test classes are filtered to only keep classes matching [[GatlingFingerprint]].
+ */
 class GatlingFramework extends Framework {
 
   val name = "gatling"
