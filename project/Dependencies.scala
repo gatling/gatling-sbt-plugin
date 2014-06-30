@@ -6,7 +6,9 @@ object Dependencies {
 
   private val gatlingHighcharts = "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-SNAPSHOT" % "provided"
 
+  private val specs2            = "org.specs2"           %% "specs2"                    % "2.3.12"         % "test"
+
   val testFrameworkDeps = Seq(gatlingHighcharts, testInterface)
 
-  val pluginDeps = Seq(gatlingHighcharts)
+  val pluginDeps = Seq(gatlingHighcharts, specs2)
 }
