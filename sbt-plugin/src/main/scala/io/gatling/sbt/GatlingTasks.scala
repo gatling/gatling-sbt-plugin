@@ -8,13 +8,14 @@ import io.gatling.sbt.StartRecorderUtils._
 
 object GatlingTasks {
 
+  /** List of all configuration files to be copied by [[copyConfigurationFiles]]. */
   val configFilesNames = Seq("gatling.conf", "recorder.conf")
 
   // TODO : See if it's possible to circumvent the "illegal dynamic reference" compilation error
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
-    val args = argsParser.parsed
-    val outputFolderArg = toShortArgument("of" -> (scalaSource in config).value.getPath)
+    val args = optionsParser.parsed
+    val outputFolderArg = toShortOptionAndValue("of" -> (scalaSource in config).value.getPath)
     val allArgs = addPackageIfNecessary(args ++ outputFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))

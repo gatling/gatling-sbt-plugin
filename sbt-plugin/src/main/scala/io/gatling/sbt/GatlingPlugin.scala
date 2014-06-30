@@ -2,11 +2,15 @@ package io.gatling.sbt
 
 import sbt._
 import sbt.Keys._
-import sbt.Tests.{ Argument, Group, SubProcess }
+import sbt.Tests.{ Argument, Group }
 
 import io.gatling.sbt.GatlingTasks._
 
 object GatlingPlugin extends AutoPlugin {
+
+  /**********************/
+  /** AutoPlugin setup **/
+  /**********************/
 
   val autoImport = GatlingKeys
 
@@ -57,6 +61,13 @@ object GatlingPlugin extends AutoPlugin {
     lastReport in config := openLastReport(config).evaluated,
     copyConfigFiles in config := copyConfigurationFiles((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log))
 
-  private def singleTestGroup(group: Group) = group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
+  /**
+   * Split test groups so that each test is in its own group.
+   *
+   * @param group the original group
+   * @return the list of groups made up by moving each to its own group.
+   */
+  private def singleTestGroup(group: Group): Seq[Group] =
+    group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
 
 }
