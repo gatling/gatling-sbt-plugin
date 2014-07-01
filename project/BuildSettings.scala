@@ -38,7 +38,7 @@ object BuildSettings {
 
   lazy val pluginSettings = scriptedSettings ++ Seq(
     sbtPlugin           := true,
-    scriptedLaunchOpts ++= Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= Seq("-Xmx512m", "-XX:MaxPermSize=256m", "-Dplugin.version=" + version.value),
     scriptedBufferLog   := true
   )
 
