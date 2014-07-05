@@ -1,12 +1,12 @@
-package io.gatling.sbt
+package io.gatling.sbt.utils
 
-import java.awt.{ GraphicsEnvironment, Desktop }
+import java.awt.{ Desktop, GraphicsEnvironment }
 
 import sbt._
-import sbt.complete.Parser
 import sbt.complete.DefaultParsers._
+import sbt.complete.Parser
 
-object LastReportUtils {
+private[gatling] object LastReportUtils {
 
   /** Regex matching a simulation ID (<name>-<timestamp>). */
   val reportFolderRegex = """(\w+)-(\d+)""".r

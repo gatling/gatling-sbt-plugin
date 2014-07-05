@@ -1,15 +1,15 @@
-package io.gatling.sbt
+package io.gatling.sbt.utils
 
-import sbt.complete.Parser
 import sbt.complete.DefaultParsers._
+import sbt.complete.Parser
 
-object StartRecorderUtils {
+private[gatling] object StartRecorderUtils {
 
   /**
    * List of all CLI options supported by the Recorder,
    * in their "short" version.
    */
-  private val shortRecorderOpts = Set(
+  val shortRecorderOpts = Set(
     "lp", "lps", "ph", "pp", "pps", "ar",
     "rbf", "cn", "pkg", "enc", "fr", "fhr")
 
@@ -17,14 +17,14 @@ object StartRecorderUtils {
    * List of all CLI options supported by the Recorder,
    * in their "full" version.
    */
-  private val fullRecorderOpts = Set(
+  val fullRecorderOpts = Set(
     "local-port", "local-port-ssl", "proxy-host",
     "proxy-port", "proxy-port-ssl", "request-bodies-folder",
     "class-name", "package", "encoding", "follow-redirect",
     "automatic-referer", "fetch-html-resources")
 
   /** Parser matching the help option, in short and full version. */
-  val helpParser: Parser[Seq[String]] = (token(Space) ~> ("-h" | "--help")) map { s => Seq(s) }
+  val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))) map { s => Seq(s) }
 
   /**
    * Builds a parser matching any option from ''options'', prefixed by ''prefix''.
@@ -34,7 +34,7 @@ object StartRecorderUtils {
    */
   def optionParser(prefix: String, options: Set[String]): Parser[Seq[String]] = {
     // Match a string provided in examples, prefixed by the provided prefix
-    val option = (prefix ~ NotSpace.examples(options, check = true)) map { case (s1, s2) => s1 + s2 }
+    val option = (prefix ~ exactStringParser(options)) map { case (s1, s2) => s1 + s2 }
     // Match the option and the provided arg, with necessary spaces dropped from the parsed result
     token(Space) ~> ((option <~ token(Space)) ~ NotSpace) map { case (s1, s2) => List(s1, s2) }
   }
@@ -68,4 +68,12 @@ object StartRecorderUtils {
   def addPackageIfNecessary(args: Seq[String], packageName: String) =
     if (args.contains("-pkg") || args.contains("--package")) args
     else args ++ toShortOptionAndValue("pkg" -> packageName)
+
+  /**
+   * Creates a parser that matches exactly one of the the strings from ''choices''
+   * @param choices the list of strings to match
+   * @return the built parser.
+   */
+  def exactStringParser(choices: Set[String]): Parser[String] =
+    choices.map(_.id).reduceLeft(_ | _.id)
 }

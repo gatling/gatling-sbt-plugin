@@ -1,10 +1,11 @@
 package io.gatling.sbt
 
+import io.gatling.sbt.utils.{ StartRecorderUtils, LastReportUtils }
 import sbt._
 import sbt.Keys._
 
-import io.gatling.sbt.LastReportUtils._
-import io.gatling.sbt.StartRecorderUtils._
+import LastReportUtils._
+import StartRecorderUtils._
 
 object GatlingTasks {
 

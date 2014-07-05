@@ -1,10 +1,10 @@
-package io.gatling.sbt
+package io.gatling.sbt.utils
 
 import org.specs2.mutable.Specification
 
-import io.gatling.sbt.StartRecorderUtils._
+import io.gatling.sbt.ParserMatchers
+import io.gatling.sbt.utils.StartRecorderUtils._
 
-// TODO : test 'optionsParser'
 class StartRecorderUtilsSpec extends Specification with ParserMatchers {
 
   "helpParser" should {
@@ -22,11 +22,22 @@ class StartRecorderUtilsSpec extends Specification with ParserMatchers {
       val parser = optionParser(prefix, options)
 
       parser should complete(" ", options.map(prefix + _))
+      parser should complete(" --a", Set("bout", "lign"))
       parser should parse(" --about aaa")
       parser should parse(" --align 2")
       parser should parse(" --build foo.aa")
       parser should parse(" --clean bar")
-      parser should not(complete(" --", Set("delete")))
+      parser should not(parse(" --delete aaa"))
+    }
+  }
+
+  "optionsParser" should {
+    "accept that no args are specified" in {
+      optionsParser should parse("")
+    }
+    "parse all short and full arguments" in {
+      val allCompletions = shortRecorderOpts ++ fullRecorderOpts.map("-" + _) ++ Set("h", "-help")
+      optionsParser should complete(" -", allCompletions)
     }
   }
 
@@ -43,6 +54,16 @@ class StartRecorderUtilsSpec extends Specification with ParserMatchers {
     }
     "add the package if it hasn't already been specified" in {
       addPackageIfNecessary(Seq.empty, "foo") should contain(exactly("-pkg", "foo"))
+    }
+  }
+
+  "exactStringParser" should {
+    "creates a parser that matches only strings from the specified choices" in {
+      val parser = exactStringParser(Set("foo", "bar"))
+
+      parser should parse("foo")
+      parser should parse("bar")
+      parser should not(parse("quz"))
     }
   }
 }
