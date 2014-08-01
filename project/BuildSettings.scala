@@ -1,6 +1,8 @@
 import sbt._
 import sbt.Keys._
 
+import scala.util.Properties.envOrNone
+
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
@@ -18,7 +20,7 @@ object BuildSettings {
     licenses             := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion         := "2.10.4",
     crossPaths           := false,
-    resolvers            += Resolver.sonatypeRepo("snapshots"),
+    resolvers            := envOrNone("CI").map(_ => Seq(sonatypeSnapshots)).getOrElse(Seq.empty),
     scalacOptions        := Seq(
       "-encoding",
       "UTF-8",
@@ -27,7 +29,7 @@ object BuildSettings {
       "-feature",
       "-unchecked"
     )
-  ) ++ Publish.sonatypeSettings // Switch to Publish.bintraySettings when releasing
+  )
 
   lazy val gatlingSbtModuleSettings =
     basicSettings ++ formattingSettings ++ graphSettings

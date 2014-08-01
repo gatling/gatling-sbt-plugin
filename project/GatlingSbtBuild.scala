@@ -3,6 +3,7 @@ import sbt.Keys._
 
 import BuildSettings._
 import Dependencies._
+import Publish._
 
 object GatlingSbtBuild extends Build {
 
@@ -28,9 +29,11 @@ object GatlingSbtBuild extends Build {
 
   lazy val testFramework = gatlingSbtModule("test-framework")
     .settings(libraryDependencies ++= testFrameworkDeps)
+    .settings(sonatypeSettings: _*)
 
   lazy val plugin = gatlingSbtModule("sbt-plugin")
     .dependsOn(testFramework)
     .settings(libraryDependencies ++= pluginDeps)
     .settings(pluginSettings: _*)
+    .settings(bintraySettings: _*)
 }
