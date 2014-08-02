@@ -9,14 +9,12 @@ Snapshots are available on Sonatype.
 
 In `project/plugins.sbt`, add: 
 
-    resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
-
-    addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0-SNAPSHOT")
+    addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0-RC1")
     
 You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` configuration):
 
 ```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-SNAPSHOT" % "test"
+"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-RC1" % "test"
 "io.gatling" % "test-framework" % "1.0-SNAPSHOT" % "test"
 ```
 
@@ -29,7 +27,6 @@ import io.gatling.sbt.GatlingPlugin
 lazy val project = Project(...)
                      .enablePlugins(GatlingPlugin)
 				     .settings(libraryDependencies ++= /* Gatling dependencies */)
-				     .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
 
 ```
 
@@ -39,7 +36,6 @@ or in your `.sbt` file :
 
 val test = project.in(file("."))
   .enablePlugins(GatlingPlugin)
-  .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
   .settings(libraryDependencies ++= /* Gatling dependencies */)
 
 ```
