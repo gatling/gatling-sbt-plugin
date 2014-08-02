@@ -15,7 +15,7 @@ You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` co
 
 ```scala
 "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-RC1" % "test"
-"io.gatling" % "test-framework" % "1.0-SNAPSHOT" % "test"
+"io.gatling" % "test-framework" % "1.0-RC1" % "test"
 ```
 
 And then, in your `.scala` build :
