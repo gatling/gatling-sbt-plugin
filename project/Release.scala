@@ -9,7 +9,7 @@ import sbtrelease.ReleaseStateTransformations._
 
 object Release {
 
-  lazy val settings = releaseSettings ++ Seq(
+  lazy val releaseToCentralSettings = releaseSettings ++ Seq(
     crossBuild := false,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,
@@ -25,6 +25,8 @@ object Release {
       pushChanges
     )
   )
+  
+  lazy val releaseToBintraySettings = releaseSettings
 
   private val publishSignedStep = ReleaseStep(
     action = st => {

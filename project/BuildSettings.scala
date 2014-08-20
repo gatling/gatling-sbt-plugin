@@ -8,7 +8,6 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import sbt.ScriptedPlugin._
 
-import Release._
 import Resolvers._
 
 object BuildSettings {
@@ -30,7 +29,7 @@ object BuildSettings {
       "-feature",
       "-unchecked"
     )
-  ) ++ Release.settings
+  )
 
   lazy val gatlingSbtModuleSettings =
     basicSettings ++ formattingSettings ++ graphSettings
