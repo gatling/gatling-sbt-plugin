@@ -4,8 +4,6 @@ import sbt.Keys._
 import bintray.Plugin.bintrayPublishSettings
 import bintray.Keys._
 
-import Resolvers._
-
 object Publish {
 
   lazy val sonatypeSettings = Seq(
@@ -13,7 +11,7 @@ object Publish {
     pomExtra             := scm ++ developersXml(developers),
     pomIncludeRepository := { _ => false },
     credentials          += Credentials(Path.userHome / ".sbt" / ".credentials"),
-    publishTo            := Some(if(isSnapshot.value) sonatypeSnapshots else sonatypeStaging)
+    publishTo            := Some(if(isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
   )
 
   lazy val bintraySettings = bintrayPublishSettings ++ Seq(
