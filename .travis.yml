@@ -9,4 +9,4 @@ env:
 
 # Publish to Sonatype if building master
 after_success:
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish"
+  - "./check_master_or_tag.py && sbt publish"
