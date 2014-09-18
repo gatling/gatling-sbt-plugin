@@ -32,8 +32,9 @@ object BuildSettings {
   lazy val gatlingSbtModuleSettings =
     basicSettings ++ formattingSettings ++ graphSettings
 
-  lazy val noCodeToPublish = Seq(
-    publishArtifact in Compile := false
+  lazy val noPublishing = Seq(
+    publish := (),
+    publishLocal := ()
   )
 
   lazy val pluginSettings = scriptedSettings ++ Seq(

@@ -19,7 +19,7 @@ object GatlingSbtBuild extends Build {
   lazy val root = Project("gatling-sbt", file("."))
     .aggregate(plugin, testFramework)
     .settings(basicSettings: _*)
-    .settings(noCodeToPublish: _*)
+    .settings(noPublishing: _*)
 
   /*************/
   /** Modules **/
