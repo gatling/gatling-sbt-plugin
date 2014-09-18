@@ -10,3 +10,8 @@ env:
 # Publish to Sonatype if building master
 after_success:
   - "./check_master_or_tag.py && sbt publish"
+
+# whitelist
+branches:
+  only:
+    - master
