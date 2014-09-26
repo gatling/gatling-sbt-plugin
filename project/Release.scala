@@ -1,4 +1,4 @@
-import scala.util.Properties.{ propOrEmpty, propOrNone }
+import scala.util.Properties.propOrEmpty
 
 import com.typesafe.sbt.SbtPgp.PgpKeys._
 import sbtrelease.ReleasePlugin._
@@ -8,8 +8,7 @@ object Release {
 
   private lazy val commonReleaseSettings = releaseSettings ++ Seq(
     releaseVersion := { _ => propOrEmpty("releaseVersion")},
-    nextVersion := { _ => propOrEmpty("developmentVersion")},
-    pgpPassphrase := propOrNone("gpg.passphrase").map(_.toCharArray)
+    nextVersion := { _ => propOrEmpty("developmentVersion")}
   )
 
   lazy val releaseToCentralSettings = commonReleaseSettings ++ Seq(
