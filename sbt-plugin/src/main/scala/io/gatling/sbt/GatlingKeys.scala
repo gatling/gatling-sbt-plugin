@@ -10,4 +10,6 @@ object GatlingKeys {
   val lastReport = inputKey[Unit]("Open last Gatling report in browser")
 
   val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
+
+  val copyLogbackXml = taskKey[File]("Copy Gatling's default logback.xml if missing")
 }

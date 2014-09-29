@@ -59,7 +59,8 @@ object GatlingPlugin extends AutoPlugin {
     startRecorder in config := recorderRunner(config, parent).evaluated,
     clean in config := cleanReports((target in config).value),
     lastReport in config := openLastReport(config).evaluated,
-    copyConfigFiles in config := copyConfigurationFiles((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log))
+    copyConfigFiles in config := copyConfigurationFiles((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log),
+    copyLogbackXml in config := copyLogback((target in config).value, (resourceDirectory in config).value, (update in config).value, streams.value.log))
 
   /**
    * Split test groups so that each test is in its own group.

@@ -12,7 +12,6 @@ object GatlingTasks {
   /** List of all configuration files to be copied by [[copyConfigurationFiles]]. */
   val configFilesNames = Seq("gatling.conf", "recorder.conf")
 
-  // TODO : See if it's possible to circumvent the "illegal dynamic reference" compilation error
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
@@ -26,7 +25,6 @@ object GatlingTasks {
 
   def cleanReports(folder: File): Unit = IO.delete(folder)
 
-  // TODO : See if it's possible to circumvent the "illegal dynamic reference" compilation error
   def openLastReport(config: Configuration) = Def.inputTask {
     val selectedSimulationId = simulationIdParser(allSimulationIds((target in config).value)).parsed
     val filteredReports = filterReportsIfSimulationIdSelected(allReports((target in config).value), selectedSimulationId)
@@ -34,19 +32,25 @@ object GatlingTasks {
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
 
-  def copyConfigurationFiles(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): Set[File] = {
+  def copyConfigurationFiles(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): Set[File] =
+    copyFromBundle(targetDir, resourceDirectory, updateReport, logger, file => configFilesNames.contains(file.getName))
+
+  def copyLogback(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): File =
+    copyFromBundle(targetDir, resourceDirectory, updateReport, logger, _.getName == "logback.xml").head
+
+  private def copyFromBundle(unzipDir: File, targetDir: File,
+                             updateReport: UpdateReport, logger: Logger,
+                             copyCriteria: File => Boolean): Set[File] =
     updateReport.select(artifact = artifactFilter(new ExactFilter("gatling-bundle"))).headOption match {
       case Some(bundlePath) =>
-        val tmpDir = targetDir / "bundle-extract"
-        val sourceFiles = IO.unzip(bundlePath, tmpDir).filter(file => configFilesNames.contains(file.getName))
-        val sourcesAndTargets = sourceFiles.map(file => (file, resourceDirectory / file.getName))
+        val tmpDir = unzipDir / "bundle-extract"
+        val sourceFiles = IO.unzip(bundlePath, tmpDir).filter(copyCriteria)
+        val sourcesAndTargets = sourceFiles.map(file => (file, targetDir / file.getName))
         val files = IO.copy(sources = sourcesAndTargets, overwrite = false)
         IO.delete(tmpDir)
-        files
+        files.filter(copyCriteria)
       case None =>
         logger.error("Gatling's bundle not found, please add it to your dependencies.")
         Set.empty
     }
-  }
-
 }

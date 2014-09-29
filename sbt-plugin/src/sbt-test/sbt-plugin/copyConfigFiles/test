@@ -13,6 +13,12 @@ $ absent src/test/resources/recorder.conf
 $ exists src/test/resources/gatling.conf
 $ exists src/test/resources/recorder.conf
 
+# Run the copyLogbackXml task:
+# * Expect that the task succeeds
+# * Expect that logback.xml has been copied
+> gatling:copyLogbackXml
+$ exists src/test/resources/logback.xml
+
 ###################################
 ## GatlingIt configuration tests ##
 ###################################
@@ -27,3 +33,9 @@ $ absent src/it/resources/recorder.conf
 > gatling-it:copyConfigFiles
 $ exists src/it/resources/gatling.conf
 $ exists src/it/resources/recorder.conf
+
+# Run the copyLogbackXml task:
+# * Expect that the task succeeds
+# * Expect that logback.xml has been copied
+> gatling-it:copyLogbackXml
+$ exists src/it/resources/logback.xml
