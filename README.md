@@ -9,13 +9,13 @@ Snapshots are available on Sonatype.
 
 In `project/plugins.sbt`, add: 
 
-    addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0-RC5")
+    addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0")
     
 You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` configuration):
 
 ```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.0-RC5" % "test"
-"io.gatling" % "test-framework" % "1.0-RC5" % "test"
+"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.1" % "test"
+"io.gatling" % "test-framework" % "1.0" % "test"
 ```
 
 And then, in your `.scala` build :
@@ -61,4 +61,4 @@ Gatling's SBT plugin also offers three additional tasks:
 
 * `startRecorder`, which start the Recorder, configured to save recorded simulations to the location specified by `scalaSource in Gatling` (by default, `src/test/scala`).
 * `lastReport`, which opens the last generated report in your web browser.
-* `copyConfigFiles`, which copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing. Please not that you need to add Gatling's bundle to your dependencies for this task to work : `"io.gatling" % "gatling-bundle" % "2.0.0-RC5" % "test" artifacts (Artifact("gatling-bundle", "zip", "zip", "bundle"))`. After the configuration files have been copied, this dependency can be safely dropped.
+* `copyConfigFiles`, which copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing. Please not that you need to add Gatling's bundle to your dependencies for this task to work : `"io.gatling" % "gatling-bundle" % "2.0.1" % "test" artifacts (Artifact("gatling-bundle", "zip", "zip", "bundle"))`. After the configuration files have been copied, this dependency can be safely dropped.
