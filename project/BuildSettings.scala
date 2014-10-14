@@ -16,13 +16,12 @@ object BuildSettings {
     organizationHomepage := Some(new URL("http://gatling.io")),
     startYear            := Some(2011),
     licenses             := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    scalaVersion         := "2.10.4",
     crossPaths           := false,
     resolvers            := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getOrElse(Seq.empty),
     scalacOptions        := Seq(
       "-encoding",
       "UTF-8",
-      "-target:jvm-1.6",
+      "-target:jvm-1.7",
       "-deprecation",
       "-feature",
       "-unchecked"

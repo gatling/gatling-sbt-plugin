@@ -29,12 +29,14 @@ object GatlingSbtBuild extends Build {
     Project(id, file(id)).settings(gatlingSbtModuleSettings: _*)
 
   lazy val testFramework = gatlingSbtModule("test-framework")
+    .settings(scalaVersion := "2.11.3")
     .settings(libraryDependencies ++= testFrameworkDeps)
     .settings(sonatypeSettings: _*)
     .settings(releaseToCentralSettings: _*)
 
   lazy val plugin = gatlingSbtModule("sbt-plugin")
     .dependsOn(testFramework)
+    .settings(scalaVersion := "2.10.4")
     .settings(libraryDependencies ++= pluginDeps)
     .settings(pluginSettings: _*)
     .settings(bintraySettings: _*)
