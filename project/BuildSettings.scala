@@ -18,6 +18,7 @@ object BuildSettings {
     licenses             := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     crossPaths           := false,
     resolvers            := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getOrElse(Seq.empty),
+    updateOptions         := updateOptions.value.withLatestSnapshots(false),
     scalacOptions        := Seq(
       "-encoding",
       "UTF-8",
