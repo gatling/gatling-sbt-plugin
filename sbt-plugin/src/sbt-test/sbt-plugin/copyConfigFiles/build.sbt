@@ -1,6 +1,6 @@
 val test = project.in(file("."))
   .enablePlugins(GatlingPlugin)
-  .settings(scalaVersion := "2.11.3")
+  .settings(scalaVersion := "2.11.4")
   .settings(resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
   .settings(libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.0-SNAPSHOT" % "it,test")
   .settings(libraryDependencies += "io.gatling" % "gatling-bundle" % "2.1.0-SNAPSHOT" % "test" artifacts Artifact("gatling-bundle", "zip", "zip", "bundle"))
