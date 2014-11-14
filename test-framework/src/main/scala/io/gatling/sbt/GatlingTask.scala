@@ -31,7 +31,7 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
     val before = System.nanoTime()
     val (returnCode, exception) =
       try {
-        (Gatling.runGatling(args, Some(simulationClass)), None)
+        (Gatling.fromArgs(args, Some(simulationClass)), None)
       } catch {
         case e: Exception =>
           val sw = new StringWriter
