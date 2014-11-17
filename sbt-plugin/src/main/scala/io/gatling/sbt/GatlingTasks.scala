@@ -16,7 +16,7 @@ object GatlingTasks {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
     val outputFolderArg = toShortOptionAndValue("of" -> (scalaSource in config).value.getPath)
-    val requestBodiesFolderArg = toShortOptionAndValue("rbf" -> ((resourceDirectory in config).value / "request-bodies").getPath)
+    val requestBodiesFolderArg = toShortOptionAndValue("bdf" -> ((resourceDirectory in config).value / "bodies").getPath)
     val allArgs = addPackageIfNecessary(args ++ outputFolderArg ++ requestBodiesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
