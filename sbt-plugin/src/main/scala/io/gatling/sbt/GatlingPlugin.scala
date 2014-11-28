@@ -53,7 +53,7 @@ object GatlingPlugin extends AutoPlugin {
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,
     testOptions in config += Argument("-m", "-rf", (target in config).value.getPath),
-    javaOptions in config ++= DefaultJvmArgs,
+    javaOptions in config ++= DefaultJvmArgs ++ propagatedSystemProperties,
     sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
     fork in config := true,
