@@ -38,7 +38,7 @@ object BuildSettings {
 
   lazy val pluginSettings = scriptedSettings ++ Seq(
     sbtPlugin           := true,
-    scriptedLaunchOpts ++= Seq("-Xmx512m", "-XX:MaxPermSize=256m", "-Dplugin.version=" + version.value),
+    scriptedLaunchOpts ++= Seq("-Xmx512m", "-XX:MaxPermSize=256m", "-Dgatling.http.enableGA=false", "-Dplugin.version=" + version.value),
     scriptedBufferLog   := true
   )
 
