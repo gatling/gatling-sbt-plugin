@@ -2,7 +2,6 @@ import scala.util.Properties.{ envOrNone, propOrEmpty }
 import sbtrelease.ReleasePlugin.ReleaseKeys._
 
 homepage             := Some(new URL("http://gatling.io"))
-name                 := "sbt-plugin"
 organization         := "io.gatling"
 organizationHomepage := Some(new URL("http://gatling.io"))
 startYear            := Some(2011)
