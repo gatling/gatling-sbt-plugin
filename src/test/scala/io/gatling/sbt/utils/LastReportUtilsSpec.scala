@@ -45,7 +45,7 @@ class LastReportUtilsSpec extends Specification with ParserMatchers {
 
   "allReports" should {
     "find the list of all reports" in {
-      val root = new File("sbt-plugin/src/test/resources/reports")
+      val root = new File("src/test/resources/reports")
       val foundReports = allReports(root)
       val expectedReports = Seq(
         Report(root / "basicsimulation-20140404205455", "basicsimulation", "20140404205455"),
@@ -59,7 +59,7 @@ class LastReportUtilsSpec extends Specification with ParserMatchers {
 
   "allSimulationIds" should {
     "return the list of all found simulation IDs" in {
-      val simulationIds = allSimulationIds(new File("sbt-plugin/src/test/resources/reports"))
+      val simulationIds = allSimulationIds(new File("src/test/resources/reports"))
 
       simulationIds should contain(exactly("basicsimulation", "advancedsimulation"))
     }
