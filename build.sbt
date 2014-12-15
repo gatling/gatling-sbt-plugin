@@ -21,5 +21,7 @@ scalacOptions := Seq(
 
 libraryDependencies += "org.specs2" %% "specs2" % "2.3.12" % "test"
 
+releaseSettings
+
 releaseVersion := { _ => propOrEmpty("releaseVersion")}
 nextVersion    := { _ => propOrEmpty("developmentVersion")}
