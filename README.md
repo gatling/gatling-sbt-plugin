@@ -9,13 +9,13 @@ Snapshots are available on Sonatype.
 
 In `project/plugins.sbt`, add: 
 
-    addSbtPlugin("io.gatling" % "sbt-plugin" % "1.0")
+    addSbtPlugin("io.gatling" % "gatling-sbt" % "2.1.0")
     
 You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` configuration):
 
 ```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.0.1" % "test"
-"io.gatling" % "test-framework" % "1.0" % "test"
+"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.1" % "test"
+"io.gatling"            % "gatling-test-framework"    % "2.1.1" % "test"
 ```
 
 And then, in your `.scala` build :
