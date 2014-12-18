@@ -1,16 +1,15 @@
 package io.gatling.sbt
 
-import io.gatling.sbt.utils.{ StartRecorderUtils, LastReportUtils }
 import sbt._
 import sbt.Keys._
 
-import LastReportUtils._
-import StartRecorderUtils._
+import io.gatling.sbt.utils.CopyUtils._
+import io.gatling.sbt.utils.LastReportUtils._
+import io.gatling.sbt.utils.StartRecorderUtils._
 
 object GatlingTasks {
 
-  /** List of all configuration files to be copied by [[copyConfigurationFiles]]. */
-  val configFilesNames = Seq("gatling.conf", "recorder.conf")
+  private val LeadingSpacesRegex = """^(\s+)"""
 
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
@@ -32,25 +31,32 @@ object GatlingTasks {
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
 
-  def copyConfigurationFiles(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): Set[File] =
-    copyFromBundle(targetDir, resourceDirectory, updateReport, logger, file => configFilesNames.contains(file.getName))
-
-  def copyLogback(targetDir: File, resourceDirectory: File, updateReport: UpdateReport, logger: Logger): File =
-    copyFromBundle(targetDir, resourceDirectory, updateReport, logger, _.getName == "logback.xml").head
-
-  private def copyFromBundle(unzipDir: File, targetDir: File,
-                             updateReport: UpdateReport, logger: Logger,
-                             copyCriteria: File => Boolean): Set[File] =
-    updateReport.select(artifact = artifactFilter(new ExactFilter("gatling-bundle"))).headOption match {
-      case Some(bundlePath) =>
-        val tmpDir = unzipDir / "bundle-extract"
-        val sourceFiles = IO.unzip(bundlePath, tmpDir).filter(copyCriteria)
-        val sourcesAndTargets = sourceFiles.map(file => (file, targetDir / file.getName))
-        val files = IO.copy(sources = sourcesAndTargets, overwrite = false)
-        IO.delete(tmpDir)
-        files.filter(copyCriteria)
-      case None =>
-        logger.error("Gatling's bundle not found, please add it to your dependencies.")
-        Set.empty
+  def copyConfigurationFiles(resourceDirectory: File, updateReport: UpdateReport): Set[File] = {
+    val gatlingConf = extractFromCoreJar(updateReport, "gatling-defaults.conf") { source =>
+      val target = resourceDirectory / "gatling.conf"
+      generateCommentedConfigFile(source, target)
     }
+    val recorderConf = extractFromRecorderJar(updateReport, "recorder-defaults.conf") { source =>
+      val target = resourceDirectory / "recorder.conf"
+      generateCommentedConfigFile(source, target)
+    }
+    Set(gatlingConf, recorderConf)
+  }
+
+  def copyLogback(resourceDirectory: File, updateReport: UpdateReport): File =
+    extractFromCoreJar(updateReport, "logback.dummy") { source =>
+      val targetFile = resourceDirectory / "logback.xml"
+      IO.copyFile(source, targetFile)
+      targetFile
+    }
+
+  private def generateCommentedConfigFile(source: File, target: File): File = {
+    val lines = IO.readLines(source)
+    val commentedLines = lines.map { line =>
+      if (line.endsWith("{") || line.endsWith("}")) line
+      else line.replaceAll(LeadingSpacesRegex, "$1#")
+    }
+    IO.writeLines(target, commentedLines)
+    target
+  }
 }
