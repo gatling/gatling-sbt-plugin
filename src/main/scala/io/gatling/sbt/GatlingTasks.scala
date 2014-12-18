@@ -1,11 +1,12 @@
 package io.gatling.sbt
 
-import io.gatling.sbt.utils.{ StartRecorderUtils, LastReportUtils }
+import java.io.File
+
 import sbt._
 import sbt.Keys._
 
-import LastReportUtils._
-import StartRecorderUtils._
+import io.gatling.sbt.utils.ReportUtils._
+import io.gatling.sbt.utils.StartRecorderUtils._
 
 object GatlingTasks {
 
@@ -20,7 +21,8 @@ object GatlingTasks {
     val allArgs = addPackageIfNecessary(args ++ outputFolderArg ++ requestBodiesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    fork(ForkOptions(bootJars = (dependencyClasspath in parent).value.map(_.data)), allArgs)
+    val classpath = buildClassPathArgument((dependencyClasspath in parent).value.map(_.data))
+    fork(ForkOptions(runJVMOptions = classpath), allArgs)
   }
 
   def cleanReports(folder: File): Unit = IO.delete(folder)
@@ -53,4 +55,20 @@ object GatlingTasks {
         logger.error("Gatling's bundle not found, please add it to your dependencies.")
         Set.empty
     }
+
+  def generateGatlingReport(config: Configuration) = Def.inputTask {
+    val selectedReportName = reportNameParser(allReportNames((target in config).value)).parsed
+    val filteredReports = filterReportsIfReportNameIdSelected(allReports((target in config).value), selectedReportName)
+    val reportsPaths = filteredReports.map(_.path.getName)
+    reportsPaths.headOption.foreach { folderName =>
+      val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (target in config).value.getPath)
+      val fork = new Fork("java", Some("io.gatling.app.Gatling"))
+      val classpath = buildClassPathArgument((dependencyClasspath in config).value.map(_.data))
+      fork(ForkOptions(runJVMOptions = classpath), opts)
+    }
+  }
+
+  private def buildClassPathArgument(classPathElements: Seq[File]): Seq[String] = {
+    Seq("-cp", classPathElements.mkString(File.pathSeparator))
+  }
 }

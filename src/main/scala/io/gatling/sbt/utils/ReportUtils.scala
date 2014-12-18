@@ -6,7 +6,7 @@ import sbt._
 import sbt.complete.DefaultParsers._
 import sbt.complete.Parser
 
-private[gatling] object LastReportUtils {
+private[gatling] object ReportUtils {
 
   /** Regex matching a simulation ID (<name>-<timestamp>). */
   val reportFolderRegex = """(\w+)-(\d+)""".r
@@ -31,6 +31,14 @@ private[gatling] object LastReportUtils {
     (token(Space) ~> ID.examples(allSimulationIds, check = true)).?
 
   /**
+   * Builds the Parser matching one of the existing reports' name, or none.
+   * @param allReportNames the list of all currently existing reports.
+   * @return the built parser.
+   */
+  def reportNameParser(allReportNames: Set[String]): Parser[Option[String]] =
+    (token(Space) ~> ID.examples(allReportNames, check = true)).?
+
+  /**
    * Filters out the reports using the selected simulationId, if any.
    * @param allReports the list of all reports
    * @param simulationId the possibly selected simulation ID.
@@ -43,13 +51,26 @@ private[gatling] object LastReportUtils {
     }
 
   /**
+   * Filters out the reports using the selected report name, if any.
+   * @param allReports the list of all reports
+   * @param reportName the possibly selected report name.
+   * @return the filtered (or not) reports.
+   */
+  def filterReportsIfReportNameIdSelected(allReports: Seq[Report], reportName: Option[String]): Seq[Report] =
+    reportName match {
+      case Some(name) => allReports.filter(_.name == name)
+      case None       => allReports
+    }
+
+  /**
    * A Gatling report.
    *
    * @param path the path of the report root folder.
+   * @param name the report's name
    * @param simulationId the simulation ID for this report.
    * @param timestamp the timestamp of this report.
    */
-  case class Report(path: File, simulationId: String, timestamp: String)
+  case class Report(path: File, name: String, simulationId: String, timestamp: String)
 
   /** Orders reports from most recent to oldest. */
   implicit val reportOrdering = Ordering.fromLessThan[Report](_.timestamp > _.timestamp)
@@ -67,7 +88,7 @@ private[gatling] object LastReportUtils {
     val reports = for {
       directory <- allDirectories
       reportFolderRegex(simulationId, timestamp) <- reportFolderRegex findFirstIn directory.getName
-    } yield Report(directory, simulationId, timestamp)
+    } yield Report(directory, directory.getName, simulationId, timestamp)
     reports.toList.sorted
   }
 
@@ -79,4 +100,12 @@ private[gatling] object LastReportUtils {
    * @return the list of all simulation IDs.
    */
   def allSimulationIds(reportsFolder: File): Set[String] = allReports(reportsFolder).map(_.simulationId).distinct.toSet
+
+  /**
+   * Extracts the list of all report names found in the reports folder.
+   *
+   * @param reportsFolder the reports folder path
+   * @return the list of all report names.
+   */
+  def allReportNames(reportsFolder: File): Set[String] = allReports(reportsFolder).map(_.name).distinct.toSet
 }

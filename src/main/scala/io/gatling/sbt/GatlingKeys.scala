@@ -19,6 +19,7 @@ object GatlingKeys {
 
   val copyLogbackXml = taskKey[File]("Copy Gatling's default logback.xml if missing")
 
+  val generateReport = inputKey[Unit]("Generate report for a specific simulation")
   // -------------------- //
   // -- Configurations -- //
   // -------------------- //
