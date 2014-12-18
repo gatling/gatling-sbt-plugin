@@ -1,10 +1,12 @@
 package io.gatling.sbt
 
+import java.io.File
+
 import sbt._
 import sbt.Keys._
 
 import io.gatling.sbt.utils.CopyUtils._
-import io.gatling.sbt.utils.LastReportUtils._
+import io.gatling.sbt.utils.ReportUtils._
 import io.gatling.sbt.utils.StartRecorderUtils._
 
 object GatlingTasks {
@@ -19,7 +21,8 @@ object GatlingTasks {
     val allArgs = addPackageIfNecessary(args ++ outputFolderArg ++ requestBodiesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    fork(ForkOptions(bootJars = (dependencyClasspath in parent).value.map(_.data)), allArgs)
+    val classpath = buildClassPathArgument((dependencyClasspath in parent).value.map(_.data))
+    fork(ForkOptions(runJVMOptions = classpath), allArgs)
   }
 
   def cleanReports(folder: File): Unit = IO.delete(folder)
@@ -29,6 +32,18 @@ object GatlingTasks {
     val filteredReports = filterReportsIfSimulationIdSelected(allReports((target in config).value), selectedSimulationId)
     val reportsPaths = filteredReports.map(_.path)
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
+  }
+
+  def generateGatlingReport(config: Configuration) = Def.inputTask {
+    val selectedReportName = reportNameParser(allReportNames((target in config).value)).parsed
+    val filteredReports = filterReportsIfReportNameIdSelected(allReports((target in config).value), selectedReportName)
+    val reportsPaths = filteredReports.map(_.path.getName)
+    reportsPaths.headOption.foreach { folderName =>
+      val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (target in config).value.getPath)
+      val fork = new Fork("java", Some("io.gatling.app.Gatling"))
+      val classpath = buildClassPathArgument((dependencyClasspath in config).value.map(_.data))
+      fork(ForkOptions(runJVMOptions = classpath), opts)
+    }
   }
 
   def copyConfigurationFiles(resourceDirectory: File, updateReport: UpdateReport): Set[File] = {
@@ -58,5 +73,9 @@ object GatlingTasks {
     }
     IO.writeLines(target, commentedLines)
     target
+  }
+
+  private def buildClassPathArgument(classPathElements: Seq[File]): Seq[String] = {
+    Seq("-cp", classPathElements.mkString(File.pathSeparator))
   }
 }

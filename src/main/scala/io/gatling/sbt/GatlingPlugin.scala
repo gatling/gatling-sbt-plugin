@@ -62,7 +62,8 @@ object GatlingPlugin extends AutoPlugin {
     clean in config := cleanReports((target in config).value),
     lastReport in config := openLastReport(config).evaluated,
     copyConfigFiles in config := copyConfigurationFiles((resourceDirectory in config).value, (update in config).value),
-    copyLogbackXml in config := copyLogback((resourceDirectory in config).value, (update in config).value))
+    copyLogbackXml in config := copyLogback((resourceDirectory in config).value, (update in config).value),
+    generateReport in config := generateGatlingReport(config).evaluated)
 
   /**
    * Split test groups so that each test is in its own group.
