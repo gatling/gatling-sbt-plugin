@@ -2,6 +2,8 @@ language: scala
 before_script: ./make_credentials.sh
 script: sbt test publishLocal scripted
 
+sudo: false
+
 # whitelist
 branches:
   only:
