@@ -11,7 +11,7 @@ In `project/plugins.sbt`, add:
 
     addSbtPlugin("io.gatling" % "gatling-sbt" % "2.1.0")
     
-You'll also need those two dependencies (use `"it"` scope for the `GatlingIt` configuration):
+You'll also need those two dependencies:
 
 ```scala
 "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.1" % "test"
@@ -40,7 +40,7 @@ val test = project.in(file("."))
 
 ```
 
-or form 0.13.6 and later : 
+or for 0.13.6 and later : 
 
 ```scala
 
@@ -52,7 +52,22 @@ libraryDependencies ++= /* Gatling dependencies */
 
 ## Usage 
 
-As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks. Note however that they must be prefixed by `gatling:` (or `gatling-it` if you're using the `GatlingIt` configuration), eg. `gatling:test`, `gatling:testOnly`, `gatling:testQuick`, etc...
+As with any SBT testing framework, you'll be able to run Gatling simulations using SBT standard `test`, `testOnly`, `testQuick`, etc... tasks.
+
+## 'Test' vs 'Integration Tests' configurations
+
+This plugin offers two different custom SBT configurations, named `Gatling` and `GatlingIt`.
+They are tied to different sources directories (see next section for more details) and therefore allow to separate your simulations according to your needs, should you desire it.
+
+Ideally :
+
+* Your simulations with low injection profiles, which may serve as functional tests, should live in 'src/test' (the default source directory for the `Gatling` configuration), and run along your unit tests, since they would complete quickly
+* Longer, more complex simulations with high injection profiles, should live in 'src/it' (the default source directory for the `GatlingIt` configuration) and be run on a as-needed basis.
+
+Also, since they're tied to separate SBT configurations, your SBT settings can then be customized per configuration.
+You can expect a relatively short simulation to run easily with the default JVM settings, but simulations with much higher load can very well require an increase of the max heap memory allowed for example).
+
+**Note :** When using the `GatlingIt` configuration, you must prefix the various tasks and settings you may want to use by `it`, e.g. `test` becomes `it:test`, etc...
 
 ## Default settings 
 
