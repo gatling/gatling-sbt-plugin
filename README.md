@@ -14,8 +14,8 @@ In `project/plugins.sbt`, add:
 You'll also need those two dependencies:
 
 ```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.1" % "test"
-"io.gatling"            % "gatling-test-framework"    % "2.1.1" % "test"
+"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.3" % "test"
+"io.gatling"            % "gatling-test-framework"    % "2.1.3" % "test"
 ```
 
 And then, in your `.scala` build :
