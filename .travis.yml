@@ -4,6 +4,7 @@ script:
   - sbt test publishLocal scripted
   - find $HOME/.sbt -name "*.lock" | xargs rm
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+  - rm -Rf $HOME/.ivy2/cache/scala_2.10/sbt_0.13/io.gatling/
 
 sudo: false
 
