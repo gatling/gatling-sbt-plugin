@@ -6,13 +6,13 @@ script:
   - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
   - rm -Rf $HOME/.ivy2/cache/scala_2.10/sbt_0.13/io.gatling/
 
-#sudo: false
+sudo: false
 
 # Cache settings
-#cache:
-#  directories:
-#    - $HOME/.ivy2/cache
-#    - $HOME/.sbt/launchers
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/launchers
 
 # whitelist
 branches:
