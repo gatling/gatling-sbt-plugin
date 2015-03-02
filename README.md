@@ -14,8 +14,8 @@ In `project/plugins.sbt`, add:
 You'll also need those two dependencies:
 
 ```scala
-"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.3" % "test"
-"io.gatling"            % "gatling-test-framework"    % "2.1.3" % "test"
+"io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.4" % "test"
+"io.gatling"            % "gatling-test-framework"    % "2.1.4" % "test"
 ```
 
 And then, in your `.scala` build :
@@ -87,5 +87,5 @@ Gatling's SBT plugin also offers three additional tasks:
 
 * `startRecorder`, which start the Recorder, configured to save recorded simulations to the location specified by `scalaSource in Gatling` (by default, `src/test/scala`).
 * `lastReport`, which opens the last generated report in your web browser.
-* `copyConfigFiles`, which copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing. Please not that you need to add Gatling's bundle to your dependencies for this task to work : `"io.gatling" % "gatling-bundle" % "2.0.1" % "test" artifacts (Artifact("gatling-bundle", "zip", "zip", "bundle"))`. After the configuration files have been copied, this dependency can be safely dropped.
+* `copyConfigFiles`, which copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing. Please not that you need to add Gatling's bundle to your dependencies for this task to work : `"io.gatling" % "gatling-bundle" % "2.1.4" % "test" artifacts (Artifact("gatling-bundle", "zip", "zip", "bundle"))`. After the configuration files have been copied, this dependency can be safely dropped.
 * `copyLogbackXml`, which copies Gatling's default logback.xml. Works the same as `copyConfigFiles`, you'll need to add the bundle to your dependencies.
