@@ -50,9 +50,9 @@ object GatlingPlugin extends AutoPlugin {
   /********************/
 
   private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
-    testFrameworks in config := Seq(gatlingTestFramework),
+    testFrameworks in config += gatlingTestFramework,
     target in config := target.value / config.name,
-    testOptions in config += Argument("-m", "-rf", (target in config).value.getPath),
+    testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
     javaOptions in config ++= DefaultJvmArgs ++ propagatedSystemProperties,
     sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
