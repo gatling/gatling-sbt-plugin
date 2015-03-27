@@ -5,7 +5,6 @@ import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
 
 import io.gatling.sbt.GatlingTasks._
-import io.gatling.sbt.utils.PropertyUtils._
 
 object GatlingPlugin extends AutoPlugin {
 
@@ -20,14 +19,6 @@ object GatlingPlugin extends AutoPlugin {
   override def projectConfigurations = Seq(Gatling, IntegrationTest, GatlingIt)
 
   override def projectSettings = gatlingAllSettings
-
-  /*************/
-  /** Configs **/
-  /*************/
-
-  val Gatling = config("gatling") extend Test
-
-  val GatlingIt = config("gatling-it") extend IntegrationTest
 
   /*******************************/
   /** Test framework definition **/
@@ -53,7 +44,7 @@ object GatlingPlugin extends AutoPlugin {
     testFrameworks in config += gatlingTestFramework,
     target in config := target.value / config.name,
     testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
-    javaOptions in config ++= DefaultJvmArgs ++ propagatedSystemProperties,
+    javaOptions in config ++= overrideDefaultJavaOptions(),
     sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
     fork in config := true,
