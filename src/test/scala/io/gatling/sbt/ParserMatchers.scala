@@ -2,27 +2,24 @@ package io.gatling.sbt
 
 import scala.language.implicitConversions
 
-import org.specs2.matcher.{ Expectable, Matcher, MatchResult }
-
-import sbt.complete.{ Completion, Completions, Parser }
+import org.scalatest.matchers.{ MatchResult, Matcher }
 import sbt.complete.DefaultParsers.{ completions, matches }
+import sbt.complete.{ Completion, Completions, Parser }
 
 trait ParserMatchers {
 
   def parse(expected: String) = new Matcher[Parser[_]] {
-    override def apply[S <: Parser[_]](t: Expectable[S]): MatchResult[S] =
-      result(matches(t.value, expected),
-        s"${t.description} parses $expected",
-        s"${t.description} does not parse $expected",
-        t)
+    override def apply(parser: Parser[_]) =
+      MatchResult(matches(parser, expected),
+        s"$parser does not parse $expected",
+        s"$parser parses $expected")
   }
 
   def complete(string: String, expected: Completions) = new Matcher[Parser[_]] {
-    override def apply[S <: Parser[_]](t: Expectable[S]): MatchResult[S] =
-      result(completions(t.value, string, 1) == expected,
-        s"${t.description} completes $string with $expected",
-        s"${t.description} does not complete $string with $expected",
-        t)
+    override def apply(parser: Parser[_]) =
+      MatchResult(completions(parser, string, 1) == expected,
+        s"$parser does not complete $string with $expected",
+        s"$parser completes $string with $expected")
   }
 
   implicit def stringSetToCompletion(set: Set[String]): Completions =
