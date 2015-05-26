@@ -8,8 +8,8 @@ resolvers := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getO
 
 license := ApacheV2
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.10.5"
 
 sbtPlugin := true
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.4" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"

@@ -1,6 +1,6 @@
 enablePlugins(GatlingPlugin)
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
