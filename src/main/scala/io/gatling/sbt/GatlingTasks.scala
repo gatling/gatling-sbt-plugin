@@ -67,11 +67,17 @@ object GatlingTasks {
       val target = resourceDirectory / "gatling.conf"
       generateCommentedConfigFile(source, target)
     }
+
+    val gatlingAkkaConf = extractFromCoreJar(updateReport, "gatling-akka-defaults.conf") { source =>
+      val target = resourceDirectory / "gatling-akka.conf"
+      generateCommentedConfigFile(source, target)
+    }
+
     val recorderConf = extractFromRecorderJar(updateReport, "recorder-defaults.conf") { source =>
       val target = resourceDirectory / "recorder.conf"
       generateCommentedConfigFile(source, target)
     }
-    Set(gatlingConf, recorderConf)
+    Set(gatlingConf, gatlingAkkaConf, recorderConf)
   }
 
   def copyLogback(resourceDirectory: File, updateReport: UpdateReport): File =

@@ -4,6 +4,7 @@
 
 # Check that configs files are not already there
 $ absent src/test/resources/gatling.conf
+$ absent src/test/resources/gatling-akka.conf
 $ absent src/test/resources/recorder.conf
 
 # Run the copyConfigFiles task:
@@ -11,6 +12,7 @@ $ absent src/test/resources/recorder.conf
 # * Expect that the config files have been copied
 > gatling:copyConfigFiles
 $ exists src/test/resources/gatling.conf
+$ exists src/test/resources/gatling-akka.conf
 $ exists src/test/resources/recorder.conf
 
 # Run the copyLogbackXml task:
@@ -25,6 +27,7 @@ $ exists src/test/resources/logback.xml
 
 # Check that configs files are not there
 $ absent src/it/resources/gatling.conf
+$ absent src/it/resources/gatling-akka.conf
 $ absent src/it/resources/recorder.conf
 
 # Run the copyConfigFiles task:
@@ -32,6 +35,7 @@ $ absent src/it/resources/recorder.conf
 # * Expect that the config files have been copied
 > gatling-it:copyConfigFiles
 $ exists src/it/resources/gatling.conf
+$ exists src/it/resources/gatling-akka.conf
 $ exists src/it/resources/recorder.conf
 
 # Run the copyLogbackXml task:
