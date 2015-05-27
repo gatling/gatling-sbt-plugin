@@ -16,7 +16,6 @@
 package io.gatling.sbt
 
 import sbt._
-import sbt.Defaults.prefix
 import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
 
@@ -58,8 +57,8 @@ object GatlingPlugin extends AutoPlugin {
 
   private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
     testFrameworks in config += gatlingTestFramework,
-    classDirectory in config := crossTarget.value / (prefix(parent.name) + "classes"),
     target in config := target.value / config.name,
+    fullClasspath in config := (fullClasspath in parent).value.filterNot(_.data == (classDirectory in config).value),
     testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
     javaOptions in config ++= overrideDefaultJavaOptions(),
     sourceDirectory in config := (sourceDirectory in parent).value,
