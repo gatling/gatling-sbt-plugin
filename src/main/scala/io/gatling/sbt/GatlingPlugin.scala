@@ -47,7 +47,7 @@ object GatlingPlugin extends AutoPlugin {
 
   lazy val gatlingSettings = inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
 
-  lazy val gatlingItSettings = inConfig(GatlingIt)(Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest))
+  lazy val gatlingItSettings = inConfig(GatlingIt)(Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false))
 
   lazy val gatlingAllSettings = gatlingSettings ++ gatlingItSettings
 
@@ -55,10 +55,10 @@ object GatlingPlugin extends AutoPlugin {
   /** Helper methods **/
   /********************/
 
-  private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
+  private def gatlingBaseSettings(config: Configuration, parent: Configuration, filterClasspath: Boolean = true) = Seq(
     testFrameworks in config += gatlingTestFramework,
     target in config := target.value / config.name,
-    fullClasspath in config := (fullClasspath in parent).value.filterNot(_.data == (classDirectory in config).value),
+    fullClasspath in config := (if (filterClasspath) (fullClasspath in parent).value.filterNot(_.data == (classDirectory in config).value) else (fullClasspath in parent).value),
     testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
     javaOptions in config ++= overrideDefaultJavaOptions(),
     sourceDirectory in config := (sourceDirectory in parent).value,
