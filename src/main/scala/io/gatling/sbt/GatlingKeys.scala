@@ -52,7 +52,7 @@ object GatlingKeys {
     List("java.", "sun.", "jline.", "file.", "awt.", "os.", "user.")
 
   def overrideDefaultJavaOptions(javaOptions: String*) =
-    javaOptions ++ propagatedSystemProperties ++ DefaultJvmArgs
+    propagatedSystemProperties ++ DefaultJvmArgs ++ javaOptions
 
   private def isPropagatedSystemProperty(name: String) =
     !(unPropagatedPropertiesRoots.exists(name.startsWith) ||
