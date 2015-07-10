@@ -2,4 +2,4 @@
 
 ## /!\ The documentation has moved to [gatling.io](http://gatling.io) /!\
 
-The documentation for the latest version of Gatling's SBT plugin can be found [here](http://gatling.io/docs/2.1.5/extensions/sbt_plugin.html).
+The documentation for the latest version of Gatling's SBT plugin can be found [here](http://gatling.io/docs/2.1.6/extensions/sbt_plugin.html).
