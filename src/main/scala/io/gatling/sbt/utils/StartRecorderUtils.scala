@@ -26,7 +26,8 @@ private[gatling] object StartRecorderUtils {
    */
   val shortRecorderOpts = Set(
     "lp", "lps", "ph", "pp", "pps", "ar",
-    "rbf", "cn", "pkg", "enc", "fr", "fhr")
+    "rbf", "cn", "pkg", "enc", "fr", "fhr"
+  )
 
   /**
    * List of all CLI options supported by the Recorder,
@@ -36,7 +37,8 @@ private[gatling] object StartRecorderUtils {
     "local-port", "local-port-ssl", "proxy-host",
     "proxy-port", "proxy-port-ssl", "request-bodies-folder",
     "class-name", "package", "encoding", "follow-redirect",
-    "automatic-referer", "fetch-html-resources")
+    "automatic-referer", "fetch-html-resources"
+  )
 
   /** Parser matching the help option, in short and full version. */
   val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))) map { s => Seq(s) }

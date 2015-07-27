@@ -21,5 +21,6 @@ object PropertyUtils {
     "-server", "-XX:+UseThreadPriorities", "-XX:ThreadPriorityPolicy=42", "-Xms512M",
     "-Xmx512M", "-Xmn100M", "-XX:+HeapDumpOnOutOfMemoryError", "-XX:+AggressiveOpts",
     "-XX:+OptimizeStringConcat", "-XX:+UseFastAccessorMethods", "-XX:+UseParNewGC",
-    "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled")
+    "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled"
+  )
 }

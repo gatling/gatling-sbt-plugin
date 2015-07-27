@@ -28,7 +28,8 @@ class ReportUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
     val reports = Seq(
       Report(new File("."), "basicsimulation-20140207205545", "basicsimulation", "20140207205545"),
       Report(new File("."), "othersimulation-20140207205545", "othersimulation", "20140207205545"),
-      Report(new File("."), "othersimulation-20140207235545", "othersimulation", "20140207235545"))
+      Report(new File("."), "othersimulation-20140207235545", "othersimulation", "20140207235545")
+    )
 
     "filterReportsIfSimulationIdSelected" should "not filter reports if there's not selected simulation" in {
       filterReportsIfSimulationIdSelected(reports, None) shouldBe reports
@@ -43,7 +44,8 @@ class ReportUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
     val reports = Seq(
       Report(new File("."), "basicsimulation-20140207205545", "basicsimulation", "20140207205545"),
       Report(new File("."), "othersimulation-20140207205545", "othersimulation", "20140207205545"),
-      Report(new File("."), "othersimulation-20140207235545", "othersimulation", "20140207235545"))
+      Report(new File("."), "othersimulation-20140207235545", "othersimulation", "20140207235545")
+    )
 
     "filterReportsIfReportNameIdSelected" should "not filter reports if there's not selected simulation" in {
       filterReportsIfReportNameIdSelected(reports, None) shouldBe reports
@@ -104,7 +106,8 @@ class ReportUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
       Report(root / "basicsimulation-20140404205455", "basicsimulation-20140404205455", "basicsimulation", "20140404205455"),
       Report(root / "basicsimulation-20140406205455", "basicsimulation-20140406205455", "basicsimulation", "20140406205455"),
       Report(root / "basicsimulation-20140408205455", "basicsimulation-20140408205455", "basicsimulation", "20140408205455"),
-      Report(root / "advancedsimulation-20140404205455", "advancedsimulation-20140404205455", "advancedsimulation", "20140404205455"))
+      Report(root / "advancedsimulation-20140404205455", "advancedsimulation-20140404205455", "advancedsimulation", "20140404205455")
+    )
 
     foundReports should contain theSameElementsAs expectedReports
   }
@@ -120,6 +123,7 @@ class ReportUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
 
     reportNames should contain only (
       "basicsimulation-20140404205455", "basicsimulation-20140406205455",
-      "basicsimulation-20140408205455", "advancedsimulation-20140404205455")
+      "basicsimulation-20140408205455", "advancedsimulation-20140404205455"
+    )
   }
 }

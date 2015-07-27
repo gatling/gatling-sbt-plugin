@@ -48,7 +48,8 @@ object GatlingPlugin extends AutoPlugin {
   lazy val gatlingSettings = inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
 
   lazy val gatlingItSettings = inConfig(GatlingIt)(
-    Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)) ++
+    Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)
+  ) ++
     Seq(test in IntegrationTest <<= (test in IntegrationTest).dependsOn(test in GatlingIt))
 
   lazy val gatlingAllSettings = gatlingSettings ++ gatlingItSettings
@@ -72,7 +73,8 @@ object GatlingPlugin extends AutoPlugin {
     lastReport in config := openLastReport(config).evaluated,
     copyConfigFiles in config := copyConfigurationFiles((resourceDirectory in config).value, (update in config).value),
     copyLogbackXml in config := copyLogback((resourceDirectory in config).value, (update in config).value),
-    generateReport in config := generateGatlingReport(config).evaluated)
+    generateReport in config := generateGatlingReport(config).evaluated
+  )
 
   /**
    * Split test groups so that each test is in its own group.
