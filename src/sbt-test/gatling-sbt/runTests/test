@@ -2,6 +2,14 @@
 ## Gatling configuration tests ##
 #################################
 
+# check that there is no JUnit report before running unit tests
+$ absent target/test-reports
+
+# Run unit tests:
+# * Check that there is a JUnit report generated
+> test
+$ exists target/test-reports/unit.Spec.xml
+
 # check that there no reports before running test
 $ absent target/gatling
 

@@ -6,3 +6,4 @@ resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repos
 
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.0-SNAPSHOT" % "it,test"
 libraryDependencies += "io.gatling" % "gatling-test-framework" % "2.2.0-SNAPSHOT" % "it,test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5"

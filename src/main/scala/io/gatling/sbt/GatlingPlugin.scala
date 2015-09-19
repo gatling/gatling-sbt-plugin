@@ -27,6 +27,7 @@ object GatlingPlugin extends AutoPlugin {
   /** AutoPlugin setup **/
   /**********************/
 
+  override val requires = plugins.JvmPlugin
   val autoImport = GatlingKeys
 
   import autoImport._
@@ -59,7 +60,7 @@ object GatlingPlugin extends AutoPlugin {
   /********************/
 
   private def gatlingBaseSettings(config: Configuration, parent: Configuration, filterClasspath: Boolean = true) = Seq(
-    testFrameworks in config += gatlingTestFramework,
+    testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,
     fullClasspath in config := (if (filterClasspath) (fullClasspath in parent).value.filterNot(_.data == (classDirectory in config).value) else (fullClasspath in parent).value),
     testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
