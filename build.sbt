@@ -8,7 +8,7 @@ resolvers := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getO
 
 license := ApacheV2
 
-scalaVersion := "2.10.5"
+scalaVersion := "2.10.6"
 
 sbtPlugin := true
 
