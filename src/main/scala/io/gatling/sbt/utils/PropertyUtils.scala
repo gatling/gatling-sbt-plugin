@@ -18,8 +18,11 @@ package io.gatling.sbt.utils
 object PropertyUtils {
 
   val DefaultJvmArgs = List(
-    "-server", "-Xms512M", "-Xmx512M", "-XX:+HeapDumpOnOutOfMemoryError",
-    "-XX:+AggressiveOpts", "-XX:+OptimizeStringConcat", "-XX:+UseParNewGC",
-    "-XX:+UseConcMarkSweepGC", "-XX:+CMSParallelRemarkEnabled"
+    "-server", "-Xmx1G",
+    "-XX:+UseG1GC", "-XX:MaxGCPauseMillis=30", "-XX:G1HeapRegionSize=16m", "-XX:InitiatingHeapOccupancyPercent=75",
+    "-XX:+ParallelRefProcEnabled", "-XX:+PerfDisableSharedMem",
+    "-XX:+AggressiveOpts", "-XX:+OptimizeStringConcat",
+    "-XX:+HeapDumpOnOutOfMemoryError",
+    "-Djava.net.preferIPv4Stack=true", "-Djava.net.preferIPv6Addresses=false"
   )
 }
