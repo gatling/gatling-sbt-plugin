@@ -2,7 +2,7 @@ import scala.util.Properties.envOrNone
 
 import io.gatling.build.license._
 
-enablePlugins(BintrayReleasePlugin)
+disablePlugins(SonatypeReleasePlugin, MavenPublishPlugin, Sonatype)
 
 resolvers := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getOrElse(Seq.empty)
 
