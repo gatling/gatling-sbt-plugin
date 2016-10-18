@@ -50,8 +50,7 @@ object GatlingPlugin extends AutoPlugin {
 
   lazy val gatlingItSettings = inConfig(GatlingIt)(
     Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)
-  ) ++
-    Seq(test in IntegrationTest <<= (test in IntegrationTest).dependsOn(test in GatlingIt))
+  )
 
   lazy val gatlingAllSettings = gatlingSettings ++ gatlingItSettings
 
