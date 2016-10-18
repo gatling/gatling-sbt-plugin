@@ -4,7 +4,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
-class BasicExampleSimulationFails extends Simulation {
+class BasicItExampleSimulationFails extends Simulation {
 
   val httpProtocol = http
     .baseURL("http://excilysbank.gatling.cloudbees.net")
