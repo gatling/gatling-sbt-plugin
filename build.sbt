@@ -4,6 +4,8 @@ import io.gatling.build.license._
 
 disablePlugins(SonatypeReleasePlugin, MavenPublishPlugin, Sonatype)
 
+name := "gatling-sbt"
+
 resolvers := envOrNone("CI").map(_ => Seq(Opts.resolver.sonatypeSnapshots)).getOrElse(Seq.empty)
 
 license := ApacheV2
