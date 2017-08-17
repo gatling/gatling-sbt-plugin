@@ -19,7 +19,7 @@ import sbt._
 import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
 
-import io.gatling.sbt.GatlingTasks._
+import _root_.io.gatling.sbt.GatlingTasks._
 
 object GatlingPlugin extends AutoPlugin {
 
@@ -61,7 +61,11 @@ object GatlingPlugin extends AutoPlugin {
   private def gatlingBaseSettings(config: Configuration, parent: Configuration, filterClasspath: Boolean = true) = Seq(
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,
-    fullClasspath in config := (if (filterClasspath) (fullClasspath in parent).value.filterNot(_.data == (classDirectory in config).value) else (fullClasspath in parent).value),
+    fullClasspath in config := {
+      val path = (fullClasspath in parent).value
+      val dir = (classDirectory in config).value
+      if (filterClasspath) path.filterNot(_.data == dir) else path
+    },
     testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
     javaOptions in config ++= overrideDefaultJavaOptions(),
     sourceDirectory in config := (sourceDirectory in parent).value,

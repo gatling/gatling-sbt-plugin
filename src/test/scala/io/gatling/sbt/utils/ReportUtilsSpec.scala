@@ -17,8 +17,8 @@ package io.gatling.sbt.utils
 
 import sbt._
 
-import io.gatling.sbt.ParserMatchers
-import io.gatling.sbt.utils.ReportUtils._
+import _root_.io.gatling.sbt.ParserMatchers
+import _root_.io.gatling.sbt.utils.ReportUtils._
 
 import org.scalatest.{ FlatSpec, Matchers }
 

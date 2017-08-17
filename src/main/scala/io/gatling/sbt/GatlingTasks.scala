@@ -20,9 +20,9 @@ import java.io.File
 import sbt._
 import sbt.Keys._
 
-import io.gatling.sbt.utils.CopyUtils._
-import io.gatling.sbt.utils.ReportUtils._
-import io.gatling.sbt.utils.StartRecorderUtils._
+import _root_.io.gatling.sbt.utils.CopyUtils._
+import _root_.io.gatling.sbt.utils.ReportUtils._
+import _root_.io.gatling.sbt.utils.StartRecorderUtils._
 
 object GatlingTasks {
 
@@ -38,7 +38,7 @@ object GatlingTasks {
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
     val classpathElements = (dependencyClasspath in parent).value.map(_.data) ++ (resources in config).value
     val classpath = buildClassPathArgument(classpathElements)
-    fork(ForkOptions(runJVMOptions = classpath), allArgs)
+    fork(Compat.forkOptionsWithRunJVMOptions(classpath), allArgs)
   }
 
   def cleanReports(folder: File): Unit = IO.delete(folder)
@@ -58,7 +58,7 @@ object GatlingTasks {
       val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (target in config).value.getPath)
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
       val classpath = buildClassPathArgument((dependencyClasspath in config).value.map(_.data))
-      fork(ForkOptions(runJVMOptions = classpath), opts)
+      fork(Compat.forkOptionsWithRunJVMOptions(classpath), opts)
     }
   }
 
