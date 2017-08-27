@@ -17,7 +17,7 @@ package io.gatling.sbt.utils
 
 import java.util.jar.JarFile
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 import sbt._
 
@@ -43,7 +43,7 @@ object CopyUtils {
 
   private def withFileInJar[T](jarPath: File, fileName: String)(f: File => T) = {
     val jarFile = new JarFile(jarPath)
-    val possibleEntry = jarFile.entries().find(_.getName.endsWith(fileName))
+    val possibleEntry = jarFile.entries().asScala.find(_.getName.endsWith(fileName))
     possibleEntry match {
       case Some(entry) =>
         IO.withTemporaryFile("copy", "sbttemp") { file =>
