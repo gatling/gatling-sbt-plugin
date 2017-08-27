@@ -14,4 +14,8 @@ scalaVersion := "2.10.6"
 
 sbtPlugin := true
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.3" % "test"
+
+scalacOptions -= "-Ybackend:GenBCode"
+
+crossSbtVersions := Seq("1.0.0", "0.13.16")

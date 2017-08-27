@@ -17,7 +17,7 @@ package io.gatling.sbt
 
 import sbt._
 
-import io.gatling.sbt.utils.PropertyUtils.DefaultJvmArgs
+import _root_.io.gatling.sbt.utils.PropertyUtils.DefaultJvmArgs
 
 /** List of SBT keys for Gatling specific tasks. */
 object GatlingKeys {
