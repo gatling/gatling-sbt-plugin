@@ -66,7 +66,7 @@ object GatlingPlugin extends AutoPlugin {
       val dir = (classDirectory in config).value
       if (filterClasspath) path.filterNot(_.data == dir) else path
     },
-    testOptions in config += Argument(gatlingTestFramework, "-m", "-rf", (target in config).value.getPath),
+    testOptions in config += Argument(gatlingTestFramework, "-rf", (target in config).value.getPath),
     javaOptions in config ++= overrideDefaultJavaOptions(),
     sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
