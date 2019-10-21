@@ -26,7 +26,6 @@ object PropertyUtils {
     "-XX:InitiatingHeapOccupancyPercent=75",
     "-XX:+ParallelRefProcEnabled",
     "-XX:+PerfDisableSharedMem",
-    "-XX:+AggressiveOpts",
     "-XX:+OptimizeStringConcat",
     "-XX:+HeapDumpOnOutOfMemoryError",
     "-Djava.net.preferIPv4Stack=true",
