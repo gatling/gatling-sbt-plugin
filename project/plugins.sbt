@@ -1,7 +1,6 @@
-resolvers += Resolver.url("scoverage",url("http://dl.bintray.com/sksamuel/sbt-plugins"))(Resolver.ivyStylePatterns)
+resolvers += Resolver.bintrayIvyRepo("gatling", "sbt-plugins")
+resolvers += Resolver.jcenterRepo
 
-resolvers += Resolver.url("gatling", url("http://dl.bintray.com/content/gatling/sbt-plugins/"))(Resolver.ivyStylePatterns)
+addSbtPlugin("io.gatling" % "gatling-build-plugin"  % "2.4.0")
 
-addSbtPlugin("io.gatling" % "gatling-build-plugin" % "1.8.12")
-
-libraryDependencies += "org.scala-sbt" % "scripted-plugin" % sbtVersion.value
+libraryDependencies += "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value

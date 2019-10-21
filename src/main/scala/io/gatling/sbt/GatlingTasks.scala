@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2019 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,9 @@ object GatlingTasks {
 
   private val LeadingSpacesRegex = """^(\s+)"""
 
+  private def forkOptionsWithRunJVMOptions(options: Seq[String]) =
+    _root_.sbt.ForkOptions().withRunJVMOptions(options.toVector)
+
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
@@ -38,7 +41,7 @@ object GatlingTasks {
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
     val classpathElements = (dependencyClasspath in parent).value.map(_.data) ++ (resources in config).value
     val classpath = buildClassPathArgument(classpathElements)
-    fork(Compat.forkOptionsWithRunJVMOptions(classpath), allArgs)
+    fork(forkOptionsWithRunJVMOptions(classpath), allArgs)
   }
 
   def cleanReports(folder: File): Unit = IO.delete(folder)
@@ -58,7 +61,7 @@ object GatlingTasks {
       val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (target in config).value.getPath)
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
       val classpath = buildClassPathArgument((dependencyClasspath in config).value.map(_.data))
-      fork(Compat.forkOptionsWithRunJVMOptions(classpath), opts)
+      fork(forkOptionsWithRunJVMOptions(classpath), opts)
     }
   }
 

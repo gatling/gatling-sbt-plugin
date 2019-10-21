@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2019 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,18 @@ private[gatling] object StartRecorderUtils {
    * in their "short" version.
    */
   val shortRecorderOpts = Set(
-    "lp", "lps", "ph", "pp", "pps", "ar",
-    "rbf", "cn", "pkg", "enc", "fr", "fhr"
+    "lp",
+    "lps",
+    "ph",
+    "pp",
+    "pps",
+    "ar",
+    "rbf",
+    "cn",
+    "pkg",
+    "enc",
+    "fr",
+    "fhr"
   )
 
   /**
@@ -34,14 +44,24 @@ private[gatling] object StartRecorderUtils {
    * in their "full" version.
    */
   val fullRecorderOpts = Set(
-    "local-port", "local-port-ssl", "proxy-host",
-    "proxy-port", "proxy-port-ssl", "request-bodies-folder",
-    "class-name", "package", "encoding", "follow-redirect",
-    "automatic-referer", "fetch-html-resources"
+    "local-port",
+    "local-port-ssl",
+    "proxy-host",
+    "proxy-port",
+    "proxy-port-ssl",
+    "request-bodies-folder",
+    "class-name",
+    "package",
+    "encoding",
+    "follow-redirect",
+    "automatic-referer",
+    "fetch-html-resources"
   )
 
   /** Parser matching the help option, in short and full version. */
-  val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))) map { s => Seq(s) }
+  val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))) map { s =>
+    Seq(s)
+  }
 
   /**
    * Builds a parser matching any option from ''options'', prefixed by ''prefix''.

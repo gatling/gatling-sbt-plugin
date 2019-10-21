@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+ * Copyright 2011-2019 GatlingCorp (http://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ object GatlingPlugin extends AutoPlugin {
   /**********************/
   /** AutoPlugin setup **/
   /**********************/
-
   override val requires = plugins.JvmPlugin
   val autoImport = GatlingKeys
 
@@ -39,13 +38,11 @@ object GatlingPlugin extends AutoPlugin {
   /*******************************/
   /** Test framework definition **/
   /*******************************/
-
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
   /**************/
   /** Settings **/
   /**************/
-
   lazy val gatlingSettings = inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
 
   lazy val gatlingItSettings = inConfig(GatlingIt)(
@@ -57,7 +54,6 @@ object GatlingPlugin extends AutoPlugin {
   /********************/
   /** Helper methods **/
   /********************/
-
   private def gatlingBaseSettings(config: Configuration, parent: Configuration, filterClasspath: Boolean = true) = Seq(
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,
