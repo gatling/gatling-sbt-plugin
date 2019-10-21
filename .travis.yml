@@ -1,6 +1,6 @@
 language: scala
 jdk:
-  - oraclejdk8
+  - openjdk8
 before_script: ./make_credentials.sh
 script: 
   - sbt test publishLocal scripted
