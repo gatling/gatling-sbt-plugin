@@ -20,6 +20,7 @@ object PropertyUtils {
   val DefaultJvmArgs = List(
     "-server",
     "-Xmx1G",
+    "-XX:+HeapDumpOnOutOfMemoryError",
     "-XX:+UseG1GC",
     "-XX:MaxGCPauseMillis=30",
     "-XX:G1HeapRegionSize=16m",
@@ -27,7 +28,6 @@ object PropertyUtils {
     "-XX:+ParallelRefProcEnabled",
     "-XX:+PerfDisableSharedMem",
     "-XX:+OptimizeStringConcat",
-    "-XX:+HeapDumpOnOutOfMemoryError",
     "-Djava.net.preferIPv4Stack=true",
     "-Djava.net.preferIPv6Addresses=false"
   )
