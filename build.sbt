@@ -2,6 +2,8 @@ import scala.util.Properties.envOrNone
 
 import _root_.io.gatling.build.license._
 
+ThisBuild / Keys.useCoursier := false
+
 enablePlugins(SbtPlugin)
 disablePlugins(SonatypeReleasePlugin, MavenPublishPlugin, Sonatype)
 
