@@ -39,7 +39,7 @@ object GatlingTasks {
     val allArgs = addPackageIfNecessary(args ++ simulationsForlderArg ++ resourcesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    val classpathElements = (dependencyClasspath in parent).value.map(_.data) ++ (resources in config).value
+    val classpathElements = (dependencyClasspath in parent).value.map(_.data) :+ (resourceDirectory in config).value
     val classpath = buildClassPathArgument(classpathElements)
     fork(forkOptionsWithRunJVMOptions(classpath), allArgs)
   }
