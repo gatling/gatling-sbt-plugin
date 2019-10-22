@@ -34,9 +34,9 @@ object GatlingTasks {
   def recorderRunner(config: Configuration, parent: Configuration) = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
-    val outputFolderArg = toShortOptionAndValue("sf" -> (scalaSource in config).value.getPath)
-    val requestBodiesFolderArg = toShortOptionAndValue("rf" -> (resourceDirectory in config).value.getPath)
-    val allArgs = addPackageIfNecessary(args ++ outputFolderArg ++ requestBodiesFolderArg, organization.value)
+    val simulationsForlderArg = toShortOptionAndValue("sf" -> (scalaSource in config).value.getPath)
+    val resourcesFolderArg = toShortOptionAndValue("rf" -> (resourceDirectory in config).value.getPath)
+    val allArgs = addPackageIfNecessary(args ++ simulationsForlderArg ++ resourcesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
     val classpathElements = (dependencyClasspath in parent).value.map(_.data) ++ (resources in config).value
