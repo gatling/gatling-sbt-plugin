@@ -22,12 +22,8 @@ object PropertyUtils {
     "-Xmx1G",
     "-XX:+HeapDumpOnOutOfMemoryError",
     "-XX:+UseG1GC",
-    "-XX:MaxGCPauseMillis=30",
-    "-XX:G1HeapRegionSize=16m",
-    "-XX:InitiatingHeapOccupancyPercent=75",
     "-XX:+ParallelRefProcEnabled",
-    "-XX:+PerfDisableSharedMem",
-    "-XX:+OptimizeStringConcat",
+    "-XX:MaxInlineLevel=20", "-XX:MaxTrivialSize=12",
     "-Djava.net.preferIPv4Stack=true",
     "-Djava.net.preferIPv6Addresses=false"
   )
