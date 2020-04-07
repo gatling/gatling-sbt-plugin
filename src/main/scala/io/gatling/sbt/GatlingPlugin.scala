@@ -42,12 +42,12 @@ object GatlingPlugin extends AutoPlugin {
   /**************/
   /** Settings **/
   /**************/
-  lazy val gatlingSettings =
-    inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
+  lazy val gatlingSettings: Seq[Def.Setting[_]] =
+    inConfig(Gatling)(Defaults.testTasks ++ gatlingBaseSettings(Gatling, Test))
 
   lazy val gatlingItSettings: Seq[Def.Setting[_]] =
     inConfig(GatlingIt)(
-      Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)
+      Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest)
     )
 
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
@@ -56,17 +56,11 @@ object GatlingPlugin extends AutoPlugin {
   /********************/
   /** Helper methods **/
   /********************/
-  private def gatlingBaseSettings(config: Configuration, parent: Configuration, filterClasspath: Boolean = true) = Seq(
+  private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,
-    fullClasspath in config := {
-      val path = (fullClasspath in parent).value
-      val dir = (classDirectory in config).value
-      if (filterClasspath) path.filterNot(_.data == dir) else path
-    },
     testOptions in config += Argument(gatlingTestFramework, "-rf", (target in config).value.getPath),
     javaOptions in config ++= overrideDefaultJavaOptions(),
-    sourceDirectory in config := (sourceDirectory in parent).value,
     parallelExecution in config := false,
     fork in config := true,
     testGrouping in config := (testGrouping in config).value flatMap singleTestGroup,
