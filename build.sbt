@@ -24,3 +24,5 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
 }
 
 scriptedBufferLog := false
+
+pluginCrossBuild / sbtVersion := "1.2.8"
