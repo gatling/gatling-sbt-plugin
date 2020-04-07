@@ -24,7 +24,8 @@ import sbt.complete.Parser
 private[gatling] object ReportUtils {
 
   /** Regex matching a simulation ID (<name>-<timestamp>). */
-  val reportFolderRegex = """(\w+)-(\d+)""".r
+  private val reportFolderRegex = """(\w+)-(\d+)""".r
+  private val allReportsFilter = DirectoryFilter && new PatternFilter(reportFolderRegex.pattern)
 
   /**
    * Opens the selected URI in the default web browser.
@@ -86,9 +87,9 @@ private[gatling] object ReportUtils {
    * @param timestamp the timestamp of this report.
    */
   case class Report(path: File, name: String, simulationId: String, timestamp: String)
-
-  /** Orders reports from most recent to oldest. */
-  implicit val reportOrdering = Ordering.fromLessThan[Report](_.timestamp > _.timestamp)
+  object Report {
+    implicit val ordering: Ordering[Report] = Ordering.fromLessThan[Report](_.timestamp > _.timestamp)
+  }
 
   /**
    * Extracts the list of all reports, sorted by timestamp (desc),
@@ -98,10 +99,8 @@ private[gatling] object ReportUtils {
    * @return the list of all reports.
    */
   def allReports(reportsFolder: File): Seq[Report] = {
-    val filter = DirectoryFilter && new PatternFilter(reportFolderRegex.pattern)
-    val allDirectories = (reportsFolder ** filter).get
     val reports = for {
-      directory <- allDirectories
+      directory <- (reportsFolder ** allReportsFilter).get
       reportFolderRegex(simulationId, timestamp) <- reportFolderRegex findFirstIn directory.getName
     } yield Report(directory, directory.getName, simulationId, timestamp)
     reports.toList.sorted
@@ -114,7 +113,8 @@ private[gatling] object ReportUtils {
    * @param reportsFolder the reports folder path
    * @return the list of all simulation IDs.
    */
-  def allSimulationIds(reportsFolder: File): Set[String] = allReports(reportsFolder).map(_.simulationId).distinct.toSet
+  def allSimulationIds(reportsFolder: File): Set[String] =
+    allReports(reportsFolder).map(_.simulationId).distinct.toSet
 
   /**
    * Extracts the list of all report names found in the reports folder.
@@ -122,5 +122,6 @@ private[gatling] object ReportUtils {
    * @param reportsFolder the reports folder path
    * @return the list of all report names.
    */
-  def allReportNames(reportsFolder: File): Set[String] = allReports(reportsFolder).map(_.name).distinct.toSet
+  def allReportNames(reportsFolder: File): Set[String] =
+    allReports(reportsFolder).map(_.name).distinct.toSet
 }

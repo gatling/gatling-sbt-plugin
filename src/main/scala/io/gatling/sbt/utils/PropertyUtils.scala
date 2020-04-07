@@ -23,7 +23,8 @@ object PropertyUtils {
     "-XX:+HeapDumpOnOutOfMemoryError",
     "-XX:+UseG1GC",
     "-XX:+ParallelRefProcEnabled",
-    "-XX:MaxInlineLevel=20", "-XX:MaxTrivialSize=12",
+    "-XX:MaxInlineLevel=20",
+    "-XX:MaxTrivialSize=12",
     "-Djava.net.preferIPv4Stack=true",
     "-Djava.net.preferIPv6Addresses=false"
   )

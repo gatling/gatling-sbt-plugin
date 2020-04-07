@@ -18,7 +18,6 @@ package io.gatling.sbt
 import sbt._
 import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
-
 import _root_.io.gatling.sbt.GatlingTasks._
 
 object GatlingPlugin extends AutoPlugin {
@@ -31,9 +30,9 @@ object GatlingPlugin extends AutoPlugin {
 
   import autoImport._
 
-  override def projectConfigurations = Seq(Gatling, IntegrationTest, GatlingIt)
+  override def projectConfigurations: Seq[Configuration] = Seq(Gatling, IntegrationTest, GatlingIt)
 
-  override def projectSettings = gatlingAllSettings
+  override def projectSettings: Seq[Def.Setting[_]] = gatlingAllSettings
 
   /*******************************/
   /** Test framework definition **/
@@ -43,13 +42,16 @@ object GatlingPlugin extends AutoPlugin {
   /**************/
   /** Settings **/
   /**************/
-  lazy val gatlingSettings = inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
+  lazy val gatlingSettings =
+    inConfig(Gatling)(Defaults.testSettings ++ gatlingBaseSettings(Gatling, Test))
 
-  lazy val gatlingItSettings = inConfig(GatlingIt)(
-    Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)
-  )
+  lazy val gatlingItSettings: Seq[Def.Setting[_]] =
+    inConfig(GatlingIt)(
+      Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest, filterClasspath = false)
+    )
 
-  lazy val gatlingAllSettings = gatlingSettings ++ gatlingItSettings
+  lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
+    gatlingSettings ++ gatlingItSettings
 
   /********************/
   /** Helper methods **/
