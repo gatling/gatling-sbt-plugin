@@ -59,9 +59,7 @@ private[gatling] object StartRecorderUtils {
   )
 
   /** Parser matching the help option, in short and full version. */
-  val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))) map { s =>
-    Seq(s)
-  }
+  val helpParser: Parser[Seq[String]] = (token(Space) ~> exactStringParser(Set("-h", "--help"))).map(List(_))
 
   /**
    * Builds a parser matching any option from ''options'', prefixed by ''prefix''.
@@ -71,17 +69,19 @@ private[gatling] object StartRecorderUtils {
    */
   def optionParser(prefix: String, options: Set[String]): Parser[Seq[String]] = {
     // Match a string provided in examples, prefixed by the provided prefix
-    val option = (prefix ~ exactStringParser(options)) map { case (s1, s2) => s1 + s2 }
+    val option = (prefix ~ exactStringParser(options)).map({ case (s1, s2) => s1 + s2 })
     // Match the option and the provided arg, with necessary spaces dropped from the parsed result
-    token(Space) ~> ((option <~ token(Space)) ~ NotSpace) map { case (s1, s2) => List(s1, s2) }
+    (token(Space) ~> ((option <~ token(Space)) ~ NotSpace)).map({ case (s1, s2) => List(s1, s2) })
   }
 
   /**
    * The complete option parser, matching any option supported by the Recorder,
    * whether it is its full or short version.
    */
-  val optionsParser: Parser[Seq[String]] =
-    helpParser | ((optionParser("-", shortRecorderOpts) | optionParser("--", fullRecorderOpts)).* map (_.flatten))
+  val optionsParser: Parser[Seq[String]] = {
+    val optionsParser = (optionParser("-", shortRecorderOpts) | optionParser("--", fullRecorderOpts)).*.map(_.flatten)
+    helpParser | optionsParser
+  }
 
   /**
    * Transforms a pair (short option, value) to the corresponding list of arguments.
@@ -90,9 +90,7 @@ private[gatling] object StartRecorderUtils {
    * @return the corresponding list of arguments.
    */
   def toShortOptionAndValue(optionAndValue: (String, String)): Seq[String] =
-    optionAndValue match {
-      case (arg, value) => List("-" + arg, value)
-    }
+    List("-" + optionAndValue._1, optionAndValue._2)
 
   /**
    * Adds the ''package'' option, set to default to ''packageName'',
@@ -102,7 +100,7 @@ private[gatling] object StartRecorderUtils {
    * @param packageName the default package name
    * @return the list of arguments, with the default package set if it wasn't already set.
    */
-  def addPackageIfNecessary(args: Seq[String], packageName: String) =
+  def addPackageIfNecessary(args: Seq[String], packageName: String): Seq[String] =
     if (args.contains("-pkg") || args.contains("--package")) args
     else args ++ toShortOptionAndValue("pkg" -> packageName)
 

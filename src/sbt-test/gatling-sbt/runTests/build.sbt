@@ -1,9 +1,9 @@
 enablePlugins(GatlingPlugin)
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.11"
 
-resolvers += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+val gatlingVersion = "3.3.0"
 
-libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.2.0" % "it,test"
-libraryDependencies += "io.gatling" % "gatling-test-framework" % "2.2.0" % "it,test"
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5"
+libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion % "it,test"
+libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion % "it,test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.1.1"

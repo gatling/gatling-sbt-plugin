@@ -37,7 +37,6 @@ object GatlingKeys {
   // -------------------- //
 
   val Gatling = config("gatling") extend Test
-
   val GatlingIt = config("gatling-it") extend IntegrationTest
 
   // -------------------- //
@@ -47,7 +46,7 @@ object GatlingKeys {
   private val unPropagatedPropertiesRoots =
     List("java.", "sun.", "jline.", "file.", "awt.", "os.", "user.")
 
-  def overrideDefaultJavaOptions(javaOptions: String*) =
+  def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
     propagatedSystemProperties ++ DefaultJvmArgs ++ javaOptions
 
   private def isPropagatedSystemProperty(name: String) =
