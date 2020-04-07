@@ -8,7 +8,7 @@ $ absent target/test-reports
 # Run unit tests:
 # * Check that there is a JUnit report generated
 > test
-$ exists target/test-reports/unit.Spec.xml
+$ exists target/test-reports/TEST-unit.Spec.xml
 
 # check that there no reports before running test
 $ absent target/gatling
@@ -18,7 +18,7 @@ $ absent target/gatling
 # * Expect that a new report has been created in target/gatling
 > gatling:testOnly basic.BasicExampleSimulationSucceeds
 $ exists target/gatling
-$ exists target/test-reports/basic.BasicExampleSimulationSucceeds.xml
+$ exists target/test-reports/TEST-basic.BasicExampleSimulationSucceeds.xml
 
 # Run the clean task:
 # * Expect that the task succeeds
@@ -29,7 +29,7 @@ $ absent target/gatling
 # Run the BasicExampleSimulationFails simulation:
 # * Expect that the task fails
 -> gatling:testOnly basic.BasicExampleSimulationFails
-$ exists target/test-reports/basic.BasicExampleSimulationFails.xml
+$ exists target/test-reports/TEST-basic.BasicExampleSimulationFails.xml
 
 ###################################
 ## GatlingIt configuration tests ##
@@ -38,7 +38,7 @@ $ exists target/test-reports/basic.BasicExampleSimulationFails.xml
 # Run integration tests:
 # * Check that there is a JUnit report generated
 > it:test
-$ exists target/test-reports/integration.ItSpec.xml
+$ exists target/test-reports/TEST-integration.ItSpec.xml
 
 # check that there no reports before running test
 $ absent target/gatling-it
@@ -48,7 +48,7 @@ $ absent target/gatling-it
 # * Expect that a new report has been created in target/gatling
 > gatling-it:testOnly basic.BasicItExampleSimulationSucceeds
 $ exists target/gatling-it
-$ exists target/test-reports/basic.BasicItExampleSimulationSucceeds.xml
+$ exists target/test-reports/TEST-basic.BasicItExampleSimulationSucceeds.xml
 
 # Run the clean task:
 # * Expect that the task succeeds
@@ -59,4 +59,4 @@ $ absent target/gatling-it
 # Run the BasicExampleSimulationFails simulation:
 # * Expect that the task fails
 -> gatling-it:testOnly basic.BasicItExampleSimulationFails
-$ exists target/test-reports/basic.BasicItExampleSimulationFails.xml
+$ exists target/test-reports/TEST-basic.BasicItExampleSimulationFails.xml
