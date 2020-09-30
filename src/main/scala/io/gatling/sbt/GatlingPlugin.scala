@@ -43,11 +43,18 @@ object GatlingPlugin extends AutoPlugin {
   /** Settings **/
   /**************/
   lazy val gatlingSettings: Seq[Def.Setting[_]] =
-    inConfig(Gatling)(Defaults.testTasks ++ gatlingBaseSettings(Gatling, Test))
+    inConfig(Gatling)(
+      Defaults.testTasks ++
+        (forkOptions := Defaults.forkOptionsTask.value) ++
+        gatlingBaseSettings(Gatling, Test)
+    )
 
   lazy val gatlingItSettings: Seq[Def.Setting[_]] =
     inConfig(GatlingIt)(
-      Defaults.itSettings ++ Defaults.testTasks ++ gatlingBaseSettings(GatlingIt, IntegrationTest)
+      Defaults.itSettings ++
+        Defaults.testTasks ++
+        (forkOptions := Defaults.forkOptionsTask.value) ++
+        gatlingBaseSettings(GatlingIt, IntegrationTest)
     )
 
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
