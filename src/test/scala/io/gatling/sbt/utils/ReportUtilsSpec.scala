@@ -20,9 +20,10 @@ import sbt._
 import _root_.io.gatling.sbt.ParserMatchers
 import _root_.io.gatling.sbt.utils.ReportUtils._
 
-import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class ReportUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
+class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
 
   {
     val reports = Seq(

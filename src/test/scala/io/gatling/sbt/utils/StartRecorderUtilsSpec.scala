@@ -18,9 +18,10 @@ package io.gatling.sbt.utils
 import io.gatling.sbt.ParserMatchers
 import io.gatling.sbt.utils.StartRecorderUtils._
 
-import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class StartRecorderUtilsSpec extends FlatSpec with Matchers with ParserMatchers {
+class StartRecorderUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
 
   "helpParser" should "parse '-h' and '--help'" in {
     helpParser should complete(" ", Set("-h", "--help"))

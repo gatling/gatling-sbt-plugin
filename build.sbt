@@ -7,13 +7,13 @@ disablePlugins(SonatypeReleasePlugin, MavenPublishPlugin, Sonatype)
 
 name                 := "gatling-sbt"
 headerLicense        := ApacheV2License
-scalaVersion         := "2.12.10"
+scalaVersion         := "2.12.12"
 sbtPlugin            := true
 publishMavenStyle    := false
 bintrayRepository    := "sbt-plugins"
 bintrayOrganization in bintray := None
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % "test"
 
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq(
@@ -25,4 +25,4 @@ scriptedLaunchOpts := { scriptedLaunchOpts.value ++
 
 scriptedBufferLog := false
 
-pluginCrossBuild / sbtVersion := "1.2.8"
+pluginCrossBuild / sbtVersion := "1.4.3"
