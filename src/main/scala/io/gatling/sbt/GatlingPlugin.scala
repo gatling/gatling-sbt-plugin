@@ -26,9 +26,7 @@ object GatlingPlugin extends AutoPlugin {
 
   /**
    * *******************
-   */
-  /** AutoPlugin setup * */
-  /**
+   * AutoPlugin setup
    * *******************
    */
   override val requires = plugins.JvmPlugin
@@ -88,7 +86,8 @@ object GatlingPlugin extends AutoPlugin {
     config / lastReport := openLastReport(config).evaluated,
     config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
     config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
-    config / generateReport := generateGatlingReport(config).evaluated
+    config / generateReport := generateGatlingReport(config).evaluated,
+    config / assembly := assemblyFrontLine(config).value
   )
 
   /**

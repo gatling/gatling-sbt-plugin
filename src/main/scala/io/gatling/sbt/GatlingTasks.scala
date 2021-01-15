@@ -19,6 +19,9 @@ package io.gatling.sbt
 import java.io.File
 
 import _root_.io.gatling.sbt.utils.CopyUtils._
+import _root_.io.gatling.sbt.utils.DependenciesAnalysisResult
+import _root_.io.gatling.sbt.utils.DependenciesAnalyzer
+import _root_.io.gatling.sbt.utils.FatJar
 import _root_.io.gatling.sbt.utils.ReportUtils._
 import _root_.io.gatling.sbt.utils.StartRecorderUtils._
 
@@ -31,6 +34,34 @@ object GatlingTasks {
 
   private def forkOptionsWithRunJVMOptions(options: Seq[String]) =
     _root_.sbt.ForkOptions().withRunJVMOptions(options.toVector)
+
+  private def moduleDescriptorConfig = Def.task {
+    moduleSettings.value match {
+      case config: ModuleDescriptorConfiguration => config
+      case x =>
+        throw new IllegalStateException(s"sbt-frontline expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
+    }
+  }
+
+  def assemblyFrontLine(config: Configuration): Def.Initialize[Task[File]] = Def.task {
+    val moduleDescriptor = moduleDescriptorConfig.value
+
+    val DependenciesAnalysisResult(gatlingVersion, dependencies) = DependenciesAnalyzer.analyze(
+      dependencyResolution.value,
+      updateConfiguration.value,
+      (unresolvedWarningConfiguration in update).value,
+      config,
+      streams.value.log,
+      moduleDescriptor
+    )
+
+    val classesDirectories = (fullClasspath in config).value.map(_.data).filter(_.isDirectory)
+
+    val jarName = s"${moduleName.value}-frontline-${version.value}"
+
+    FatJar
+      .packageFatJar(moduleDescriptor.module, classesDirectories, gatlingVersion, dependencies, target.value, jarName)
+  }
 
   def recorderRunner(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Int]] = Def.inputTask {
     // Parse args and add missing args if necessary
