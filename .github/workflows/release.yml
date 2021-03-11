@@ -1,0 +1,48 @@
+name: 'release'
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: 'minor|patch' # milestone are unavailable from github env
+        required: true
+        default: 'patch'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate inputs
+        run: exit 1
+        if: github.event.inputs.releaseType != 'minor' && github.event.inputs.releaseType != 'patch'
+
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # indicates all history for all branches and tags
+          path: repo
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: '8'
+
+      - name: Download SBT wrapper
+        run: curl -Ls https://git.io/sbt > sbtx && chmod 0755 sbtx
+
+      - name: Prepare environment
+        env:
+          SONATYPE_FILE: ${{ secrets.SONATYPE_FILE }}
+          PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        working-directory: repo
+        run: |
+          mkdir -p ~/.sbt/1.0
+          echo "$SONATYPE_FILE" > ~/.sbt/1.0/sonatype.sbt
+          echo "$PGP_SECRET" | base64 --decode | gpg --batch --import
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: release
+        working-directory: repo
+        env:
+          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        run: |
+          ../sbtx 'gatling-release ${{ github.event.inputs.releaseType }}'
