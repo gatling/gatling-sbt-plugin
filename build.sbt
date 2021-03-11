@@ -13,7 +13,7 @@ publishMavenStyle    := false
 bintrayRepository    := "sbt-plugins"
 bintrayOrganization in bintray := None
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.2" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.6" % "test"
 
 scriptedLaunchOpts := { scriptedLaunchOpts.value ++
   Seq(
