@@ -22,9 +22,13 @@ import _root_.io.gatling.sbt.GatlingTasks._
 
 object GatlingPlugin extends AutoPlugin {
 
-  /**********************/
-  /** AutoPlugin setup **/
-  /**********************/
+  /**
+   * *******************
+   */
+  /** AutoPlugin setup * */
+  /**
+   * *******************
+   */
   override val requires = plugins.JvmPlugin
   val autoImport = GatlingKeys
 
@@ -34,14 +38,22 @@ object GatlingPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = gatlingAllSettings
 
-  /*******************************/
-  /** Test framework definition **/
-  /*******************************/
+  /**
+   * ****************************
+   */
+  /** Test framework definition * */
+  /**
+   * ****************************
+   */
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
-  /**************/
-  /** Settings **/
-  /**************/
+  /**
+   * ***********
+   */
+  /** Settings * */
+  /**
+   * ***********
+   */
   lazy val gatlingSettings: Seq[Def.Setting[_]] =
     inConfig(Gatling)(
       Defaults.testTasks ++
@@ -60,9 +72,13 @@ object GatlingPlugin extends AutoPlugin {
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
     gatlingSettings ++ gatlingItSettings
 
-  /********************/
-  /** Helper methods **/
-  /********************/
+  /**
+   * *****************
+   */
+  /** Helper methods * */
+  /**
+   * *****************
+   */
   private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,

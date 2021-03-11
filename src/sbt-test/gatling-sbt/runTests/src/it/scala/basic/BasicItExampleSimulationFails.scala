@@ -13,7 +13,7 @@ class BasicItExampleSimulationFails extends Simulation {
   val scn = scenario("Scenario name")
     .group("Login") {
       exec(http("request_1").get("/").check(status.is(302)))
-     .feed(csv("foo.csv"))
+        .feed(csv("foo.csv"))
     }
 
   setUp(scn.inject(atOnceUsers(1)))
