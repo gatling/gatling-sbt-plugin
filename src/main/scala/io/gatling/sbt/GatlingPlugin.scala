@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2019 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.sbt
+
+import _root_.io.gatling.sbt.GatlingTasks._
 
 import sbt._
 import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
-import _root_.io.gatling.sbt.GatlingTasks._
 
 object GatlingPlugin extends AutoPlugin {
 
-  /**********************/
-  /** AutoPlugin setup **/
-  /**********************/
+  /**
+   * *******************
+   */
+  /** AutoPlugin setup * */
+  /**
+   * *******************
+   */
   override val requires = plugins.JvmPlugin
   val autoImport = GatlingKeys
 
@@ -34,14 +40,22 @@ object GatlingPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = gatlingAllSettings
 
-  /*******************************/
-  /** Test framework definition **/
-  /*******************************/
+  /**
+   * ****************************
+   */
+  /** Test framework definition * */
+  /**
+   * ****************************
+   */
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
-  /**************/
-  /** Settings **/
-  /**************/
+  /**
+   * ***********
+   */
+  /** Settings * */
+  /**
+   * ***********
+   */
   lazy val gatlingSettings: Seq[Def.Setting[_]] =
     inConfig(Gatling)(
       Defaults.testTasks ++
@@ -60,9 +74,13 @@ object GatlingPlugin extends AutoPlugin {
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
     gatlingSettings ++ gatlingItSettings
 
-  /********************/
-  /** Helper methods **/
-  /********************/
+  /**
+   * *****************
+   */
+  /** Helper methods * */
+  /**
+   * *****************
+   */
   private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
     testFrameworks in config := Seq(gatlingTestFramework),
     target in config := target.value / config.name,

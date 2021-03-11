@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2018 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.sbt.utils
 
-import sbt._
+package io.gatling.sbt.utils
 
 import _root_.io.gatling.sbt.ParserMatchers
 import _root_.io.gatling.sbt.utils.ReportUtils._
-
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
+
+import sbt._
 
 class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
 
