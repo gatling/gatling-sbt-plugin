@@ -1,5 +1,5 @@
-/**
- * Copyright 2011-2019 GatlingCorp (http://gatling.io)
+/*
+ * Copyright 2011-2021 GatlingCorp (https://gatling.io)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.gatling.sbt
 
-import sbt._
-
 import _root_.io.gatling.sbt.utils.PropertyUtils.DefaultJvmArgs
+
+import sbt._
 
 /** List of SBT keys for Gatling specific tasks. */
 object GatlingKeys {
