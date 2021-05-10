@@ -1,48 +1,47 @@
-name: 'release'
+name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      releaseType:
-        description: 'minor|patch' # milestone are unavailable from github env
-        required: true
-        default: 'patch'
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      JVM_OPTS: "-Xmx6G"
+      SBT_OPTS: "-Dsbt.ci=true"
     steps:
-      - name: Validate inputs
-        run: exit 1
-        if: github.event.inputs.releaseType != 'minor' && github.event.inputs.releaseType != 'patch'
-
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0 # indicates all history for all branches and tags
-          path: repo
 
-      - uses: actions/setup-java@v1
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
         with:
-          java-version: '8'
-
-      - name: Download SBT wrapper
-        run: curl -Ls https://git.io/sbt > sbtx && chmod 0755 sbtx
+          java-version: "adopt@1.8"
 
       - name: Prepare environment
         env:
-          SONATYPE_FILE: ${{ secrets.SONATYPE_FILE }}
-          PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        working-directory: repo
+          SONATYPE_SBT: ${{ secrets.SONATYPE_SBT }}
+          SONATYPE_PGP_SECRET: ${{ secrets.SONATYPE_PGP_SECRET }}
         run: |
-          mkdir -p ~/.sbt/1.0
-          echo "$SONATYPE_FILE" > ~/.sbt/1.0/sonatype.sbt
-          echo "$PGP_SECRET" | base64 --decode | gpg --batch --import
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          mkdir --parents ~/.sbt/1.0 || true
+          echo "$SONATYPE_SBT" > ~/.sbt/1.0/sonatype.sbt
+          echo -n "$SONATYPE_PGP_SECRET" | base64 --decode | gpg --batch --import
 
-      - name: release
-        working-directory: repo
+      #     - name: Cache
+      #       No cache for release! We want clean and full release!
+
+      - name: Release
+        id: release
         env:
-          PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+          PGP_PASSPHRASE: ${{ secrets.SONATYPE_PGP_PASSPHRASE }}
         run: |
-          ../sbtx 'gatling-release ${{ github.event.inputs.releaseType }}'
+          sbt "release with-defaults"
+          export VERSION="$(cat target/release-info)"
+          echo "version=$VERSION" # DO NOT REMOVE, because of bad parsing for outputs
+          echo "::set-output name=version::$VERSION"

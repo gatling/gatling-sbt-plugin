@@ -42,18 +42,14 @@ object GatlingPlugin extends AutoPlugin {
 
   /**
    * ****************************
-   */
-  /** Test framework definition * */
-  /**
+   * Test framework definition
    * ****************************
    */
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
   /**
    * ***********
-   */
-  /** Settings * */
-  /**
+   * Settings
    * ***********
    */
   lazy val gatlingSettings: Seq[Def.Setting[_]] =
@@ -76,25 +72,23 @@ object GatlingPlugin extends AutoPlugin {
 
   /**
    * *****************
-   */
-  /** Helper methods * */
-  /**
+   * Helper methods
    * *****************
    */
   private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
-    testFrameworks in config := Seq(gatlingTestFramework),
-    target in config := target.value / config.name,
-    testOptions in config += Argument(gatlingTestFramework, "-rf", (target in config).value.getPath),
-    javaOptions in config ++= overrideDefaultJavaOptions(),
-    parallelExecution in config := false,
-    fork in config := true,
-    testGrouping in config := (testGrouping in config).value flatMap singleTestGroup,
-    startRecorder in config := recorderRunner(config, parent).evaluated,
-    clean in config := cleanReports((target in config).value),
-    lastReport in config := openLastReport(config).evaluated,
-    copyConfigFiles in config := copyConfigurationFiles((resourceDirectory in config).value, (update in config).value),
-    copyLogbackXml in config := copyLogback((resourceDirectory in config).value, (update in config).value),
-    generateReport in config := generateGatlingReport(config).evaluated
+    config / testFrameworks := Seq(gatlingTestFramework),
+    config / target := target.value / config.name,
+    config / testOptions += Argument(gatlingTestFramework, "-rf", (config / target).value.getPath),
+    config / javaOptions ++= overrideDefaultJavaOptions(),
+    config / parallelExecution := false,
+    config / fork := true,
+    config / testGrouping := (config / testGrouping).value flatMap singleTestGroup,
+    config / startRecorder := recorderRunner(config, parent).evaluated,
+    config / clean := cleanReports((config / target).value),
+    config / lastReport := openLastReport(config).evaluated,
+    config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
+    config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
+    config / generateReport := generateGatlingReport(config).evaluated
   )
 
   /**

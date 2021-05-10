@@ -10,7 +10,7 @@ $ absent src/test/resources/recorder.conf
 # Run the copyConfigFiles task:
 # * Expect that the task succeeds
 # * Expect that the config files have been copied
-> gatling:copyConfigFiles
+> Gatling / copyConfigFiles
 $ exists src/test/resources/gatling.conf
 $ exists src/test/resources/gatling-akka.conf
 $ exists src/test/resources/recorder.conf
@@ -18,7 +18,7 @@ $ exists src/test/resources/recorder.conf
 # Run the copyLogbackXml task:
 # * Expect that the task succeeds
 # * Expect that logback.xml has been copied
-> gatling:copyLogbackXml
+> Gatling / copyLogbackXml
 $ exists src/test/resources/logback.xml
 
 ###################################
@@ -33,7 +33,7 @@ $ absent src/it/resources/recorder.conf
 # Run the copyConfigFiles task:
 # * Expect that the task succeeds
 # * Expect that the config files have been copied
-> gatling-it:copyConfigFiles
+> GatlingIt / copyConfigFiles
 $ exists src/it/resources/gatling.conf
 $ exists src/it/resources/gatling-akka.conf
 $ exists src/it/resources/recorder.conf
@@ -41,5 +41,5 @@ $ exists src/it/resources/recorder.conf
 # Run the copyLogbackXml task:
 # * Expect that the task succeeds
 # * Expect that logback.xml has been copied
-> gatling-it:copyLogbackXml
+> GatlingIt / copyLogbackXml
 $ exists src/it/resources/logback.xml
