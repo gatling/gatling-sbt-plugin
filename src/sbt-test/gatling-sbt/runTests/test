@@ -16,19 +16,19 @@ $ absent target/gatling
 # Run the BasicExampleSimulationSucceeds simulation:
 # * Expect that the task succeeds
 # * Expect that a new report has been created in target/gatling
-> gatling:testOnly basic.BasicExampleSimulationSucceeds
+> Gatling / testOnly basic.BasicExampleSimulationSucceeds
 $ exists target/gatling
 $ exists target/test-reports/TEST-basic.BasicExampleSimulationSucceeds.xml
 
 # Run the clean task:
 # * Expect that the task succeeds
 # * Expect that the target/gatling folder has been deleted
-> gatling:clean
+> Gatling / clean
 $ absent target/gatling
 
 # Run the BasicExampleSimulationFails simulation:
 # * Expect that the task fails
--> gatling:testOnly basic.BasicExampleSimulationFails
+-> Gatling / testOnly basic.BasicExampleSimulationFails
 $ exists target/test-reports/TEST-basic.BasicExampleSimulationFails.xml
 
 ###################################
@@ -37,8 +37,8 @@ $ exists target/test-reports/TEST-basic.BasicExampleSimulationFails.xml
 
 # Run integration tests:
 # * Check that there is a JUnit report generated
-> it:test
-$ exists target/test-reports/TEST-integration.ItSpec.xml
+> IntegrationTest / test
+$ exists target/it-reports/TEST-integration.ItSpec.xml
 
 # check that there no reports before running test
 $ absent target/gatling-it
@@ -46,17 +46,17 @@ $ absent target/gatling-it
 # Run the BasicExampleSimulationSucceeds simulation:
 # * Expect that the task succeeds
 # * Expect that a new report has been created in target/gatling
-> gatling-it:testOnly basic.BasicItExampleSimulationSucceeds
+> GatlingIt / testOnly basic.BasicItExampleSimulationSucceeds
 $ exists target/gatling-it
-$ exists target/test-reports/TEST-basic.BasicItExampleSimulationSucceeds.xml
+$ exists target/it-reports/TEST-basic.BasicItExampleSimulationSucceeds.xml
 
 # Run the clean task:
 # * Expect that the task succeeds
 # * Expect that the target/gatling folder has been deleted
-> gatling-it:clean
+> GatlingIT / clean
 $ absent target/gatling-it
 
 # Run the BasicExampleSimulationFails simulation:
 # * Expect that the task fails
--> gatling-it:testOnly basic.BasicItExampleSimulationFails
-$ exists target/test-reports/TEST-basic.BasicItExampleSimulationFails.xml
+-> GatlingIt / testOnly basic.BasicItExampleSimulationFails
+$ exists target/it-reports/TEST-basic.BasicItExampleSimulationFails.xml

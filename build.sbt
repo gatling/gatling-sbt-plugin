@@ -1,10 +1,8 @@
-ThisBuild / Keys.useCoursier := false
-
 enablePlugins(SbtPlugin)
 enablePlugins(GatlingOssPlugin)
 
 name := "gatling-sbt"
-scalaVersion := "2.12.12"
+scalaVersion := "2.12.13"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
@@ -21,7 +19,7 @@ scriptedLaunchOpts := {
 
 scriptedBufferLog := false
 
-pluginCrossBuild / sbtVersion := "1.4.3"
+pluginCrossBuild / sbtVersion := "1.5.2"
 gatlingDevelopers := Seq(
   GatlingDeveloper(
     "slandelle@gatling.io",

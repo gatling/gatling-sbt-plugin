@@ -1,0 +1,21 @@
+# Filename as FrontLine-xxx not to be diffused to OSS version.
+name: Scala Steward
+
+# This workflow will launch at 02:00 every Monday.
+on:
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
+
+jobs:
+  scala-steward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    name: Launch Scala Steward
+    steps:
+      - name: Launch Scala Steward
+        uses: scala-steward-org/scala-steward-action@v2
+        with:
+          github-token: ${{ secrets.GATLING_CI_TOKEN }}
+          author-email: ${{ secrets.GATLING_CI_NAME }}
+          author-name: ${{ secrets.GATLING_CI_EMAIL }}

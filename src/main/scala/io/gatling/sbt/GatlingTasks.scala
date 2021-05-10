@@ -35,12 +35,12 @@ object GatlingTasks {
   def recorderRunner(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Int]] = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
-    val simulationsForlderArg = toShortOptionAndValue("sf" -> (scalaSource in config).value.getPath)
-    val resourcesFolderArg = toShortOptionAndValue("rf" -> (resourceDirectory in config).value.getPath)
+    val simulationsForlderArg = toShortOptionAndValue("sf" -> (config / scalaSource).value.getPath)
+    val resourcesFolderArg = toShortOptionAndValue("rf" -> (config / resourceDirectory).value.getPath)
     val allArgs = addPackageIfNecessary(args ++ simulationsForlderArg ++ resourcesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    val classpathElements = (dependencyClasspath in parent).value.map(_.data) :+ (resourceDirectory in config).value
+    val classpathElements = (dependencyClasspath in parent).value.map(_.data) :+ (config / resourceDirectory).value
     val classpath = buildClassPathArgument(classpathElements)
     fork(forkOptionsWithRunJVMOptions(classpath), allArgs)
   }
@@ -48,20 +48,20 @@ object GatlingTasks {
   def cleanReports(folder: File): Unit = IO.delete(folder)
 
   def openLastReport(config: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
-    val selectedSimulationId = stateBasedParser(target in config)(target => simulationIdParser(allSimulationIds(target))).parsed
-    val filteredReports = filterReportsIfSimulationIdSelected(allReports((target in config).value), selectedSimulationId)
+    val selectedSimulationId = stateBasedParser(config / target)(target => simulationIdParser(allSimulationIds(target))).parsed
+    val filteredReports = filterReportsIfSimulationIdSelected(allReports((config / target).value), selectedSimulationId)
     val reportsPaths = filteredReports.map(_.path)
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
 
   def generateGatlingReport(config: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
-    val selectedReportName = stateBasedParser(target in config)(target => reportNameParser(allReportNames(target))).parsed
-    val filteredReports = filterReportsIfReportNameIdSelected(allReports((target in config).value), selectedReportName)
+    val selectedReportName = stateBasedParser(config / target)(target => reportNameParser(allReportNames(target))).parsed
+    val filteredReports = filterReportsIfReportNameIdSelected(allReports((config / target).value), selectedReportName)
     val reportsPaths = filteredReports.map(_.path.getName)
     reportsPaths.headOption.foreach { folderName =>
-      val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (target in config).value.getPath)
+      val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (config / target).value.getPath)
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
-      val classpath = buildClassPathArgument((dependencyClasspath in config).value.map(_.data))
+      val classpath = buildClassPathArgument((config / dependencyClasspath).value.map(_.data))
       fork(forkOptionsWithRunJVMOptions(classpath), opts)
     }
   }
