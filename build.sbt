@@ -6,7 +6,7 @@ scalaVersion := "2.12.13"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.8" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 
 scriptedLaunchOpts := {
   scriptedLaunchOpts.value ++
