@@ -1,0 +1,13 @@
+######################################
+## Gatling enterpriseAssembly tests ##
+######################################
+
+> Gatling / enterpriseAssembly
+$ exists target/gatling/my-test-project-gatling-enterprise-1.2.3.jar
+
+########################################
+## GatlingIt enterpriseAssembly tests ##
+########################################
+
+> GatlingIt / enterpriseAssembly
+$ exists target/gatling-it/my-test-project-gatling-enterprise-1.2.3.jar

@@ -87,7 +87,7 @@ object GatlingPlugin extends AutoPlugin {
     config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
     config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
     config / generateReport := generateGatlingReport(config).evaluated,
-    config / assembly := assemblyFrontLine(config).value
+    config / enterpriseAssembly := packageEnterpriseJar(config).value
   )
 
   /**
