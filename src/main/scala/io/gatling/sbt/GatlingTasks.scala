@@ -39,25 +39,25 @@ object GatlingTasks {
     moduleSettings.value match {
       case config: ModuleDescriptorConfiguration => config
       case x =>
-        throw new IllegalStateException(s"sbt-frontline expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
+        throw new IllegalStateException(s"gatling-sbt expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
     }
   }
 
-  def assemblyFrontLine(config: Configuration): Def.Initialize[Task[File]] = Def.task {
+  def packageEnterpriseJar(config: Configuration): Def.Initialize[Task[File]] = Def.task {
     val moduleDescriptor = moduleDescriptorConfig.value
 
     val DependenciesAnalysisResult(gatlingVersion, dependencies) = DependenciesAnalyzer.analyze(
       dependencyResolution.value,
       updateConfiguration.value,
-      (unresolvedWarningConfiguration in update).value,
+      (update / unresolvedWarningConfiguration).value,
       config,
       streams.value.log,
       moduleDescriptor
     )
 
-    val classesDirectories = (fullClasspath in config).value.map(_.data).filter(_.isDirectory)
+    val classesDirectories = (config / fullClasspath).value.map(_.data).filter(_.isDirectory)
 
-    val jarName = s"${moduleName.value}-frontline-${version.value}"
+    val jarName = s"${moduleName.value}-gatling-enterprise-${version.value}"
 
     FatJar
       .packageFatJar(moduleDescriptor.module, classesDirectories, gatlingVersion, dependencies, target.value, jarName)
