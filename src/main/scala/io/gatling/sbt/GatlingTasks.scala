@@ -63,6 +63,42 @@ object GatlingTasks {
       .packageFatJar(moduleDescriptor.module, classesDirectories, gatlingVersion, dependencies, target.value, jarName)
   }
 
+  def legacyPackageEnterpriseJar(config: Configuration): Def.Initialize[Task[File]] = Def.sequential(
+    Def.task {
+      val newCommand = config.id match {
+        case Test.id            => "Gatling / enterpriseAssembly"
+        case IntegrationTest.id => "GatlingIt / enterpriseAssembly"
+        case _                  => "Gatling / enterpriseAssembly or GatlingIt / enterpriseAssembly"
+      }
+      streams.value.log.warn(
+        s"""Task ${config.id} / assembly is deprecated and will be removed in a future version.
+           |Please use $newCommand instead.
+           |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
+      )
+    },
+    packageEnterpriseJar(config)
+  )
+
+  def onLoadWarnIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
+    (onLoad in Global).value.andThen { state =>
+      val foundLegacyFrontLinePlugin =
+        Project.extract(state).structure.units.exists { case (_, build) =>
+          build.projects.exists(
+            _.autoPlugins.exists(_.label == "io.gatling.frontline.sbt.FrontLinePlugin")
+          )
+        }
+      if (foundLegacyFrontLinePlugin) {
+        Keys.sLog.value.warn(
+          s"""Plugin "io.gatling.frontline" % "sbt-frontline" is no longer required, its functionality is now included in "io.gatling" % "gatling-sbt".
+             |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
+             |Please use the Gatling / enterpriseAssembly task instead of Test / assembly (or GatlingIt / enterpriseAssembly instead of It / assembly).
+             |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
+        )
+      }
+      state
+    }
+  }
+
   def recorderRunner(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Int]] = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
@@ -71,7 +107,7 @@ object GatlingTasks {
     val allArgs = addPackageIfNecessary(args ++ simulationsForlderArg ++ resourcesFolderArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    val classpathElements = (dependencyClasspath in parent).value.map(_.data) :+ (config / resourceDirectory).value
+    val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
     val classpath = buildClassPathArgument(classpathElements)
     fork(forkOptionsWithRunJVMOptions(classpath), allArgs)
   }

@@ -9,5 +9,22 @@ $ exists target/gatling/my-test-project-gatling-enterprise-1.2.3.jar
 ## GatlingIt enterpriseAssembly tests ##
 ########################################
 
+> clean
 > GatlingIt / enterpriseAssembly
 $ exists target/gatling-it/my-test-project-gatling-enterprise-1.2.3.jar
+
+##################################
+## Legacy Test / assembly tests ##
+##################################
+
+> clean
+> Test / assembly
+$ exists target/my-test-project-gatling-enterprise-1.2.3.jar
+
+##################################
+## Legacy It / assembly tests ##
+##################################
+
+> clean
+> It / assembly
+$ exists target/my-test-project-gatling-enterprise-1.2.3.jar
