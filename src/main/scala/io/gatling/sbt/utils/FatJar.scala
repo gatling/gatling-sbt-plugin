@@ -75,5 +75,6 @@ object FatJar {
       name.equalsIgnoreCase("META-INF/MANIFEST.MF") ||
       name.endsWith(".SF") ||
       name.endsWith(".DSA") ||
-      name.endsWith(".RSA")
+      name.endsWith(".RSA") ||
+      name.startsWith("maven/") // maven/** in other plugins
 }
