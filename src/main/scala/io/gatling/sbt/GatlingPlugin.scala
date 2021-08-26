@@ -65,8 +65,11 @@ object GatlingPlugin extends AutoPlugin {
         gatlingBaseSettings(GatlingIt, IntegrationTest)
     )
 
+  lazy val backwardCompatibilitySettings: Seq[Def.Setting[_]] =
+    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), legacyPluginWarningSetting)
+
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
-    gatlingSettings ++ gatlingItSettings
+    gatlingSettings ++ gatlingItSettings ++ backwardCompatibilitySettings
 
   /**
    * *****************
@@ -99,4 +102,9 @@ object GatlingPlugin extends AutoPlugin {
   private def singleTestGroup(group: Group): Seq[Group] =
     group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
 
+  private def legacyAssemblySetting(config: Configuration) =
+    config / assembly := legacyPackageEnterpriseJar(config).value
+
+  private def legacyPluginWarningSetting =
+    Global / onLoad := onLoadWarnIfLegacyPluginFound.value
 }
