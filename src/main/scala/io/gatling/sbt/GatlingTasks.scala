@@ -79,7 +79,7 @@ object GatlingTasks {
     packageEnterpriseJar(config)
   )
 
-  def onLoadWarnIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
+  def onLoadBreakIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
     (onLoad in Global).value.andThen { state =>
       val foundLegacyFrontLinePlugin =
         Project.extract(state).structure.units.exists { case (_, build) =>

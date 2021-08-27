@@ -66,7 +66,7 @@ object GatlingPlugin extends AutoPlugin {
     )
 
   lazy val backwardCompatibilitySettings: Seq[Def.Setting[_]] =
-    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), legacyPluginWarningSetting)
+    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
 
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
     gatlingSettings ++ gatlingItSettings ++ backwardCompatibilitySettings
@@ -105,6 +105,6 @@ object GatlingPlugin extends AutoPlugin {
   private def legacyAssemblySetting(config: Configuration) =
     config / assembly := legacyPackageEnterpriseJar(config).value
 
-  private def legacyPluginWarningSetting =
-    Global / onLoad := onLoadWarnIfLegacyPluginFound.value
+  private def breakIfLegacyPluginFoundSetting =
+    Global / onLoad := onLoadBreakIfLegacyPluginFound.value
 }
