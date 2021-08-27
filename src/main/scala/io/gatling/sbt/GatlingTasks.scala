@@ -88,12 +88,12 @@ object GatlingTasks {
           )
         }
       if (foundLegacyFrontLinePlugin) {
-        Keys.sLog.value.warn(
-          s"""Plugin "io.gatling.frontline" % "sbt-frontline" is no longer required, its functionality is now included in "io.gatling" % "gatling-sbt".
+        val errorMessage =
+          s"""Plugin "io.gatling.frontline" % "sbt-frontline" is no longer needed, its functionality is now included in "io.gatling" % "gatling-sbt".
              |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
              |Please use the Gatling / enterpriseAssembly task instead of Test / assembly (or GatlingIt / enterpriseAssembly instead of It / assembly).
              |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
-        )
+        throw new MessageOnlyException(errorMessage)
       }
       state
     }
