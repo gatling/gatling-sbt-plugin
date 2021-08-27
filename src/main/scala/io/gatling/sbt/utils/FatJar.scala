@@ -76,5 +76,6 @@ object FatJar {
       name.endsWith(".SF") ||
       name.endsWith(".DSA") ||
       name.endsWith(".RSA") ||
-      name.startsWith("maven/") // maven/** in other plugins
+      name.startsWith("META-INF/maven/") ||
+      name.startsWith("META-INF/versions/")
 }
