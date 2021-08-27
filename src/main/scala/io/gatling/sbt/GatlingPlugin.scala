@@ -26,9 +26,7 @@ object GatlingPlugin extends AutoPlugin {
 
   /**
    * *******************
-   */
-  /** AutoPlugin setup * */
-  /**
+   * AutoPlugin setup
    * *******************
    */
   override val requires = plugins.JvmPlugin
@@ -67,8 +65,11 @@ object GatlingPlugin extends AutoPlugin {
         gatlingBaseSettings(GatlingIt, IntegrationTest)
     )
 
+  lazy val backwardCompatibilitySettings: Seq[Def.Setting[_]] =
+    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
+
   lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
-    gatlingSettings ++ gatlingItSettings
+    gatlingSettings ++ gatlingItSettings ++ backwardCompatibilitySettings
 
   /**
    * *****************
@@ -88,7 +89,8 @@ object GatlingPlugin extends AutoPlugin {
     config / lastReport := openLastReport(config).evaluated,
     config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
     config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
-    config / generateReport := generateGatlingReport(config).evaluated
+    config / generateReport := generateGatlingReport(config).evaluated,
+    config / enterpriseAssembly := packageEnterpriseJar(config).value
   )
 
   /**
@@ -100,4 +102,9 @@ object GatlingPlugin extends AutoPlugin {
   private def singleTestGroup(group: Group): Seq[Group] =
     group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
 
+  private def legacyAssemblySetting(config: Configuration) =
+    config / assembly := legacyPackageEnterpriseJar(config).value
+
+  private def breakIfLegacyPluginFoundSetting =
+    Global / onLoad := onLoadBreakIfLegacyPluginFound.value
 }
