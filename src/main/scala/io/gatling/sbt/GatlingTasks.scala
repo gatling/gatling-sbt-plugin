@@ -17,11 +17,12 @@
 package io.gatling.sbt
 
 import java.io.File
+import java.util.UUID
 
+import _root_.io.gatling.plugin.util.OkHttpEnterpriseClient
+import _root_.io.gatling.sbt.GatlingKeys.{ enterpriseApiToken, enterprisePackageId, enterpriseUrl }
+import _root_.io.gatling.sbt.utils.{ DependenciesAnalysisResult, DependenciesAnalyzer, FatJar }
 import _root_.io.gatling.sbt.utils.CopyUtils._
-import _root_.io.gatling.sbt.utils.DependenciesAnalysisResult
-import _root_.io.gatling.sbt.utils.DependenciesAnalyzer
-import _root_.io.gatling.sbt.utils.FatJar
 import _root_.io.gatling.sbt.utils.ReportUtils._
 import _root_.io.gatling.sbt.utils.StartRecorderUtils._
 
@@ -78,6 +79,25 @@ object GatlingTasks {
     },
     packageEnterpriseJar(config)
   )
+
+  def publishEnterpriseJar(config: Configuration) = Def.task {
+    val file = packageEnterpriseJar(config).value
+    val settingUrl = (config / enterpriseUrl).value
+    val settingApiToken = (config / enterpriseApiToken).value
+    val settingPackageId = (config / enterprisePackageId).value
+
+    if (settingApiToken.isEmpty) {
+      throw new IllegalStateException("Gatling / apiToken has not been specified")
+    } else if (settingPackageId.isEmpty) {
+      throw new IllegalStateException("Gatling / packageId has not been specified")
+    }
+
+    val settingPackageUuid = UUID.fromString(settingPackageId)
+
+    val client = new OkHttpEnterpriseClient(settingUrl, settingApiToken)
+    client.uploadPackage(settingPackageUuid, file)
+    streams.value.log.success("Successfully upload package")
+  }
 
   def onLoadBreakIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
     (onLoad in Global).value.andThen { state =>

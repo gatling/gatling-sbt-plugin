@@ -90,7 +90,11 @@ object GatlingPlugin extends AutoPlugin {
     config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
     config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
     config / generateReport := generateGatlingReport(config).evaluated,
-    config / enterpriseAssembly := packageEnterpriseJar(config).value
+    config / enterpriseUrl := new URL("https://cloud.gatling.io/api/public"),
+    config / enterpriseAssembly := packageEnterpriseJar(config).value,
+    config / enterprisePublish := publishEnterpriseJar(config).value,
+    config / enterprisePackageId := "",
+    config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse("")
   )
 
   /**

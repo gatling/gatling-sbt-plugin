@@ -6,8 +6,11 @@ scalaVersion := "2.12.13"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
-libraryDependencies += "org.scalatest"     %% "scalatest" % "3.2.9" % "test"
-libraryDependencies += "org.zeroturnaround" % "zt-zip"    % "1.14"
+libraryDependencies ++= Seq(
+  "org.scalatest"     %% "scalatest"                         % "3.2.9" % Test,
+  "org.zeroturnaround" % "zt-zip"                            % "1.14",
+  "io.gatling"         % "gatling-enterprise-plugin-commons" % "0.0.3"
+)
 
 scriptedLaunchOpts := {
   scriptedLaunchOpts.value ++
