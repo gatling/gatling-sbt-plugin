@@ -30,12 +30,21 @@ object GatlingKeys {
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterpriseAssembly' or 'GatlingIt / enterpriseAssembly' instead)."
   )
-  val enterpriseAssembly = taskKey[File]("Builds a package for Gatling Enterprise.")
+  val enterpriseAssembly = taskKey[File]("Builds a package for Gatling Enterprise")
+  val enterprisePublish = taskKey[Unit]("Publish a package for Gatling Enterprise")
   val startRecorder = inputKey[Unit]("Start Gatling's Recorder")
   val lastReport = inputKey[Unit]("Open last Gatling report in browser")
   val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
   val copyLogbackXml = taskKey[File]("Copy Gatling's default logback.xml if missing")
   val generateReport = inputKey[Unit]("Generate report for a specific simulation")
+
+  // -------------- //
+  // -- Settings -- //
+  // -------------- //
+
+  val enterpriseUrl = settingKey[URL]("Target URL on Gatling Enterprise")
+  val enterprisePackageId = settingKey[String]("Target package ID on Gatling Enterprise")
+  val enterpriseApiToken = settingKey[String]("API Token for package upload on Gatling Enterprise")
 
   // -------------------- //
   // -- Configurations -- //
