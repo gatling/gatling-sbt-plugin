@@ -32,8 +32,9 @@ object FatJar {
       workingDir => {
         extractDependencies(workingDir, dependencies)
         copyClasses(workingDir, classesDirectory)
-        generateManifest(workingDir, rootModule)
-        generateVersionFile(workingDir, gatlingVersion)
+        generateManifest(workingDir, rootModule, gatlingVersion)
+        generatePomProperties(workingDir, rootModule)
+        generatePomXml(workingDir, rootModule)
 
         val fatJarFile = target / s"$jarName.jar"
         target.mkdirs()
@@ -54,28 +55,48 @@ object FatJar {
       FileUtilsV2_2.copyDirectory(directory, workingDir, pathname => !isExcluded(directoryPath.relativize(pathname.toPath).toString), false)
     }
 
-  private def generateManifest(workingDir: File, rootModule: ModuleID): Unit = {
+  private def generateManifest(workingDir: File, rootModule: ModuleID, gatlingVersion: String): Unit = {
     val manifest = s"""Manifest-Version: 1.0
                       |Implementation-Title: ${rootModule.name}
+                      |Implementation-Vendor: ${rootModule.organization}
                       |Implementation-Version: ${rootModule.revision}
-                      |Specification-Vendor: ${rootModule.organization}
-                      |Implementation-Vendor: GatlingCorp
+                      |Specification-Vendor: GatlingCorp
+                      |Gatling-Version: $gatlingVersion
                       |""".stripMargin
 
     IO.write(workingDir / "META-INF" / "MANIFEST.MF", manifest)
   }
 
-  private def generateVersionFile(workingDir: File, gatlingVersion: String): Unit = {
-    val content = s"gatling-compile-version=$gatlingVersion"
-    IO.write(workingDir / "META-INF" / "gatling-compile-version.properties", content)
+  private def generatePomProperties(workingDir: File, rootModule: ModuleID): Unit = {
+    val content =
+      s"""groupId=${rootModule.organization}
+         |artifactId=${rootModule.name}
+         |version=${rootModule.revision}
+         |""".stripMargin
+
+    IO.write(workingDir / "META-INF" / "maven" / rootModule.organization / rootModule.name / "pom.properties", content)
+  }
+
+  private def generatePomXml(workingDir: File, rootModule: ModuleID): Unit = {
+    val content =
+      s"""<?xml version="1.0" encoding="UTF-8"?>
+         |<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         |         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         |  <modelVersion>4.0.0</modelVersion>
+         |  <groupId>${rootModule.organization}</groupId>
+         |  <artifactId>${rootModule.name}</artifactId>
+         |  <version>${rootModule.revision}</version>
+         |</project>""".stripMargin
+
+    IO.write(workingDir / "META-INF" / "maven" / rootModule.organization / rootModule.name / "pom.xml", content)
   }
 
   private def isExcluded(name: String): Boolean =
     name.equalsIgnoreCase("META-INF/LICENSE") ||
       name.equalsIgnoreCase("META-INF/MANIFEST.MF") ||
+      name.startsWith("META-INF/versions/") ||
+      name.startsWith("META-INF/maven/") ||
       name.endsWith(".SF") ||
       name.endsWith(".DSA") ||
-      name.endsWith(".RSA") ||
-      name.startsWith("META-INF/maven/") ||
-      name.startsWith("META-INF/versions/")
+      name.endsWith(".RSA")
 }
