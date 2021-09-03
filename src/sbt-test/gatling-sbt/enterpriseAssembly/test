@@ -1,16 +1,16 @@
 ######################################
-## Gatling enterpriseAssembly tests ##
+## Gatling enterprisePackage tests ##
 ######################################
 
-> Gatling / enterpriseAssembly
+> Gatling / enterprisePackage
 $ exists target/gatling/my-test-project-gatling-enterprise-1.2.3.jar
 
 ########################################
-## GatlingIt enterpriseAssembly tests ##
+## GatlingIt enterprisePackage tests ##
 ########################################
 
 > clean
-> GatlingIt / enterpriseAssembly
+> GatlingIt / enterprisePackage
 $ exists target/gatling-it/my-test-project-gatling-enterprise-1.2.3.jar
 
 ##################################

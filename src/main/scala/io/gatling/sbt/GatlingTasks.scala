@@ -44,7 +44,7 @@ object GatlingTasks {
     }
   }
 
-  def packageEnterpriseJar(config: Configuration): Def.Initialize[Task[File]] = Def.task {
+  def buildEnterprisePackage(config: Configuration): Def.Initialize[Task[File]] = Def.task {
     val moduleDescriptor = moduleDescriptorConfig.value
 
     val DependenciesAnalysisResult(gatlingVersion, dependencies) = DependenciesAnalyzer.analyze(
@@ -67,9 +67,9 @@ object GatlingTasks {
   def legacyPackageEnterpriseJar(config: Configuration): Def.Initialize[Task[File]] = Def.sequential(
     Def.task {
       val newCommand = config.id match {
-        case Test.id            => "Gatling / enterpriseAssembly"
-        case IntegrationTest.id => "GatlingIt / enterpriseAssembly"
-        case _                  => "Gatling / enterpriseAssembly or GatlingIt / enterpriseAssembly"
+        case Test.id            => "Gatling / enterprisePackage"
+        case IntegrationTest.id => "GatlingIt / enterprisePackage"
+        case _                  => "Gatling / enterprisePackage or GatlingIt / enterprisePackage"
       }
       streams.value.log.warn(
         s"""Task ${config.id} / assembly is deprecated and will be removed in a future version.
@@ -77,11 +77,11 @@ object GatlingTasks {
            |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
       )
     },
-    packageEnterpriseJar(config)
+    buildEnterprisePackage(config)
   )
 
-  def publishEnterpriseJar(config: Configuration) = Def.task {
-    val file = packageEnterpriseJar(config).value
+  def uploadEnterprisePackage(config: Configuration) = Def.task {
+    val file = buildEnterprisePackage(config).value
     val settingUrl = (config / enterpriseUrl).value
     val settingApiToken = (config / enterpriseApiToken).value
     val settingPackageId = (config / enterprisePackageId).value
@@ -111,7 +111,7 @@ object GatlingTasks {
         val errorMessage =
           s"""Plugin "io.gatling.frontline" % "sbt-frontline" is no longer needed, its functionality is now included in "io.gatling" % "gatling-sbt".
              |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
-             |Please use the Gatling / enterpriseAssembly task instead of Test / assembly (or GatlingIt / enterpriseAssembly instead of It / assembly).
+             |Please use the Gatling / enterprisePackage task instead of Test / assembly (or GatlingIt / enterprisePackage instead of It / assembly).
              |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
         throw new MessageOnlyException(errorMessage)
       }
