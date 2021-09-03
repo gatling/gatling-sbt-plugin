@@ -28,10 +28,10 @@ object GatlingKeys {
   // ----------- //
 
   val assembly = taskKey[File](
-    "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterpriseAssembly' or 'GatlingIt / enterpriseAssembly' instead)."
+    "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
-  val enterpriseAssembly = taskKey[File]("Builds a package for Gatling Enterprise")
-  val enterprisePublish = taskKey[Unit]("Publish a package for Gatling Enterprise")
+  val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
+  val enterpriseUpload = taskKey[Unit]("Upload a package for Gatling Enterprise")
   val startRecorder = inputKey[Unit]("Start Gatling's Recorder")
   val lastReport = inputKey[Unit]("Open last Gatling report in browser")
   val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
