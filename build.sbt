@@ -2,7 +2,7 @@ enablePlugins(SbtPlugin)
 enablePlugins(GatlingOssPlugin)
 
 name := "gatling-sbt"
-scalaVersion := "2.12.13"
+scalaVersion := "2.12.15"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
