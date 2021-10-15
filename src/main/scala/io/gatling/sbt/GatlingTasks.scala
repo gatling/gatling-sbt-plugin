@@ -141,14 +141,15 @@ object GatlingTasks {
     reportsPaths.headOption.foreach(file => openInBrowser((file / "index.html").toURI))
   }
 
-  def generateGatlingReport(config: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
+  def generateGatlingReport(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
     val selectedReportName = stateBasedParser(config / target)(target => reportNameParser(allReportNames(target))).parsed
     val filteredReports = filterReportsIfReportNameIdSelected(allReports((config / target).value), selectedReportName)
     val reportsPaths = filteredReports.map(_.path.getName)
     reportsPaths.headOption.foreach { folderName =>
       val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (config / target).value.getPath)
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
-      val classpath = buildClassPathArgument((config / dependencyClasspath).value.map(_.data))
+      val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
+      val classpath = buildClassPathArgument(classpathElements)
       fork(forkOptionsWithRunJVMOptions(classpath), opts)
     }
   }

@@ -89,7 +89,7 @@ object GatlingPlugin extends AutoPlugin {
     config / lastReport := openLastReport(config).evaluated,
     config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
     config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
-    config / generateReport := generateGatlingReport(config).evaluated,
+    config / generateReport := generateGatlingReport(config, parent).evaluated,
     config / enterpriseUrl := new URL("https://cloud.gatling.io/api/public"),
     config / enterprisePackage := buildEnterprisePackage(config).value,
     config / enterpriseUpload := uploadEnterprisePackage(config).value,
