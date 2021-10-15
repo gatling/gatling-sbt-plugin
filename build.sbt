@@ -29,5 +29,10 @@ gatlingDevelopers := Seq(
     "slandelle@gatling.io",
     "Stéphane Landelle",
     true
+  ),
+  GatlingDeveloper(
+    "sbrevet@gatling.io",
+    "Sébastien Brevet",
+    true
   )
 )
