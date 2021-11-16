@@ -55,7 +55,8 @@ object GatlingPlugin extends AutoPlugin {
       Defaults.testTasks ++
         (forkOptions := Defaults.forkOptionsTask.value) ++
         gatlingBaseSettings(Gatling, Test)
-    )
+    ) ++
+      gatlingProjectBaseSettings(Gatling)
 
   lazy val gatlingItSettings: Seq[Def.Setting[_]] =
     inConfig(GatlingIt)(
@@ -63,7 +64,8 @@ object GatlingPlugin extends AutoPlugin {
         Defaults.testTasks ++
         (forkOptions := Defaults.forkOptionsTask.value) ++
         gatlingBaseSettings(GatlingIt, IntegrationTest)
-    )
+    ) ++
+      gatlingProjectBaseSettings(GatlingIt)
 
   lazy val backwardCompatibilitySettings: Seq[Def.Setting[_]] =
     Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
@@ -94,7 +96,23 @@ object GatlingPlugin extends AutoPlugin {
     config / enterprisePackage := buildEnterprisePackage(config).value,
     config / enterpriseUpload := uploadEnterprisePackage(config).value,
     config / enterprisePackageId := "",
-    config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse("")
+    config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
+    config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
+  )
+
+  private def gatlingProjectBaseSettings(config: Configuration) = Seq(
+    artifacts := {
+      if ((config / publishArtifact).value)
+        artifacts.value :+ (config / packageBin / artifact).value
+      else
+        artifacts.value
+    },
+    packagedArtifacts := {
+      if ((config / publishArtifact).value)
+        packagedArtifacts.value.updated((config / packageBin / artifact).value, (config / packageBin).value)
+      else
+        packagedArtifacts.value
+    }
   )
 
   /**
