@@ -16,65 +16,32 @@
 
 package io.gatling.sbt
 
-import _root_.io.gatling.sbt.utils.PropertyUtils.DefaultJvmArgs
-
 import sbt._
 
 /** List of SBT keys for Gatling specific tasks. */
 object GatlingKeys {
 
-  // ----------- //
-  // -- Tasks -- //
-  // ----------- //
+  // Configurations
+  val Gatling = config("gatling") extend Test
+  val GatlingIt = config("gatling-it") extend IntegrationTest
 
-  val assembly = taskKey[File](
-    "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
-  )
-  val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
-  val enterpriseUpload = taskKey[Unit]("Upload a package for Gatling Enterprise")
+  // OSS Tasks
   val startRecorder = inputKey[Unit]("Start Gatling's Recorder")
   val lastReport = inputKey[Unit]("Open last Gatling report in browser")
   val copyConfigFiles = taskKey[Set[File]]("Copy Gatling's config files if missing")
   val copyLogbackXml = taskKey[File]("Copy Gatling's default logback.xml if missing")
   val generateReport = inputKey[Unit]("Generate report for a specific simulation")
 
-  // -------------- //
-  // -- Settings -- //
-  // -------------- //
-
+  // Enterprise Settings
   val enterpriseUrl = settingKey[URL]("Target URL on Gatling Enterprise")
-  val enterprisePackageId = settingKey[String]("Target package ID on Gatling Enterprise")
   val enterpriseApiToken = settingKey[String]("API Token for package upload on Gatling Enterprise")
+  val enterprisePackageId = settingKey[String]("Target package ID on Gatling Enterprise")
 
-  // -------------------- //
-  // -- Configurations -- //
-  // -------------------- //
-
-  val Gatling = config("gatling") extend Test
-  val GatlingIt = config("gatling-it") extend IntegrationTest
-
-  // -------------------- //
-  // -- Helper methods -- //
-  // -------------------- //
-
-  private val unPropagatedPropertiesRoots =
-    List("java.", "sun.", "jline.", "file.", "awt.", "os.", "user.")
-
-  def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
-    propagatedSystemProperties ++ DefaultJvmArgs ++ javaOptions
-
-  private def isPropagatedSystemProperty(name: String) =
-    !(unPropagatedPropertiesRoots.exists(name.startsWith) ||
-      name == "line.separator" ||
-      name == "path.separator" ||
-      name == "gopherProxySet")
-
-  private def property(key: String, value: String) = s"-D$key=$value"
-
-  private def propagatedSystemProperties: Seq[String] =
-    sys.props
-      .filterKeys(isPropagatedSystemProperty)
-      .map { case (key, value) => property(key, value) }
-      .toSeq
-
+  // Enterprise Tasks
+  val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
+  val enterpriseUpload = taskKey[Unit]("Upload a package for Gatling Enterprise")
+  val enterpriseStart = taskKey[Unit]("Start a simulation for Gatling Enterprise")
+  val assembly = taskKey[File](
+    "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
+  )
 }

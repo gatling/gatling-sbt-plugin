@@ -16,117 +16,37 @@
 
 package io.gatling.sbt
 
-import _root_.io.gatling.sbt.GatlingTasks._
+import io.gatling.sbt.settings._
 
 import sbt._
 import sbt.Keys._
-import sbt.Tests.{ Argument, Group }
 
 object GatlingPlugin extends AutoPlugin {
 
-  /**
-   * *******************
-   * AutoPlugin setup
-   * *******************
-   */
+  // AutoPlugin setup
   override val requires = plugins.JvmPlugin
-  val autoImport = GatlingKeys
-
+  val autoImport: GatlingKeys.type = GatlingKeys
   import autoImport._
 
-  override def projectConfigurations: Seq[Configuration] = Seq(Gatling, IntegrationTest, GatlingIt)
+  override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, IntegrationTest)
+  override def projectSettings: Seq[Def.Setting[_]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
 
-  override def projectSettings: Seq[Def.Setting[_]] = gatlingAllSettings
-
-  /**
-   * ****************************
-   * Test framework definition
-   * ****************************
-   */
+  // Test framework definition
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
-  /**
-   * ***********
-   * Settings
-   * ***********
-   */
+  // Settings
   lazy val gatlingSettings: Seq[Def.Setting[_]] =
     inConfig(Gatling)(
       Defaults.testTasks ++
         (forkOptions := Defaults.forkOptionsTask.value) ++
-        gatlingBaseSettings(Gatling, Test)
-    ) ++
-      gatlingProjectBaseSettings(Gatling)
+        BaseSettings.settings(Gatling, Test)
+    ) ++ ProjectBaseSettings.settings(Gatling)
 
   lazy val gatlingItSettings: Seq[Def.Setting[_]] =
     inConfig(GatlingIt)(
       Defaults.itSettings ++
         Defaults.testTasks ++
         (forkOptions := Defaults.forkOptionsTask.value) ++
-        gatlingBaseSettings(GatlingIt, IntegrationTest)
-    ) ++
-      gatlingProjectBaseSettings(GatlingIt)
-
-  lazy val backwardCompatibilitySettings: Seq[Def.Setting[_]] =
-    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
-
-  lazy val gatlingAllSettings: Seq[Def.Setting[_]] =
-    gatlingSettings ++ gatlingItSettings ++ backwardCompatibilitySettings
-
-  /**
-   * *****************
-   * Helper methods
-   * *****************
-   */
-  private def gatlingBaseSettings(config: Configuration, parent: Configuration) = Seq(
-    config / testFrameworks := Seq(gatlingTestFramework),
-    config / target := target.value / config.name,
-    config / testOptions += Argument(gatlingTestFramework, "-rf", (config / target).value.getPath),
-    config / javaOptions ++= overrideDefaultJavaOptions(),
-    config / parallelExecution := false,
-    config / fork := true,
-    config / testGrouping := (config / testGrouping).value flatMap singleTestGroup,
-    config / startRecorder := recorderRunner(config, parent).evaluated,
-    config / clean := cleanReports((config / target).value),
-    config / lastReport := openLastReport(config).evaluated,
-    config / copyConfigFiles := copyConfigurationFiles((config / resourceDirectory).value, (config / update).value),
-    config / copyLogbackXml := copyLogback((config / resourceDirectory).value, (config / update).value),
-    config / generateReport := generateGatlingReport(config, parent).evaluated,
-    config / enterpriseUrl := new URL("https://cloud.gatling.io/api/public"),
-    config / enterprisePackage := buildEnterprisePackage(config).value,
-    config / enterpriseUpload := uploadEnterprisePackage(config).value,
-    config / enterprisePackageId := "",
-    config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
-    config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
-  )
-
-  private def gatlingProjectBaseSettings(config: Configuration) = Seq(
-    artifacts := {
-      if ((config / publishArtifact).value)
-        artifacts.value :+ (config / packageBin / artifact).value
-      else
-        artifacts.value
-    },
-    packagedArtifacts := {
-      if ((config / publishArtifact).value)
-        packagedArtifacts.value.updated((config / packageBin / artifact).value, (config / packageBin).value)
-      else
-        packagedArtifacts.value
-    }
-  )
-
-  /**
-   * Split test groups so that each test is in its own group.
-   *
-   * @param group the original group
-   * @return the list of groups made up by moving each to its own group.
-   */
-  private def singleTestGroup(group: Group): Seq[Group] =
-    group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
-
-  private def legacyAssemblySetting(config: Configuration) =
-    config / assembly := legacyPackageEnterpriseJar(config).value
-
-  private def breakIfLegacyPluginFoundSetting =
-    Global / onLoad := onLoadBreakIfLegacyPluginFound.value
+        BaseSettings.settings(GatlingIt, IntegrationTest)
+    ) ++ ProjectBaseSettings.settings(GatlingIt)
 }
