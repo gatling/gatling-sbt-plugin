@@ -1,5 +1,4 @@
-enablePlugins(SbtPlugin)
-enablePlugins(GatlingOssPlugin)
+enablePlugins(BuildInfoPlugin, SbtPlugin, GatlingOssPlugin)
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -11,7 +10,7 @@ githubPath := "gatling/gatling-sbt-plugin"
 libraryDependencies ++= Seq(
   "org.scalatest"     %% "scalatest"                         % "3.2.10" % Test,
   "org.zeroturnaround" % "zt-zip"                            % "1.14",
-  "io.gatling"         % "gatling-enterprise-plugin-commons" % "0.0.3"
+  "io.gatling"         % "gatling-enterprise-plugin-commons" % "1.0.0"
 )
 
 scriptedLaunchOpts := {
@@ -38,3 +37,6 @@ gatlingDevelopers := Seq(
     true
   )
 )
+
+buildInfoKeys := Seq[BuildInfoKey](name, version)
+buildInfoPackage := "io.gatling.sbt"
