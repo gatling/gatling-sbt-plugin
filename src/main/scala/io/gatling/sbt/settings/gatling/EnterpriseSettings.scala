@@ -19,6 +19,8 @@ package io.gatling.sbt.settings.gatling
 import java.io.File
 import java.util.UUID
 
+import scala.collection.JavaConverters._
+
 import io.gatling.plugin.util.OkHttpEnterpriseClient
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.{ DependenciesAnalysisResult, DependenciesAnalyzer, FatJar }
@@ -71,8 +73,10 @@ object EnterpriseSettings {
     buildEnterprisePackage(config)
   )
 
+  private val PublicApiPath = "/api/public"
+
   private def httpEnterpriseClient(config: Configuration) = Def.task {
-    val settingUrl = (config / enterpriseUrl).value
+    val settingUrl = new URL((config / enterpriseUrl).value.toExternalForm + PublicApiPath)
     val settingApiToken = (config / enterpriseApiToken).value
 
     if (settingApiToken.isEmpty) {
@@ -96,6 +100,45 @@ object EnterpriseSettings {
     streams.value.log.success("Successfully upload package")
   }
 
+  private def startEnterpriseSimulation(config: Configuration) = Def.task {
+    val settingSimulationId = (config / enterpriseSimulationId).value
+    val settingSimulationSystemProperties = (config / enterpriseSimulationSystemProperties).value
+    val client = httpEnterpriseClient(config).value
+    val baseUrl = (config / enterpriseUrl).value
+    val file = buildEnterprisePackage(config).value
+
+    val systemProperties = settingSimulationSystemProperties.asJava
+    val simulationAndRunSummary = if (settingSimulationId.isEmpty) {
+      val defaultSimulationClassname = (config / enterpriseDefaultSimulationClassname).value
+      if (defaultSimulationClassname.isEmpty) {
+        throw new IllegalStateException("Gatling / enterpriseDefaultSimulationClassname has not been specified")
+      }
+      client.createAndStartSimulation(
+        (config / organization).value,
+        (config / normalizedName).value,
+        defaultSimulationClassname,
+        systemProperties,
+        file
+      )
+    } else {
+      val simulationId = UUID.fromString(settingSimulationId)
+      client.startSimulation(simulationId, systemProperties, file)
+    }
+
+    val simulation = simulationAndRunSummary.simulation
+    streams.value.log.success(
+      s"""Setting for enterpriseUpload task:
+         |enterprisePackageId := ${simulation.pkgId}
+         |
+         |Setting for enterpriseStart task next calls:
+         |enterpriseSimulationId := ${simulation.id}
+         |
+         |Successfully start simulation named '${simulation.name}' run.
+         |Live reports at ${baseUrl.toExternalForm + simulationAndRunSummary.runSummary.reportsPath}
+         |""".stripMargin
+    )
+  }
+
   private def onLoadBreakIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
     (onLoad in Global).value.andThen { state =>
       val foundLegacyFrontLinePlugin =
@@ -117,10 +160,14 @@ object EnterpriseSettings {
   }
 
   def settings(config: Configuration) = Seq(
-    config / enterpriseUrl := new URL("https://cloud.gatling.io/api/public"),
+    config / enterpriseUrl := new URL("https://cloud.gatling.io"),
     config / enterprisePackage := buildEnterprisePackage(config).value,
     config / enterpriseUpload := uploadEnterprisePackage(config).value,
+    config / enterpriseStart := startEnterpriseSimulation(config).value,
     config / enterprisePackageId := "",
+    config / enterpriseDefaultSimulationClassname := "",
+    config / enterpriseSimulationId := "",
+    config / enterpriseSimulationSystemProperties := Map.empty,
     config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
     config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
   )

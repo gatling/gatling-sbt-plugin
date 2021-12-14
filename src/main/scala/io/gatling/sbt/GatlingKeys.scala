@@ -36,6 +36,9 @@ object GatlingKeys {
   val enterpriseUrl = settingKey[URL]("Target URL on Gatling Enterprise")
   val enterpriseApiToken = settingKey[String]("API Token for package upload on Gatling Enterprise")
   val enterprisePackageId = settingKey[String]("Target package ID on Gatling Enterprise")
+  val enterpriseDefaultSimulationClassname = settingKey[String]("Target simulation class name on Gatling Enterprise")
+  val enterpriseSimulationId = settingKey[String]("Target simulation ID on Gatling Enterprise")
+  val enterpriseSimulationSystemProperties = settingKey[Map[String, String]]("Simulation system properties on Gatling Enterprise")
 
   // Enterprise Tasks
   val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
