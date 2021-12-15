@@ -22,6 +22,7 @@ import java.util.UUID
 import scala.collection.JavaConverters._
 
 import io.gatling.plugin.util.OkHttpEnterpriseClient
+import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.{ DependenciesAnalysisResult, DependenciesAnalyzer, FatJar }
 
@@ -83,7 +84,9 @@ object EnterpriseSettings {
       throw new IllegalStateException("Gatling / apiToken has not been specified")
     }
 
-    new OkHttpEnterpriseClient(settingUrl, settingApiToken)
+    val client = new OkHttpEnterpriseClient(settingUrl, settingApiToken)
+    client.checkVersionSupport(BuildInfo.name, BuildInfo.version)
+    client
   }
 
   private def uploadEnterprisePackage(config: Configuration) = Def.task {

@@ -1,5 +1,4 @@
-enablePlugins(SbtPlugin)
-enablePlugins(GatlingOssPlugin)
+enablePlugins(BuildInfoPlugin, SbtPlugin, GatlingOssPlugin)
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -38,3 +37,6 @@ gatlingDevelopers := Seq(
     true
   )
 )
+
+buildInfoKeys := Seq[BuildInfoKey](name, version)
+buildInfoPackage := "io.gatling.sbt"
