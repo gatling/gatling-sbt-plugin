@@ -22,6 +22,7 @@ import java.util.UUID
 import scala.collection.JavaConverters._
 
 import io.gatling.plugin.util.OkHttpEnterpriseClient
+import io.gatling.plugin.util.exceptions.UnsupportedClientException
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.{ DependenciesAnalysisResult, DependenciesAnalyzer, FatJar }
@@ -81,11 +82,21 @@ object EnterpriseSettings {
     val settingApiToken = (config / enterpriseApiToken).value
 
     if (settingApiToken.isEmpty) {
-      throw new IllegalStateException("Gatling / apiToken has not been specified")
+      throw new IllegalStateException(
+        "Gatling / apiToken has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens to create one."
+      )
     }
 
     val client = new OkHttpEnterpriseClient(settingUrl, settingApiToken)
-    client.checkVersionSupport(BuildInfo.name, BuildInfo.version)
+    try {
+      client.checkVersionSupport(BuildInfo.name, BuildInfo.version)
+    } catch {
+      case e: UnsupportedClientException =>
+        throw new IllegalStateException(
+          "Please update the Gatling Maven plugin to the latest version for compatibility with Gatling Enterprise. See https://gatling.io/docs/gatling/reference/current/extensions/maven_plugin/ for more information about this plugin.",
+          e
+        );
+    }
     client
   }
 
@@ -95,7 +106,9 @@ object EnterpriseSettings {
     val client = httpEnterpriseClient(config).value
 
     if (settingPackageId.isEmpty) {
-      throw new IllegalStateException("Gatling / packageId has not been specified")
+      throw new IllegalStateException(
+        "Gatling / packageId has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ to create one."
+      )
     }
 
     val settingPackageUuid = UUID.fromString(settingPackageId)
@@ -114,31 +127,39 @@ object EnterpriseSettings {
     val simulationAndRunSummary = if (settingSimulationId.isEmpty) {
       val defaultSimulationClassname = (config / enterpriseDefaultSimulationClassname).value
       if (defaultSimulationClassname.isEmpty) {
-        throw new IllegalStateException("Gatling / enterpriseDefaultSimulationClassname has not been specified")
+        throw new IllegalStateException(
+          "Gatling / enterpriseDefaultSimulationClassname has not been specified. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/."
+        )
       }
-      client.createAndStartSimulation(
+      streams.value.log.success("Creating and starting simulation...")
+      val simulationAndRunSummary = client.createAndStartSimulation(
         (config / organization).value,
         (config / normalizedName).value,
         defaultSimulationClassname,
         systemProperties,
         file
       )
+      val simulation = simulationAndRunSummary.simulation
+      streams.value.log.success(
+        s"""
+           |Created simulation ${simulation.name} with ID ${simulation.id}
+           |
+           |To start again the same simulation, add the 'enterpriseSimulationId' to your SBT build configuration, e.g:
+           |Gatling / enterpriseSimulationId := "${simulation.id}"
+           |You may also want to only upload your packaged simulation by using 'enterpriseUpload' command with 'enterprisePackageId' configured, e.g:
+           |Gatling / enterprisePackageId := "${simulation.pkgId}"
+           |""".stripMargin
+      )
+      streams.value.log.success("To start again the same simulation, add the enterpriseSimulationId to your SBT build configuration, e.g:")
+      simulationAndRunSummary
     } else {
       val simulationId = UUID.fromString(settingSimulationId)
+      streams.value.log.success("Updating and starting simulation...")
       client.startSimulation(simulationId, systemProperties, file)
     }
 
-    val simulation = simulationAndRunSummary.simulation
     streams.value.log.success(
-      s"""Setting for enterpriseUpload task:
-         |enterprisePackageId := ${simulation.pkgId}
-         |
-         |Setting for enterpriseStart task next calls:
-         |enterpriseSimulationId := ${simulation.id}
-         |
-         |Successfully start simulation named '${simulation.name}' run.
-         |Live reports at ${baseUrl.toExternalForm + simulationAndRunSummary.runSummary.reportsPath}
-         |""".stripMargin
+      s"Simulation successfully started; once running, reports will be available at ${baseUrl.toExternalForm + simulationAndRunSummary.runSummary.reportsPath}"
     )
   }
 
