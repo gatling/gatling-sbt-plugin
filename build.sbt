@@ -1,6 +1,8 @@
 enablePlugins(SbtPlugin)
 enablePlugins(GatlingOssPlugin)
 
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+
 name := "gatling-sbt"
 scalaVersion := "2.12.15"
 sbtPlugin := true
