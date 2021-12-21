@@ -117,6 +117,8 @@ object EnterpriseSettings {
   }
 
   private def startEnterpriseSimulation(config: Configuration) = Def.task {
+    val logger = streams.value.log
+
     val settingSimulationId = (config / enterpriseSimulationId).value
     val settingSimulationSystemProperties = (config / enterpriseSimulationSystemProperties).value
     val client = httpEnterpriseClient(config).value
@@ -131,8 +133,14 @@ object EnterpriseSettings {
           "Gatling / enterpriseDefaultSimulationClassname has not been specified. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/."
         )
       }
-      streams.value.log.success("Creating and starting simulation...")
+      logger.success("Creating and starting simulation...")
+      val optionalDefaultSimulationTeamId =
+        Option((config / enterpriseDefaultSimulationTeamId).value)
+          .filter(_.nonEmpty)
+          .map(UUID.fromString)
+
       val simulationAndRunSummary = client.createAndStartSimulation(
+        optionalDefaultSimulationTeamId.orNull,
         (config / organization).value,
         (config / normalizedName).value,
         defaultSimulationClassname,
@@ -140,7 +148,7 @@ object EnterpriseSettings {
         file
       )
       val simulation = simulationAndRunSummary.simulation
-      streams.value.log.success(
+      logger.success(
         s"""
            |Created simulation ${simulation.name} with ID ${simulation.id}
            |
@@ -150,15 +158,15 @@ object EnterpriseSettings {
            |Gatling / enterprisePackageId := "${simulation.pkgId}"
            |""".stripMargin
       )
-      streams.value.log.success("To start again the same simulation, add the enterpriseSimulationId to your SBT build configuration, e.g:")
+      logger.success("To start again the same simulation, add the enterpriseSimulationId to your SBT build configuration, e.g:")
       simulationAndRunSummary
     } else {
       val simulationId = UUID.fromString(settingSimulationId)
-      streams.value.log.success("Updating and starting simulation...")
+      logger.success("Updating and starting simulation...")
       client.startSimulation(simulationId, systemProperties, file)
     }
 
-    streams.value.log.success(
+    logger.success(
       s"Simulation successfully started; once running, reports will be available at ${baseUrl.toExternalForm + simulationAndRunSummary.runSummary.reportsPath}"
     )
   }
@@ -190,6 +198,7 @@ object EnterpriseSettings {
     config / enterpriseStart := startEnterpriseSimulation(config).value,
     config / enterprisePackageId := "",
     config / enterpriseDefaultSimulationClassname := "",
+    config / enterpriseDefaultSimulationTeamId := "",
     config / enterpriseSimulationId := "",
     config / enterpriseSimulationSystemProperties := Map.empty,
     config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
