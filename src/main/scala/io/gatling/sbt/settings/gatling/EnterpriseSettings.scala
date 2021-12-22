@@ -83,7 +83,7 @@ object EnterpriseSettings {
 
     if (settingApiToken.isEmpty) {
       throw new IllegalStateException(
-        "Gatling / apiToken has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens to create one."
+        s"${config.id} / enterpriseApiToken has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens to create one."
       )
     }
 
@@ -107,7 +107,7 @@ object EnterpriseSettings {
 
     if (settingPackageId.isEmpty) {
       throw new IllegalStateException(
-        "Gatling / packageId has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ to create one."
+        s"${config.id} / enterprisePackageId has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ to create one."
       )
     }
 
@@ -130,7 +130,7 @@ object EnterpriseSettings {
       val defaultSimulationClassname = (config / enterpriseDefaultSimulationClassname).value
       if (defaultSimulationClassname.isEmpty) {
         throw new IllegalStateException(
-          "Gatling / enterpriseDefaultSimulationClassname has not been specified. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/."
+          s"${config.id} / enterpriseDefaultSimulationClassname has not been specified. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/."
         )
       }
       logger.success("Creating and starting simulation...")
@@ -152,10 +152,10 @@ object EnterpriseSettings {
         s"""
            |Created simulation ${simulation.name} with ID ${simulation.id}
            |
-           |To start again the same simulation, add the 'enterpriseSimulationId' to your SBT build configuration, e.g:
-           |Gatling / enterpriseSimulationId := "${simulation.id}"
-           |You may also want to only upload your packaged simulation by using 'enterpriseUpload' command with 'enterprisePackageId' configured, e.g:
-           |Gatling / enterprisePackageId := "${simulation.pkgId}"
+           |To start again the same simulation, add the 'enterpriseSimulationId' to your SBT build configuration:
+           |${config.id} / enterpriseSimulationId := "${simulation.id}"
+           |You may also want to only upload your packaged simulation by using 'enterpriseUpload' command with 'enterprisePackageId' configured:
+           |${config.id} / enterprisePackageId := "${simulation.pkgId}"
            |""".stripMargin
       )
       logger.success("To start again the same simulation, add the enterpriseSimulationId to your SBT build configuration, e.g:")
