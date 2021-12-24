@@ -45,6 +45,7 @@ object GatlingKeys {
   val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
   val enterpriseUpload = taskKey[Unit]("Upload a package for Gatling Enterprise")
   val enterpriseStart = taskKey[Unit]("Start a simulation for Gatling Enterprise")
+  val enterpriseInteractiveStart = taskKey[Unit]("Start a simulation interactively for Gatling Enterprise")
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
