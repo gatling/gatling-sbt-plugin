@@ -20,15 +20,20 @@ import java.io.File
 import java.util.UUID
 
 import scala.collection.JavaConverters._
+import scala.util.{ Failure, Try }
 
-import io.gatling.plugin.util.OkHttpEnterpriseClient
-import io.gatling.plugin.util.exceptions.UnsupportedClientException
+import io.gatling.plugin.{ EnterprisePlugin, EnterprisePluginClient, InteractiveEnterprisePluginClient }
+import io.gatling.plugin.client.http.OkHttpEnterpriseClient
+import io.gatling.plugin.exceptions.{ SeveralTeamsFoundException, SimulationStartException, UnsupportedClientException }
+import io.gatling.plugin.io.{ PluginIO, PluginLogger, PluginScanner }
+import io.gatling.plugin.model.Simulation
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.{ DependenciesAnalysisResult, DependenciesAnalyzer, FatJar }
 
 import sbt._
 import sbt.Keys._
+import sbt.internal.util.ManagedLogger
 
 object EnterpriseSettings {
   private def moduleDescriptorConfig = Def.task {
@@ -37,6 +42,10 @@ object EnterpriseSettings {
       case x =>
         throw new IllegalStateException(s"gatling-sbt expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
     }
+  }
+
+  private def configOptionalString(key: SettingKey[String]) = Def.task {
+    Option(key.value).filter(_.nonEmpty)
   }
 
   private def buildEnterprisePackage(config: Configuration): Def.Initialize[Task[File]] = Def.task {
@@ -77,97 +86,197 @@ object EnterpriseSettings {
 
   private val PublicApiPath = "/api/public"
 
-  private def httpEnterpriseClient(config: Configuration) = Def.task {
+  private def enterpriseClientTask(config: Configuration) = Def.task {
     val settingUrl = new URL((config / enterpriseUrl).value.toExternalForm + PublicApiPath)
     val settingApiToken = (config / enterpriseApiToken).value
+    val logger = enterprisePluginIOTask.value.getLogger
 
     if (settingApiToken.isEmpty) {
       throw new IllegalStateException(
-        s"${config.id} / enterpriseApiToken has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens to create one."
+        s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token wil the role 'Configurer'.
+           |You can then set your API token's value in the environment variable GATLING_ENTERPRISE_API_TOKEN, pass it with -Dgatling.enterprise.apiToken=<apiToken>, or add the configuration to your SBT settings, e.g.:
+           |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE
+           |""".stripMargin
       )
     }
 
-    val client = new OkHttpEnterpriseClient(settingUrl, settingApiToken)
     try {
-      client.checkVersionSupport(BuildInfo.name, BuildInfo.version)
+      OkHttpEnterpriseClient.getInstance(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
     } catch {
       case e: UnsupportedClientException =>
         throw new IllegalStateException(
-          "Please update the Gatling Maven plugin to the latest version for compatibility with Gatling Enterprise. See https://gatling.io/docs/gatling/reference/current/extensions/maven_plugin/ for more information about this plugin.",
+          "Please update the Gatling SBT plugin to the latest version for compatibility with Gatling Enterprise. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information about this plugin.",
           e
         );
     }
-    client
+  }
+
+  private def enterprisePluginTask(config: Configuration) = Def.task {
+    val enterpriseClient = enterpriseClientTask(config).value
+    val logger = enterprisePluginLogger.value
+    val enterprisePlugin: EnterprisePlugin = new EnterprisePluginClient(enterpriseClient, logger)
+    enterprisePlugin
+  }
+
+  private val enterprisePluginLogger = Def.task {
+    val logger = streams.value.log
+    new PluginLogger {
+      override def info(message: String): Unit = logger.info(message)
+      override def error(message: String): Unit = logger.error(message)
+    }
+  }
+
+  private val enterprisePluginIOTask = Def.task {
+    val interactiveService = interactionService.value
+    val logger = enterprisePluginLogger.value
+    new PluginIO {
+      override def getLogger: PluginLogger = logger
+      override def getScanner: PluginScanner = new PluginScanner {
+        override def readString(): String = interactiveService.readLine("(ctrl+x+c to cancel) > ", mask = false).getOrElse("")
+        override def readInt(): Int = Integer.parseInt(readString())
+      }
+    }
+  }
+
+  private def enterpriseInteractivePluginTask(config: Configuration) = Def.task {
+    val enterpriseClient = enterpriseClientTask(config).value
+    val pluginIO = enterprisePluginIOTask.value
+
+    new InteractiveEnterprisePluginClient(enterpriseClient, pluginIO)
   }
 
   private def uploadEnterprisePackage(config: Configuration) = Def.task {
     val file = buildEnterprisePackage(config).value
     val settingPackageId = (config / enterprisePackageId).value
-    val client = httpEnterpriseClient(config).value
+    val settingSimulationId = (config / enterpriseSimulationId).value
+    val enterprisePlugin = enterprisePluginTask(config).value
+    val logger = streams.value.log
 
-    if (settingPackageId.isEmpty) {
+    if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
       throw new IllegalStateException(
-        s"${config.id} / enterprisePackageId has not been specified. See https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ to create one."
+        s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
+           |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
+           |${config.id} / enterprisePackageId := MY_PACKAGE_ID
+           |
+           |Alternately, if you don't configure a packageId, you can configure the simulationId of an existing simulation on Gatling Enterprise: your code will be uploaded to the package used by that simulation.
+           |""".stripMargin
       )
     }
 
-    val settingPackageUuid = UUID.fromString(settingPackageId)
-    client.uploadPackage(settingPackageUuid, file)
-    streams.value.log.success("Successfully upload package")
+    if (settingPackageId.nonEmpty) {
+      val packageId = UUID.fromString(settingPackageId)
+      enterprisePlugin.uploadPackage(packageId, file)
+    } else {
+      val simulationId = UUID.fromString(settingSimulationId)
+      enterprisePlugin.uploadPackageWithSimulationId(simulationId, file)
+    }
+
+    logger.success("Successfully upload package")
   }
 
-  private def startEnterpriseSimulation(config: Configuration) = Def.task {
-    val logger = streams.value.log
+  private def logCreatedSimulation(logger: ManagedLogger, simulation: Simulation): Unit =
+    logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")
 
-    val settingSimulationId = (config / enterpriseSimulationId).value
-    val settingSimulationSystemProperties = (config / enterpriseSimulationSystemProperties).value
-    val client = httpEnterpriseClient(config).value
-    val baseUrl = (config / enterpriseUrl).value
+  private def logSimulationConfiguration(logger: ManagedLogger, config: Configuration, simulationId: UUID): Unit =
+    logger.info(
+      s"""To start again the same simulation, specify -Dgatling.simulationId=$simulationId, or add the configuration to your SBT settings, e.g.:
+         |${config.id} / enterpriseSimulationId := s"$simulationId"
+         |""".stripMargin
+    )
+
+  private def startEnterpriseSimulation(simulationId: UUID, config: Configuration) = Def.task {
+    val logger = streams.value.log
+    val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+    val enterprisePlugin = enterprisePluginTask(config).value
     val file = buildEnterprisePackage(config).value
 
-    val systemProperties = settingSimulationSystemProperties.asJava
-    val simulationAndRunSummary = if (settingSimulationId.isEmpty) {
-      val defaultSimulationClassname = (config / enterpriseDefaultSimulationClassname).value
-      if (defaultSimulationClassname.isEmpty) {
-        throw new IllegalStateException(
-          s"${config.id} / enterpriseDefaultSimulationClassname has not been specified. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/."
+    logger.info(s"Uploading and starting simulation...")
+    enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, file)
+  }
+
+  private def batchSimulationClassname(config: Configuration) = Def.task {
+    val classNames: Seq[String] = (config / definedTests).value.map(_.name)
+    val simulationClassname = (config / enterpriseSimulationClass).value
+    val logger = streams.value.log
+
+    if (simulationClassname.isEmpty) {
+      val headClassname = classNames.head
+      if (classNames.size > 1) {
+        throw new IllegalArgumentException(
+          s"""Several simulation classes were found
+             |${classNames.map("- " + _).mkString("\n")}
+             |Specify the simulation you want to use with -Dgatling.simulationClass=<className>, or add the configuration to your build.sbt, e.g.:
+             |${config.id} / simulationClass := $headClassname
+             |""".stripMargin
         )
       }
-      logger.success("Creating and starting simulation...")
-      val optionalDefaultSimulationTeamId =
-        Option((config / enterpriseDefaultSimulationTeamId).value)
-          .filter(_.nonEmpty)
-          .map(UUID.fromString)
+      logger.info(s"Picking only available simulation class: $headClassname.")
+      headClassname
+    } else {
+      simulationClassname
+    }
+  }
 
-      val simulationAndRunSummary = client.createAndStartSimulation(
+  private def batchCreateAndStartEnterpriseSimulation(config: Configuration) = Def.task {
+    val logger = streams.value.log
+    val enterprisePlugin = enterprisePluginTask(config).value
+    val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+    val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
+    val simulationClassname = batchSimulationClassname(config).value
+    val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+    val file = buildEnterprisePackage(config).value
+
+    logger.info("Creating and starting simulation...")
+
+    Try(
+      enterprisePlugin.createAndStartSimulation(
         optionalDefaultSimulationTeamId.orNull,
         (config / organization).value,
         (config / normalizedName).value,
-        defaultSimulationClassname,
+        simulationClassname,
+        optionalPackageId.orNull,
         systemProperties,
         file
       )
-      val simulation = simulationAndRunSummary.simulation
-      logger.success(
-        s"""
-           |Created simulation ${simulation.name} with ID ${simulation.id}
-           |
-           |To start again the same simulation, add the 'enterpriseSimulationId' to your SBT build configuration:
-           |${config.id} / enterpriseSimulationId := "${simulation.id}"
-           |You may also want to only upload your packaged simulation by using 'enterpriseUpload' command with 'enterprisePackageId' configured:
-           |${config.id} / enterprisePackageId := "${simulation.pkgId}"
-           |""".stripMargin
+    ).recoverWith { case e: SeveralTeamsFoundException =>
+      val teams = e.getAvailableTeams.asScala
+      Failure(
+        new IllegalArgumentException(
+          s"""
+             |More than 1 team were found while creating a simulation.
+             |Available teams:
+             |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
+             |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
+             |${config.id} / enterpriseTeamId := ${teams.head.id}
+             |
+             |""".stripMargin
+        )
       )
-      logger.success("To start again the same simulation, add the enterpriseSimulationId to your SBT build configuration, e.g:")
-      simulationAndRunSummary
-    } else {
-      val simulationId = UUID.fromString(settingSimulationId)
-      logger.success("Updating and starting simulation...")
-      client.startSimulation(simulationId, systemProperties, file)
     }
+  }
 
-    logger.success(
-      s"Simulation successfully started; once running, reports will be available at ${baseUrl.toExternalForm + simulationAndRunSummary.runSummary.reportsPath}"
+  private def interactiveCreateOrStartEnterpriseSimulation(config: Configuration) = Def.task {
+    val enterpriseInteractivePlugin = enterpriseInteractivePluginTask(config).value
+    val groupId = (config / organization).value
+    val artifactId = (config / normalizedName).value
+    val file = buildEnterprisePackage(config).value
+    val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+    val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
+    val classNames: Seq[String] = (config / definedTests).value.map(_.name)
+    val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
+    val systemProperties: Map[String, String] = (config / enterpriseSimulationSystemProperties).value
+
+    Try(
+      enterpriseInteractivePlugin.createOrStartSimulation(
+        optionalTeamId.orNull,
+        groupId,
+        artifactId,
+        optionalSimulationClass.orNull,
+        classNames.asJava,
+        optionalPackageId.orNull,
+        systemProperties.asJava,
+        file
+      )
     )
   }
 
@@ -191,18 +300,66 @@ object EnterpriseSettings {
     }
   }
 
+  private def enterpriseSimulationCreate(batchMode: Boolean, config: Configuration) = Def.taskDyn {
+    val logger = streams.value.log
+    val simulationStartResult = if (batchMode || System.console() == null) {
+      batchCreateAndStartEnterpriseSimulation(config)
+    } else {
+      interactiveCreateOrStartEnterpriseSimulation(config)
+    }
+
+    Def.task {
+      simulationStartResult.value.recoverWith { case e: SimulationStartException =>
+        logCreatedSimulation(logger, e.getSimulation)
+        logSimulationConfiguration(logger, config, e.getSimulation.id)
+        Failure(e.getCause)
+      }.get
+    }
+  }
+
+  private def enterpriseSimulationStartResult(config: Configuration) = Def.inputTaskDyn {
+    val enterpriseStartCommand = EnterpriseStartCommand.parser.parsed
+    val settingSimulationId = enterpriseSimulationId.value
+
+    if (settingSimulationId.nonEmpty) {
+      val simulationId = UUID.fromString(settingSimulationId)
+      startEnterpriseSimulation(simulationId, config)
+    } else {
+      enterpriseSimulationCreate(enterpriseStartCommand.batchMode, config)
+    }
+  }
+
+  private def enterpriseSimulationStart(config: Configuration) = Def.inputTask {
+    val baseUrl = (config / enterpriseUrl).value
+    val settingSimulationId = (config / enterpriseSimulationId).value
+    val logger = streams.value.log
+
+    val simulationStartResult = enterpriseSimulationStartResult(config).evaluated
+
+    if (simulationStartResult.createdSimulation) {
+      logCreatedSimulation(logger, simulationStartResult.simulation)
+    }
+
+    if (settingSimulationId.isEmpty) {
+      logSimulationConfiguration(logger, config, simulationStartResult.simulation.id)
+    }
+
+    val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
+    logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+  }
+
   def settings(config: Configuration) = Seq(
     config / enterpriseUrl := new URL("https://cloud.gatling.io"),
     config / enterprisePackage := buildEnterprisePackage(config).value,
     config / enterpriseUpload := uploadEnterprisePackage(config).value,
-    config / enterpriseStart := startEnterpriseSimulation(config).value,
-    config / enterprisePackageId := "",
-    config / enterpriseDefaultSimulationClassname := "",
-    config / enterpriseDefaultSimulationTeamId := "",
-    config / enterpriseSimulationId := "",
+    config / enterpriseStart := enterpriseSimulationStart(config).evaluated,
+    config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
+    config / enterpriseTeamId := sys.props.get("gatling.enterprise.teamId").getOrElse(""),
+    config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
     config / enterpriseSimulationSystemProperties := Map.empty,
     config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
-    config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
+    config / packageBin := (config / enterprisePackage).value, // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
+    config / enterpriseSimulationClass := sys.props.get("gatling.enterprise.simulationClass").getOrElse("")
   )
 
   private def legacyAssemblySetting(config: Configuration) =

@@ -33,18 +33,67 @@ object GatlingKeys {
   val generateReport = inputKey[Unit]("Generate report for a specific simulation")
 
   // Enterprise Settings
-  val enterpriseUrl = settingKey[URL]("Target URL on Gatling Enterprise")
-  val enterpriseApiToken = settingKey[String]("API Token for package upload on Gatling Enterprise")
-  val enterprisePackageId = settingKey[String]("Target package ID on Gatling Enterprise")
-  val enterpriseDefaultSimulationClassname = settingKey[String]("Target simulation class name on Gatling Enterprise")
-  val enterpriseDefaultSimulationTeamId = settingKey[String]("Target team ID on Gatling Enterprise")
-  val enterpriseSimulationId = settingKey[String]("Target simulation ID on Gatling Enterprise")
-  val enterpriseSimulationSystemProperties = settingKey[Map[String, String]]("Simulation system properties on Gatling Enterprise")
+
+  private def systemPropertyDescription(systemProperty: String): String =
+    s"May be configured using `$systemProperty` system property"
+
+  private val documentationReference =
+    "See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/#working-with-gatling-enterprise-cloud for more information"
+
+  val enterpriseUrl = settingKey[URL]("URL of Gatling Enterprise.")
+
+  val enterpriseApiToken = settingKey[String](s"""API Token on Gatling Enterprise.
+                                                 |Prefer configuration using `GATLING_ENTERPRISE_API_TOKEN` environment variable, or `gatling.enterprise.apiToken` system property.
+                                                 |$documentationReference.
+                                                 |""".stripMargin)
+
+  val enterprisePackageId = settingKey[String](s"""Package ID on Gatling Enterprise (used by `enterpriseUpload` task).
+                                                  |${systemPropertyDescription("gatling.enterprise.packageId")}.
+                                                  |$documentationReference.
+                                                  |""".stripMargin)
+
+  val enterpriseSimulationClass = settingKey[String](s"""Simulation class name, used when creating a simulation.
+                                                        |${systemPropertyDescription("gatling.enterprise.simulationClass")}.
+                                                        |$documentationReference.
+                                                        |""".stripMargin)
+
+  val enterpriseTeamId = settingKey[String](s"""Team ID on Gatling Enterprise. Used as default team on simulation and package on creation.
+                                               |${systemPropertyDescription("gatling.enterprise.teamId")}.
+                                               |$documentationReference.
+                                               |""".stripMargin)
+
+  val enterpriseSimulationId =
+    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterpriseStart` (and `enterprisePackage` if `enterprisePackageId` isn't configured).
+                          |${systemPropertyDescription("gatling.enterprise.simulationId")}.
+                          |$documentationReference.
+                          |""".stripMargin)
+
+  val enterpriseSimulationSystemProperties = settingKey[Map[String, String]](
+    s"""Simulation system properties used when starting a simulation. Properties are merged with the one configured on the simulation.
+       |$documentationReference.
+       |""".stripMargin
+  )
 
   // Enterprise Tasks
-  val enterprisePackage = taskKey[File]("Build a package for Gatling Enterprise")
-  val enterpriseUpload = taskKey[Unit]("Upload a package for Gatling Enterprise")
-  val enterpriseStart = taskKey[Unit]("Start a simulation for Gatling Enterprise")
+  val enterprisePackage = taskKey[File](s"""Build a package for Gatling Enterprise.
+                                           |$documentationReference.
+                                           |""".stripMargin)
+
+  val enterpriseUpload = taskKey[Unit](
+    s"""Upload a package for Gatling Enterprise. Require `enterpriseApiToken` and either `enterprisePackageId` or `enterpriseSimulationId` to be configured.
+       |$documentationReference.
+       |""".stripMargin
+  )
+
+  val enterpriseStart = inputKey[Unit](s"""Start a simulation for Gatling Enterprise. Require `enterpriseApiToken`.
+                                          |In batch mode, if `enterpriseSimulationId` isn't configured, requires:
+                                          |- `enterpriseSimulationClass` if there's more than one simulation class defined
+                                          |- `enterpriseTeamId` if there's more than one team related to the API Token
+                                          |- `enterpriseTeamId` if there's more than one team related to the API Token
+                                          |- `enterprisePackageId` if you want to use an existing package on created simulation
+                                          |$documentationReference.
+                                          |""".stripMargin)
+
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
