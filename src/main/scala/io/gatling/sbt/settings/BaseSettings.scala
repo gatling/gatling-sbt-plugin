@@ -27,7 +27,7 @@ import sbt.Tests.{ Argument, Group }
 
 object BaseSettings {
 
-  private def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
+  private[gatling] def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
     propagatedSystemProperties ++ DefaultJvmArgs ++ javaOptions
 
   private val unPropagatedPropertiesRoots =
