@@ -16,6 +16,8 @@
 
 package io.gatling.sbt
 
+import _root_.io.gatling.sbt.settings.BaseSettings
+
 import sbt._
 
 /** List of SBT keys for Gatling specific tasks. */
@@ -97,4 +99,7 @@ object GatlingKeys {
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
+
+  // kept for compatibility with older versions
+  def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] = BaseSettings.overrideDefaultJavaOptions(javaOptions: _*)
 }
