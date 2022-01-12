@@ -36,11 +36,18 @@ import sbt.Keys._
 import sbt.internal.util.ManagedLogger
 
 object EnterpriseSettings {
+
+  // MessageOnlyException seems to be logged multiple times when throw in an inner task
+  // To prevent that, we explicitly log the error and throw a FeedbackProvidedException
+  private object ErrorAlreadyLoggedException extends FeedbackProvidedException
+
   private def moduleDescriptorConfig = Def.task {
+    val logger = streams.value.log
     moduleSettings.value match {
       case config: ModuleDescriptorConfiguration => config
       case x =>
-        throw new IllegalStateException(s"gatling-sbt expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
+        logger.error(s"gatling-sbt expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
+        throw ErrorAlreadyLoggedException
     }
   }
 
@@ -89,25 +96,25 @@ object EnterpriseSettings {
   private def enterpriseClientTask(config: Configuration) = Def.task {
     val settingUrl = new URL((config / enterpriseUrl).value.toExternalForm + PublicApiPath)
     val settingApiToken = (config / enterpriseApiToken).value
-    val logger = enterprisePluginIOTask.value.getLogger
+    val logger = streams.value.log
 
     if (settingApiToken.isEmpty) {
-      throw new IllegalStateException(
-        s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token wil the role 'Configurer'.
+      logger.error(
+        s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token with the role 'Configurer'.
            |You can then set your API token's value in the environment variable GATLING_ENTERPRISE_API_TOKEN, pass it with -Dgatling.enterprise.apiToken=<apiToken>, or add the configuration to your SBT settings, e.g.:
-           |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE
-           |""".stripMargin
+           |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE""".stripMargin
       )
+      throw ErrorAlreadyLoggedException
     }
 
     try {
       OkHttpEnterpriseClient.getInstance(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
     } catch {
-      case e: UnsupportedClientException =>
-        throw new IllegalStateException(
-          "Please update the Gatling SBT plugin to the latest version for compatibility with Gatling Enterprise. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information about this plugin.",
-          e
-        );
+      case _: UnsupportedClientException =>
+        logger.error(
+          "Please update the Gatling SBT plugin to the latest version for compatibility with Gatling Enterprise. See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information about this plugin."
+        )
+        throw ErrorAlreadyLoggedException
     }
   }
 
@@ -153,7 +160,7 @@ object EnterpriseSettings {
     val logger = streams.value.log
 
     if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
-      throw new IllegalStateException(
+      logger.error(
         s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
            |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
            |${config.id} / enterprisePackageId := MY_PACKAGE_ID
@@ -161,6 +168,7 @@ object EnterpriseSettings {
            |Alternately, if you don't configure a packageId, you can configure the simulationId of an existing simulation on Gatling Enterprise: your code will be uploaded to the package used by that simulation.
            |""".stripMargin
       )
+      throw ErrorAlreadyLoggedException
     }
 
     if (settingPackageId.nonEmpty) {
@@ -202,13 +210,14 @@ object EnterpriseSettings {
     if (simulationClassname.isEmpty) {
       val headClassname = classNames.head
       if (classNames.size > 1) {
-        throw new IllegalArgumentException(
+        logger.error(
           s"""Several simulation classes were found
              |${classNames.map("- " + _).mkString("\n")}
              |Specify the simulation you want to use with -Dgatling.enterprise.simulationClass=<className>, or add the configuration to your build.sbt, e.g.:
              |${config.id} / simulationClass := $headClassname
              |""".stripMargin
         )
+        throw ErrorAlreadyLoggedException
       }
       logger.info(s"Picking only available simulation class: $headClassname.")
       headClassname
@@ -240,18 +249,13 @@ object EnterpriseSettings {
       )
     ).recoverWith { case e: SeveralTeamsFoundException =>
       val teams = e.getAvailableTeams.asScala
-      Failure(
-        new IllegalArgumentException(
-          s"""
-             |More than 1 team were found while creating a simulation.
-             |Available teams:
-             |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
-             |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
-             |${config.id} / enterpriseTeamId := ${teams.head.id}
-             |
-             |""".stripMargin
-        )
-      )
+      logger.error(s"""More than 1 team were found while creating a simulation.
+                      |Available teams:
+                      |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
+                      |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
+                      |${config.id} / enterpriseTeamId := ${teams.head.id}
+                      |""".stripMargin)
+      Failure(ErrorAlreadyLoggedException)
     }
   }
 
@@ -289,12 +293,12 @@ object EnterpriseSettings {
           )
         }
       if (foundLegacyFrontLinePlugin) {
-        val errorMessage =
+        throw new MessageOnlyException(
           s"""Plugin "io.gatling.frontline" % "sbt-frontline" is no longer needed, its functionality is now included in "io.gatling" % "gatling-sbt".
              |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
              |Please use the Gatling / enterprisePackage task instead of Test / assembly (or GatlingIt / enterprisePackage instead of It / assembly).
              |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
-        throw new MessageOnlyException(errorMessage)
+        )
       }
       state
     }
