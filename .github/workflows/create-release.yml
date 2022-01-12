@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       releaseType:
-        description: 'milestone|patch|minor'
+        description: 'patch-milestone|minor-milestone|patch|minor'
         required: true
 
 defaults:
@@ -24,7 +24,8 @@ jobs:
         if: |
           github.event.inputs.releaseType != 'minor' &&
           github.event.inputs.releaseType != 'patch' &&
-          github.event.inputs.releaseType != 'milestone'
+          github.event.inputs.releaseType != 'minor-milestone' &&
+          github.event.inputs.releaseType != 'patch-milestone'
 
       - uses: actions/checkout@v2
         with:
@@ -61,7 +62,7 @@ jobs:
         run: |
           git config user.name "${{ secrets.GATLING_CI_NAME }}"
           git config user.email "${{ secrets.GATLING_CI_EMAIL }}"
-          if [ "${{github.event.inputs.releaseType}}" = "milestone" ]; then
+          if [ "${{github.event.inputs.releaseType}}" = "minor-milestone" || "${{github.event.inputs.releaseType}}" = "patch-milestone" ]; then
             git tag "${{ steps.tag.outputs.tag }}"
           else
             git tag "${{ steps.tag.outputs.tag }}" -m "Version ${{ steps.tag.outputs.tag }}"
