@@ -24,7 +24,7 @@ import scala.util.{ Failure, Try }
 
 import io.gatling.plugin.{ EnterprisePlugin, EnterprisePluginClient, InteractiveEnterprisePluginClient }
 import io.gatling.plugin.client.http.OkHttpEnterpriseClient
-import io.gatling.plugin.exceptions.{ SeveralTeamsFoundException, SimulationStartException, UnsupportedClientException }
+import io.gatling.plugin.exceptions.{ SeveralTeamsFoundException, SimulationStartException, UnsupportedClientException, UserQuitException }
 import io.gatling.plugin.io.{ PluginIO, PluginLogger, PluginScanner }
 import io.gatling.plugin.model.Simulation
 import io.gatling.sbt.BuildInfo
@@ -260,6 +260,7 @@ object EnterpriseSettings {
   }
 
   private def interactiveCreateOrStartEnterpriseSimulation(config: Configuration) = Def.task {
+    val logger = streams.value.log
     val enterpriseInteractivePlugin = enterpriseInteractivePluginTask(config).value
     val groupId = (config / organization).value
     val artifactId = (config / normalizedName).value
@@ -281,7 +282,10 @@ object EnterpriseSettings {
         systemProperties.asJava,
         file
       )
-    )
+    ).recoverWith { case e: UserQuitException =>
+      logger.warn(e.getMessage)
+      Failure(ErrorAlreadyLoggedException)
+    }
   }
 
   private def onLoadBreakIfLegacyPluginFound: Def.Initialize[State => State] = Def.setting {
