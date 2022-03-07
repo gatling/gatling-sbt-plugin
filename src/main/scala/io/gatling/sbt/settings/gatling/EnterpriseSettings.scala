@@ -139,7 +139,7 @@ object EnterpriseSettings {
     new PluginIO {
       override def getLogger: PluginLogger = logger
       override def getScanner: PluginScanner = new PluginScanner {
-        override def readString(): String = interactiveService.readLine("(ctrl+x+c to cancel) > ", mask = false).getOrElse("")
+        override def readString(): String = interactiveService.readLine("> ", mask = false).getOrElse("")
         override def readInt(): Int = Integer.parseInt(readString())
       }
     }
