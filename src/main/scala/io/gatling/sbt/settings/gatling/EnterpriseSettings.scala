@@ -108,7 +108,7 @@ object EnterpriseSettings {
     }
 
     try {
-      OkHttpEnterpriseClient.getInstance(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
+      new OkHttpEnterpriseClient(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
     } catch {
       case _: UnsupportedClientException =>
         logger.error(
