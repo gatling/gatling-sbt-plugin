@@ -20,7 +20,7 @@ import java.io.File
 import java.util.UUID
 
 import scala.collection.JavaConverters._
-import scala.util.{ Failure, Try }
+import scala.util.{ Failure, Success, Try, Using }
 
 import io.gatling.plugin.{ EnterprisePlugin, EnterprisePluginClient, InteractiveEnterprisePluginClient }
 import io.gatling.plugin.client.http.OkHttpEnterpriseClient
@@ -156,30 +156,32 @@ object EnterpriseSettings {
     val file = buildEnterprisePackage(config).value
     val settingPackageId = (config / enterprisePackageId).value
     val settingSimulationId = (config / enterpriseSimulationId).value
-    val enterprisePlugin = enterprisePluginTask(config).value
-    val logger = streams.value.log
 
-    if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
-      logger.error(
-        s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
-           |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
-           |${config.id} / enterprisePackageId := MY_PACKAGE_ID
-           |
-           |Alternately, if you don't configure a packageId, you can configure the simulationId of an existing simulation on Gatling Enterprise: your code will be uploaded to the package used by that simulation.
-           |""".stripMargin
-      )
-      throw ErrorAlreadyLoggedException
+    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
+      val logger = streams.value.log
+
+      if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
+        logger.error(
+          s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
+             |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
+             |${config.id} / enterprisePackageId := MY_PACKAGE_ID
+             |
+             |Alternately, if you don't configure a packageId, you can configure the simulationId of an existing simulation on Gatling Enterprise: your code will be uploaded to the package used by that simulation.
+             |""".stripMargin
+        )
+        throw ErrorAlreadyLoggedException
+      }
+
+      if (settingPackageId.nonEmpty) {
+        val packageId = UUID.fromString(settingPackageId)
+        enterprisePlugin.uploadPackage(packageId, file)
+      } else {
+        val simulationId = UUID.fromString(settingSimulationId)
+        enterprisePlugin.uploadPackageWithSimulationId(simulationId, file)
+      }
+
+      logger.success("Successfully upload package")
     }
-
-    if (settingPackageId.nonEmpty) {
-      val packageId = UUID.fromString(settingPackageId)
-      enterprisePlugin.uploadPackage(packageId, file)
-    } else {
-      val simulationId = UUID.fromString(settingSimulationId)
-      enterprisePlugin.uploadPackageWithSimulationId(simulationId, file)
-    }
-
-    logger.success("Successfully upload package")
   }
 
   private def logCreatedSimulation(logger: ManagedLogger, simulation: Simulation): Unit =
@@ -195,11 +197,12 @@ object EnterpriseSettings {
   private def startEnterpriseSimulation(simulationId: UUID, config: Configuration) = Def.task {
     val logger = streams.value.log
     val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
-    val enterprisePlugin = enterprisePluginTask(config).value
-    val file = buildEnterprisePackage(config).value
+    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
+      val file = buildEnterprisePackage(config).value
 
-    logger.info(s"Uploading and starting simulation...")
-    enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, file)
+      logger.info(s"Uploading and starting simulation...")
+      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, file)
+    }
   }
 
   private def batchSimulationClassname(config: Configuration) = Def.task {
@@ -228,63 +231,65 @@ object EnterpriseSettings {
 
   private def batchCreateAndStartEnterpriseSimulation(config: Configuration) = Def.task {
     val logger = streams.value.log
-    val enterprisePlugin = enterprisePluginTask(config).value
-    val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
-    val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
-    val simulationClassname = batchSimulationClassname(config).value
-    val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
-    val file = buildEnterprisePackage(config).value
+    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
+      val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+      val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
+      val simulationClassname = batchSimulationClassname(config).value
+      val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+      val file = buildEnterprisePackage(config).value
 
-    logger.info("Creating and starting simulation...")
+      logger.info("Creating and starting simulation...")
 
-    Try(
-      enterprisePlugin.createAndStartSimulation(
-        optionalDefaultSimulationTeamId.orNull,
-        (config / organization).value,
-        (config / normalizedName).value,
-        simulationClassname,
-        optionalPackageId.orNull,
-        systemProperties,
-        file
-      )
-    ).recoverWith { case e: SeveralTeamsFoundException =>
-      val teams = e.getAvailableTeams.asScala
-      logger.error(s"""More than 1 team were found while creating a simulation.
-                      |Available teams:
-                      |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
-                      |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
-                      |${config.id} / enterpriseTeamId := ${teams.head.id}
-                      |""".stripMargin)
-      Failure(ErrorAlreadyLoggedException)
+      Try(
+        enterprisePlugin.createAndStartSimulation(
+          optionalDefaultSimulationTeamId.orNull,
+          (config / organization).value,
+          (config / normalizedName).value,
+          simulationClassname,
+          optionalPackageId.orNull,
+          systemProperties,
+          file
+        )
+      ).recoverWith { case e: SeveralTeamsFoundException =>
+        val teams = e.getAvailableTeams.asScala
+        logger.error(s"""More than 1 team were found while creating a simulation.
+                        |Available teams:
+                        |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
+                        |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
+                        |${config.id} / enterpriseTeamId := ${teams.head.id}
+                        |""".stripMargin)
+        Failure(ErrorAlreadyLoggedException)
+      }
     }
   }
 
   private def interactiveCreateOrStartEnterpriseSimulation(config: Configuration) = Def.task {
     val logger = streams.value.log
-    val enterpriseInteractivePlugin = enterpriseInteractivePluginTask(config).value
-    val groupId = (config / organization).value
-    val artifactId = (config / normalizedName).value
-    val file = buildEnterprisePackage(config).value
-    val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
-    val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
-    val classNames: Seq[String] = (config / definedTests).value.map(_.name)
-    val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
-    val systemProperties: Map[String, String] = (config / enterpriseSimulationSystemProperties).value
+    Using(enterpriseInteractivePluginTask(config).value) { enterpriseInteractivePlugin =>
+      val groupId = (config / organization).value
+      val artifactId = (config / normalizedName).value
+      val file = buildEnterprisePackage(config).value
+      val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+      val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
+      val classNames: Seq[String] = (config / definedTests).value.map(_.name)
+      val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
+      val systemProperties: Map[String, String] = (config / enterpriseSimulationSystemProperties).value
 
-    Try(
-      enterpriseInteractivePlugin.createOrStartSimulation(
-        optionalTeamId.orNull,
-        groupId,
-        artifactId,
-        optionalSimulationClass.orNull,
-        classNames.asJava,
-        optionalPackageId.orNull,
-        systemProperties.asJava,
-        file
-      )
-    ).recoverWith { case e: UserQuitException =>
-      logger.warn(e.getMessage)
-      Failure(ErrorAlreadyLoggedException)
+      Try(
+        enterpriseInteractivePlugin.createOrStartSimulation(
+          optionalTeamId.orNull,
+          groupId,
+          artifactId,
+          optionalSimulationClass.orNull,
+          classNames.asJava,
+          optionalPackageId.orNull,
+          systemProperties.asJava,
+          file
+        )
+      ).recoverWith { case e: UserQuitException =>
+        logger.warn(e.getMessage)
+        Failure(ErrorAlreadyLoggedException)
+      }
     }
   }
 
@@ -342,18 +347,21 @@ object EnterpriseSettings {
     val settingSimulationId = (config / enterpriseSimulationId).value
     val logger = streams.value.log
 
-    val simulationStartResult = enterpriseSimulationStartResult(config).evaluated
+    enterpriseSimulationStartResult(config).evaluated match {
+      case Success(simulationStartResult) =>
+        if (simulationStartResult.createdSimulation) {
+          logCreatedSimulation(logger, simulationStartResult.simulation)
+        }
 
-    if (simulationStartResult.createdSimulation) {
-      logCreatedSimulation(logger, simulationStartResult.simulation)
+        if (settingSimulationId.isEmpty) {
+          logSimulationConfiguration(logger, config, simulationStartResult.simulation.id)
+        }
+
+        val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
+        logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+
+      case Failure(e) => throw e
     }
-
-    if (settingSimulationId.isEmpty) {
-      logSimulationConfiguration(logger, config, simulationStartResult.simulation.id)
-    }
-
-    val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
-    logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
   }
 
   def settings(config: Configuration) = Seq(
