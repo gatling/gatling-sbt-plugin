@@ -24,7 +24,7 @@ import scala.util.{ Failure, Success, Try, Using }
 
 import io.gatling.plugin.{ EnterprisePlugin, EnterprisePluginClient, InteractiveEnterprisePluginClient }
 import io.gatling.plugin.client.http.OkHttpEnterpriseClient
-import io.gatling.plugin.exceptions.{ SeveralTeamsFoundException, SimulationStartException, UnsupportedClientException, UserQuitException }
+import io.gatling.plugin.exceptions._
 import io.gatling.plugin.io.{ PluginIO, PluginLogger, PluginScanner }
 import io.gatling.plugin.model.Simulation
 import io.gatling.sbt.BuildInfo
@@ -197,35 +197,12 @@ object EnterpriseSettings {
   private def startEnterpriseSimulation(simulationId: UUID, config: Configuration) = Def.task {
     val logger = streams.value.log
     val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+    val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
     Using(enterprisePluginTask(config).value) { enterprisePlugin =>
       val file = buildEnterprisePackage(config).value
 
       logger.info(s"Uploading and starting simulation...")
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, file)
-    }
-  }
-
-  private def batchSimulationClassname(config: Configuration) = Def.task {
-    val classNames: Seq[String] = (config / definedTests).value.map(_.name)
-    val simulationClassname = (config / enterpriseSimulationClass).value
-    val logger = streams.value.log
-
-    if (simulationClassname.isEmpty) {
-      val headClassname = classNames.head
-      if (classNames.size > 1) {
-        logger.error(
-          s"""Several simulation classes were found
-             |${classNames.map("- " + _).mkString("\n")}
-             |Specify the simulation you want to use with -Dgatling.enterprise.simulationClass=<className>, or add the configuration to your build.sbt, e.g.:
-             |${config.id} / simulationClass := $headClassname
-             |""".stripMargin
-        )
-        throw ErrorAlreadyLoggedException
-      }
-      logger.info(s"Picking only available simulation class: $headClassname.")
-      headClassname
-    } else {
-      simulationClassname
+      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, simulationClassname.orNull, file)
     }
   }
 
@@ -234,7 +211,7 @@ object EnterpriseSettings {
     Using(enterprisePluginTask(config).value) { enterprisePlugin =>
       val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
       val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
-      val simulationClassname = batchSimulationClassname(config).value
+      val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
       val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
       val file = buildEnterprisePackage(config).value
 
@@ -245,20 +222,31 @@ object EnterpriseSettings {
           optionalDefaultSimulationTeamId.orNull,
           (config / organization).value,
           (config / normalizedName).value,
-          simulationClassname,
+          simulationClassname.orNull,
           optionalPackageId.orNull,
           systemProperties,
           file
         )
-      ).recoverWith { case e: SeveralTeamsFoundException =>
-        val teams = e.getAvailableTeams.asScala
-        logger.error(s"""More than 1 team were found while creating a simulation.
-                        |Available teams:
-                        |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
-                        |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
-                        |${config.id} / enterpriseTeamId := ${teams.head.id}
-                        |""".stripMargin)
-        Failure(ErrorAlreadyLoggedException)
+      ).recoverWith {
+        case e: SeveralTeamsFoundException =>
+          val teams = e.getAvailableTeams.asScala
+          logger.error(s"""More than 1 team were found while creating a simulation.
+                          |Available teams:
+                          |${teams.map(team => s"- ${team.id} (${team.name})").mkString("\n")}
+                          |Specify the team you want to use with -Dgatling.enterprise.teamId=<teamId>, or add the configuration to your build.sbt, e.g.:
+                          |${config.id} / enterpriseTeamId := ${teams.head.id}
+                          |""".stripMargin)
+          Failure(ErrorAlreadyLoggedException)
+        case e: SeveralSimulationClassNamesFoundException =>
+          val simulationClasses = e.getAvailableSimulationClassNames.asScala
+          logger.error(
+            s"""Several simulation classes were found
+               |${simulationClasses.map("- " + _).mkString("\n")}
+               |Specify the simulation you want to use with -Dgatling.enterprise.simulationClass=<className>, or add the configuration to your build.sbt, e.g.:
+               |${config.id} / simulationClass := ${simulationClasses.head}
+               |""".stripMargin
+          )
+          Failure(ErrorAlreadyLoggedException)
       }
     }
   }
@@ -271,7 +259,6 @@ object EnterpriseSettings {
       val file = buildEnterprisePackage(config).value
       val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
       val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
-      val classNames: Seq[String] = (config / definedTests).value.map(_.name)
       val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
       val systemProperties: Map[String, String] = (config / enterpriseSimulationSystemProperties).value
 
@@ -281,7 +268,6 @@ object EnterpriseSettings {
           groupId,
           artifactId,
           optionalSimulationClass.orNull,
-          classNames.asJava,
           optionalPackageId.orNull,
           systemProperties.asJava,
           file
