@@ -33,14 +33,23 @@ case class DependenciesAnalysisResult(gatlingVersion: String, nonGatlingDependen
 
 object DependenciesAnalyzer {
 
-  private val GatlingOrgs = Set("io.gatling", "io.gatling.highcharts", "io.gatling.frontline") ++
-    Set( // partial workaround for sbt coursier back-end not reporting all callers for direct deps
-      "org.scala-lang", // scala-library and scala-reflect are always direct dependencies
-      "ch.qos.logback" // having multiple slf4-j back-ends on the classpath is an issue
+  private final case class Exclusion(organization: String, name: Option[String] = None)
+  private object Exclusion {
+    val All = Seq(
+      Exclusion("io.gatling"),
+      Exclusion("io.gatling.highcharts"),
+      Exclusion("io.gatling.frontline"),
+      // having multiple slf4-j back-ends on the classpath is an issue
+      Exclusion("ch.qos.logback"),
+      // scala-library and scala-reflect are always direct dependencies
+      Exclusion("org.scala-lang", Some("scala-library")),
+      Exclusion("org.scala-lang", Some("scala-reflect")),
+      Exclusion("io.netty", Some("netty-all"))
     )
+  }
 
   private def exclude(dep: ArtifactWithoutVersion): Boolean =
-    GatlingOrgs.contains(dep.organization) || (dep.organization == "io.netty" && dep.name == "netty-all")
+    Exclusion.All.exists(exclusion => exclusion.organization == dep.organization && exclusion.name.forall(_ == dep.name))
 
   def analyze(
       resolution: DependencyResolution,
