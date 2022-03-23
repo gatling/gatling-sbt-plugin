@@ -153,13 +153,12 @@ object EnterpriseSettings {
   }
 
   private def uploadEnterprisePackage(config: Configuration) = Def.task {
+    val logger = streams.value.log
     val file = buildEnterprisePackage(config).value
     val settingPackageId = (config / enterprisePackageId).value
     val settingSimulationId = (config / enterpriseSimulationId).value
 
     Using(enterprisePluginTask(config).value) { enterprisePlugin =>
-      val logger = streams.value.log
-
       if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
         logger.error(
           s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
@@ -197,9 +196,9 @@ object EnterpriseSettings {
   private def startEnterpriseSimulation(simulationId: UUID, config: Configuration) = Def.task {
     val logger = streams.value.log
     val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
-    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
-      val file = buildEnterprisePackage(config).value
+    val file = buildEnterprisePackage(config).value
 
+    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
       logger.info(s"Uploading and starting simulation...")
       enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, file)
     }
@@ -231,12 +230,13 @@ object EnterpriseSettings {
 
   private def batchCreateAndStartEnterpriseSimulation(config: Configuration) = Def.task {
     val logger = streams.value.log
+    val simulationClassname = batchSimulationClassname(config).value
+    val file = buildEnterprisePackage(config).value
+
     Using(enterprisePluginTask(config).value) { enterprisePlugin =>
       val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
       val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
-      val simulationClassname = batchSimulationClassname(config).value
       val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
-      val file = buildEnterprisePackage(config).value
 
       logger.info("Creating and starting simulation...")
 
@@ -265,13 +265,14 @@ object EnterpriseSettings {
 
   private def interactiveCreateOrStartEnterpriseSimulation(config: Configuration) = Def.task {
     val logger = streams.value.log
+    val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+    val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
+    val classNames: Seq[String] = (config / definedTests).value.map(_.name)
+    val file = buildEnterprisePackage(config).value
+
     Using(enterpriseInteractivePluginTask(config).value) { enterpriseInteractivePlugin =>
       val groupId = (config / organization).value
       val artifactId = (config / normalizedName).value
-      val file = buildEnterprisePackage(config).value
-      val optionalTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
-      val optionalSimulationClass = configOptionalString(config / enterpriseSimulationClass).value
-      val classNames: Seq[String] = (config / definedTests).value.map(_.name)
       val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
       val systemProperties: Map[String, String] = (config / enterpriseSimulationSystemProperties).value
 
