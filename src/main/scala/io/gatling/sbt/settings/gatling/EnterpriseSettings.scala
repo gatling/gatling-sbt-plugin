@@ -194,15 +194,21 @@ object EnterpriseSettings {
          |""".stripMargin
     )
 
-  private def startEnterpriseSimulation(simulationId: UUID, config: Configuration) = Def.task {
+  private def startEnterpriseSimulation(batchMode: Boolean, simulationId: UUID, config: Configuration) = Def.task {
     val logger = streams.value.log
     val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
     val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
-    Using(enterprisePluginTask(config).value) { enterprisePlugin =>
-      val file = buildEnterprisePackage(config).value
+    val file = buildEnterprisePackage(config).value
 
-      logger.info(s"Uploading and starting simulation...")
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, simulationClassname.orNull, file)
+    logger.info(s"Uploading and starting simulation...")
+    if (batchMode) {
+      Using(enterprisePluginTask(config).value) { enterprisePlugin =>
+        enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, simulationClassname.orNull, file)
+      }
+    } else {
+      Using(enterpriseInteractivePluginTask(config).value) { enterpriseInteractivePlugin =>
+        enterpriseInteractivePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, simulationClassname.orNull, file)
+      }
     }
   }
 
@@ -318,13 +324,10 @@ object EnterpriseSettings {
 
   private def enterpriseSimulationStartResult(config: Configuration) = Def.inputTaskDyn {
     val enterpriseStartCommand = EnterpriseStartCommand.parser.parsed
-    val settingSimulationId = enterpriseSimulationId.value
+    val settingSimulationId = configOptionalString(config / enterpriseSimulationId).value.map(UUID.fromString)
 
-    if (settingSimulationId.nonEmpty) {
-      val simulationId = UUID.fromString(settingSimulationId)
-      startEnterpriseSimulation(simulationId, config)
-    } else {
-      enterpriseSimulationCreate(enterpriseStartCommand.batchMode, config)
+    settingSimulationId.fold(enterpriseSimulationCreate(enterpriseStartCommand.batchMode, config)) { simulationId =>
+      startEnterpriseSimulation(enterpriseStartCommand.batchMode, simulationId, config)
     }
   }
 
