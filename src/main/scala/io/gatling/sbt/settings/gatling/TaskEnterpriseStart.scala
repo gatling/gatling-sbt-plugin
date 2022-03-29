@@ -107,7 +107,9 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
         Failure(ErrorAlreadyLoggedException)
 
       case e: SimulationStartException =>
-        logCreatedSimulation(logger, e.getSimulation)
+        if (e.isCreated) {
+          logCreatedSimulation(logger, e.getSimulation)
+        }
         logSimulationConfiguration(logger, e.getSimulation.id)
         Failure(e.getCause)
     }.get
