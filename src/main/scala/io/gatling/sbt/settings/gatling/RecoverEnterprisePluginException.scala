@@ -30,6 +30,14 @@ import sbt.internal.util.ManagedLogger
 class RecoverEnterprisePluginException(config: Configuration) {
 
   protected def recoverEnterprisePluginException[U](logger: ManagedLogger): PartialFunction[Throwable, Try[U]] = {
+    case e: UnsupportedJavaVersionException =>
+      logger.error(s"""${e.getMessage}
+                      |In order to target the supported Java bytecode version, please use the following sbt settings:
+                      |scalacOptions += "-target:${e.supportedVersion}"
+                      |javacOptions ++= Seq("--release", "${e.supportedVersion}")
+                      |Or, reported class may come from your project dependencies, published targeting Java ${e.version}.
+                      |""".stripMargin)
+      Failure(ErrorAlreadyLoggedException)
     case e: SeveralTeamsFoundException =>
       val teams = e.getAvailableTeams.asScala
       logger.error(s"""More than 1 team were found while creating a simulation.
