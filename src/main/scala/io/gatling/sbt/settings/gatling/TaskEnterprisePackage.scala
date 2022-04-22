@@ -21,7 +21,7 @@ import java.io.File
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
 
-import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test, ThisScope }
+import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test }
 import sbt.Keys._
 
 class TaskEnterprisePackage(config: Configuration) {
