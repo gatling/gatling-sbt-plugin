@@ -18,16 +18,17 @@ package io.gatling.sbt.settings.gatling
 
 import java.util.UUID
 
-import scala.util.{ Try, Using }
+import scala.util.Using
 
 import io.gatling.sbt.GatlingKeys._
+import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
 import sbt._
 import sbt.Keys.streams
 
-class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterprisePackage) {
+class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
 
-  val uploadEnterprisePackage: Def.Initialize[Task[Try[Unit]]] = Def.task {
+  val uploadEnterprisePackage: InitializeTask[Unit] = Def.task {
     val logger = streams.value.log
     val file = enterprisePackage.buildEnterprisePackage.value
     val settingPackageId = (config / enterprisePackageId).value
@@ -56,6 +57,6 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
       }
 
       logger.success("Successfully upload package")
-    }
+    }.recoverWith(recoverEnterprisePluginException(logger)).get
   }
 }
