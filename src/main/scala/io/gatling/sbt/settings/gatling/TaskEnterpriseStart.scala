@@ -16,12 +16,14 @@
 
 package io.gatling.sbt.settings.gatling
 
+import java.{ util => ju }
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 import io.gatling.plugin.EnterprisePlugin
+import io.gatling.plugin.util.PropertiesParserUtil
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterprisePluginTask._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
@@ -38,14 +40,16 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
 
   private def startEnterpriseSimulation(batchMode: Boolean, simulationId: UUID) = Def.task {
     val logger = streams.value.log
-    val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+    val systemProperties = selectProperties((config / enterpriseSimulationSystemProperties).value, (config / enterpriseSimulationSystemPropertiesString).value)
+    val environmentVariables =
+      selectProperties((config / enterpriseSimulationEnvironmentVariables).value, (config / enterpriseSimulationEnvironmentVariablesString).value)
     val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
     val file = enterprisePackage.buildEnterprisePackage.value
     val enterprisePlugin = enterprisePluginTask(batchMode).value
 
     logger.info(s"Uploading and starting simulation...")
     Using(enterprisePlugin) { enterprisePlugin =>
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, simulationClassname.orNull, file)
+      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
     }.get
   }
 
@@ -54,7 +58,9 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
     val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
     val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
     val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
-    val systemProperties = (config / enterpriseSimulationSystemProperties).value.asJava
+    val systemProperties = selectProperties((config / enterpriseSimulationSystemProperties).value, (config / enterpriseSimulationSystemPropertiesString).value)
+    val environmentVariables =
+      selectProperties((config / enterpriseSimulationEnvironmentVariables).value, (config / enterpriseSimulationEnvironmentVariablesString).value)
     val file = enterprisePackage.buildEnterprisePackage.value
     val enterprisePlugin = enterprisePluginTask(batchMode).value
 
@@ -67,6 +73,7 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
         simulationClassname.orNull,
         optionalPackageId.orNull,
         systemProperties,
+        environmentVariables,
         file
       )
     }.recoverWith(recoverEnterprisePluginException(logger)).get
@@ -102,4 +109,11 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
     logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
 
   }
+
+  private def selectProperties(propertiesMap: Map[String, String], propertiesString: String): ju.Map[String, String] =
+    if (propertiesMap == null || propertiesMap.isEmpty) {
+      PropertiesParserUtil.parseProperties(propertiesString)
+    } else {
+      propertiesMap.asJava
+    }
 }

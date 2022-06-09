@@ -71,7 +71,29 @@ object GatlingKeys {
                           |""".stripMargin)
 
   val enterpriseSimulationSystemProperties = settingKey[Map[String, String]](
-    s"""Simulation system properties used when starting a simulation. Properties are merged with the one configured on the simulation.
+    s"""Provides additional system properties when starting a simulation, in addition to the ones which may already be defined for that simulation.
+       |${systemPropertyDescription("gatling.enterprise.simulationSystemProperties")} with the format key1=value1,key2=value2
+       |$documentationReference.
+       |""".stripMargin
+  )
+
+  val enterpriseSimulationSystemPropertiesString = settingKey[String](
+    s"""Alternative to enterpriseSimulationSystemProperties. Use the format key1=value1,key2=value2
+       |${systemPropertyDescription("gatling.enterprise.simulationSystemProperties")}.
+       |$documentationReference.
+       |""".stripMargin
+  )
+
+  val enterpriseSimulationEnvironmentVariables = settingKey[Map[String, String]](
+    s"""Provides additional environment variables when starting a simulation, in addition to the ones which may already be defined for that simulation.
+       |${systemPropertyDescription("gatling.enterprise.simulationEnvironmentVariables")} with the format key1=value1,key2=value2
+       |$documentationReference.
+       |""".stripMargin
+  )
+
+  val enterpriseSimulationEnvironmentVariablesString = settingKey[String](
+    s"""Alternative to enterpriseSimulationEnvironmentVariables. Use the format key1=value1,key2=value2.
+       |${systemPropertyDescription("gatling.enterprise.simulationEnvironmentVariables")}.
        |$documentationReference.
        |""".stripMargin
   )
