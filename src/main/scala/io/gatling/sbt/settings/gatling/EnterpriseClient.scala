@@ -16,7 +16,7 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.plugin.client.http.OkHttpEnterpriseClient
+import io.gatling.plugin.client.http.HttpEnterpriseClient
 import io.gatling.plugin.exceptions.UnsupportedClientException
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
@@ -42,7 +42,7 @@ object EnterpriseClient {
     }
 
     try {
-      new OkHttpEnterpriseClient(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
+      new HttpEnterpriseClient(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
     } catch {
       case _: UnsupportedClientException =>
         logger.error(

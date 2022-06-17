@@ -20,7 +20,7 @@ import java.{ util => ju }
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
-import scala.util.Using
+import scala.util.Try
 
 import io.gatling.plugin.EnterprisePlugin
 import io.gatling.plugin.util.PropertiesParserUtil
@@ -48,9 +48,7 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
     val enterprisePlugin = enterprisePluginTask(batchMode).value
 
     logger.info(s"Uploading and starting simulation...")
-    Using(enterprisePlugin) { enterprisePlugin =>
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
-    }.get
+    enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
   }
 
   private def enterpriseSimulationCreate(batchMode: Boolean) = Def.task {
@@ -64,7 +62,7 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
     val file = enterprisePackage.buildEnterprisePackage.value
     val enterprisePlugin = enterprisePluginTask(batchMode).value
 
-    Using(enterprisePlugin) { enterprisePlugin =>
+    Try {
       logger.info("Creating and starting simulation...")
       enterprisePlugin.createAndStartSimulation(
         optionalDefaultSimulationTeamId.orNull,
