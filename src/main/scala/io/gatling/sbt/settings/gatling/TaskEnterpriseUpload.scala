@@ -18,7 +18,7 @@ package io.gatling.sbt.settings.gatling
 
 import java.util.UUID
 
-import scala.util.Using
+import scala.util.Try
 
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
@@ -33,9 +33,9 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
     val file = enterprisePackage.buildEnterprisePackage.value
     val settingPackageId = (config / enterprisePackageId).value
     val settingSimulationId = (config / enterpriseSimulationId).value
-    val batchEnterprisePlugin = EnterprisePluginTask.batchEnterprisePluginTask(config).value
+    val enterprisePlugin = EnterprisePluginTask.batchEnterprisePluginTask(config).value
 
-    Using(batchEnterprisePlugin) { enterprisePlugin =>
+    Try {
       if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
         logger.error(
           s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
