@@ -47,11 +47,13 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
     val file = enterprisePackage.buildEnterprisePackage.value
     val enterprisePlugin = enterprisePluginTask(batchMode).value
 
-    logger.info(s"Uploading and starting simulation...")
-    enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
+    Try {
+      logger.info(s"Uploading and starting simulation...")
+      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
+    }.recoverWith(recoverEnterprisePluginException(logger)).get
   }
 
-  private def enterpriseSimulationCreate(batchMode: Boolean) = Def.task {
+  private def createAndStartEnterpriseSimulation(batchMode: Boolean) = Def.task {
     val logger = streams.value.log
     val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
     val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
@@ -84,7 +86,7 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
 
     settingSimulationId match {
       case Some(simulationId) => startEnterpriseSimulation(batchMode, simulationId)
-      case _                  => enterpriseSimulationCreate(batchMode)
+      case _                  => createAndStartEnterpriseSimulation(batchMode)
     }
   }
 
