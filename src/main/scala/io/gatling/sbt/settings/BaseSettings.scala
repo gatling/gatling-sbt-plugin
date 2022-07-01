@@ -16,10 +16,11 @@
 
 package io.gatling.sbt.settings
 
-import io.gatling.sbt.settings.gatling._
-import io.gatling.sbt.utils.PropertyUtils.DefaultJvmArgs
+import scala.jdk.CollectionConverters._
 
-import _root_.io.gatling.sbt.GatlingPlugin.gatlingTestFramework
+import io.gatling.plugin.GatlingConstants
+import io.gatling.sbt.GatlingPlugin.gatlingTestFramework
+import io.gatling.sbt.settings.gatling._
 
 import sbt._
 import sbt.Keys._
@@ -28,7 +29,7 @@ import sbt.Tests.{ Argument, Group }
 object BaseSettings {
 
   private[gatling] def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
-    propagatedSystemProperties ++ DefaultJvmArgs ++ javaOptions
+    propagatedSystemProperties ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala ++ javaOptions
 
   private val unPropagatedPropertiesRoots =
     List("java.", "sun.", "jline.", "file.", "awt.", "os.", "user.")
