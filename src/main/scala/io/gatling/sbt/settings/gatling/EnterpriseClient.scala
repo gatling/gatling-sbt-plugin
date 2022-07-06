@@ -21,14 +21,13 @@ import io.gatling.plugin.exceptions.UnsupportedClientException
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
 
-import sbt.{ Configuration, Def, URL }
+import sbt.{ Configuration, Def }
 import sbt.Keys.streams
 
 object EnterpriseClient {
-  private val PublicApiPath = "/api/public"
 
   def enterpriseClientTask(config: Configuration) = Def.task {
-    val settingUrl = new URL((config / enterpriseUrl).value.toExternalForm + PublicApiPath)
+    val settingUrl = (config / enterpriseUrl).value
     val settingApiToken = (config / enterpriseApiToken).value
     val logger = streams.value.log
 
