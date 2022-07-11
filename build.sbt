@@ -17,7 +17,7 @@ scriptedLaunchOpts := {
   scriptedLaunchOpts.value ++
     Seq(
       "-Xmx512m",
-      "-Dgatling.http.enableGA=false",
+      "-Dgatling.data.enableAnalytics=false",
       "-Dplugin.version=" + version.value
     )
 }
