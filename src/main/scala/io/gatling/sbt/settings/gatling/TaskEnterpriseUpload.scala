@@ -38,7 +38,7 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
     Try {
       if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
         logger.error(
-          s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/, create a package and copy its ID.
+          s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ , create a package and copy its ID.
              |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
              |${config.id} / enterprisePackageId := MY_PACKAGE_ID
              |
