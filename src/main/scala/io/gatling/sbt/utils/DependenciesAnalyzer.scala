@@ -44,7 +44,9 @@ object DependenciesAnalyzer {
       // scala-library and scala-reflect are always direct dependencies
       Exclusion("org.scala-lang", Some("scala-library")),
       Exclusion("org.scala-lang", Some("scala-reflect")),
-      Exclusion("io.netty", Some("netty-all"))
+      Exclusion("io.netty", Some("netty-all")),
+      Exclusion("io.netty", Some("netty-resolver-dns-classes-macos")),
+      Exclusion("io.netty", Some("netty-resolver-dns-native-macos"))
     )
   }
 
