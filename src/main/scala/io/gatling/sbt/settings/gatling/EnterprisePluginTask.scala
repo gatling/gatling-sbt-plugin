@@ -24,7 +24,6 @@ import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import sbt.{ Configuration, Def }
 
 object EnterprisePluginTask {
-
   def batchEnterprisePluginTask[E >: BatchEnterprisePlugin](config: Configuration): InitializeTask[E] = Def.task {
     val enterpriseClient = enterpriseClientTask(config).value
     val logger = enterprisePluginLoggerTask.value

@@ -19,7 +19,6 @@ package io.gatling.sbt.settings.gatling
 import sbt.internal.util.complete.Parser
 
 object EnterpriseStartCommand {
-
   private val batchModeParser: Parser[String] = " --batch-mode"
   val parser: Parser[EnterpriseStartCommand] = batchModeParser.?.map { (batchMode: Option[String]) =>
     EnterpriseStartCommand(batchMode.nonEmpty)

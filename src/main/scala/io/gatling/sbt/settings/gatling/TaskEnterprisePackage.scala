@@ -25,7 +25,6 @@ import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration,
 import sbt.Keys._
 
 class TaskEnterprisePackage(config: Configuration) {
-
   private val moduleDescriptorConfig = Def.task {
     val logger = streams.value.log
     moduleSettings.value match {

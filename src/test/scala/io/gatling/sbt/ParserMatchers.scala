@@ -24,7 +24,6 @@ import sbt.complete.{ Completion, Completions, Parser }
 import sbt.complete.DefaultParsers.{ completions, matches }
 
 trait ParserMatchers {
-
   def parse(expected: String) = new Matcher[Parser[_]] {
     override def apply(parser: Parser[_]) =
       MatchResult(

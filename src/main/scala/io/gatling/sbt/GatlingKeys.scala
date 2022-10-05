@@ -22,7 +22,6 @@ import sbt._
 
 /** List of SBT keys for Gatling specific tasks. */
 object GatlingKeys {
-
   // Configurations
   val Gatling = config("gatling") extend Test
   val GatlingIt = config("gatling-it") extend IntegrationTest
@@ -44,10 +43,11 @@ object GatlingKeys {
 
   val enterpriseUrl = settingKey[URL]("URL of Gatling Enterprise.")
 
-  val enterpriseApiToken = settingKey[String](s"""API Token on Gatling Enterprise.
-                                                 |Prefer configuration using `GATLING_ENTERPRISE_API_TOKEN` environment variable, or `gatling.enterprise.apiToken` system property.
-                                                 |$documentationReference.
-                                                 |""".stripMargin)
+  val enterpriseApiToken =
+    settingKey[String](s"""API Token on Gatling Enterprise.
+                          |Prefer configuration using `GATLING_ENTERPRISE_API_TOKEN` environment variable, or `gatling.enterprise.apiToken` system property.
+                          |$documentationReference.
+                          |""".stripMargin)
 
   val enterprisePackageId = settingKey[String](s"""Package ID on Gatling Enterprise (used by `enterpriseUpload` task).
                                                   |${systemPropertyDescription("gatling.enterprise.packageId")}.

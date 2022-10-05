@@ -19,7 +19,6 @@ package io.gatling.sbt.settings.gatling
 import sbt._
 
 object EnterpriseUtils {
-
   type InitializeTask[E] = Def.Initialize[Task[E]]
   type InitializeInputTask[E] = Def.Initialize[InputTask[E]]
 

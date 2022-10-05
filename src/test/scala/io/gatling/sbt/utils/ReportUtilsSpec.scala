@@ -24,7 +24,6 @@ import org.scalatest.matchers.should.Matchers
 import sbt._
 
 class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
-
   {
     val reports = Seq(
       Report(new File("."), "basicsimulation-20140207205545", "basicsimulation", "20140207205545"),
@@ -97,7 +96,6 @@ class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
       parser should complete(" basicsimul", Set("ation-20140408205455"))
       parser should complete(" a", Set("dvancedsimulation-20140404205455"))
     }
-
   }
 
   "allReports" should "find the list of all reports" in {

@@ -23,7 +23,6 @@ import scala.collection.JavaConverters._
 import sbt._
 
 object CopyUtils {
-
   def extractFromCoreJar[T](updateReport: UpdateReport, fileName: String)(f: File => T): T =
     extractFromJar(updateReport, "gatling-core", fileName)(f)
 

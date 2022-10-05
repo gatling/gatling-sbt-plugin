@@ -22,8 +22,7 @@ import sbt.complete.Parser
 private[gatling] object StartRecorderUtils {
 
   /**
-   * List of all CLI options supported by the Recorder,
-   * in their "short" version.
+   * List of all CLI options supported by the Recorder, in their "short" version.
    */
   val shortRecorderOpts = Set(
     "lp",
@@ -41,8 +40,7 @@ private[gatling] object StartRecorderUtils {
   )
 
   /**
-   * List of all CLI options supported by the Recorder,
-   * in their "full" version.
+   * List of all CLI options supported by the Recorder, in their "full" version.
    */
   val fullRecorderOpts = Set(
     "local-port",
@@ -64,20 +62,22 @@ private[gatling] object StartRecorderUtils {
 
   /**
    * Builds a parser matching any option from ''options'', prefixed by ''prefix''.
-   * @param prefix the option prefix.
-   * @param options the list of supported options.
-   * @return the built parser.
+   * @param prefix
+   *   the option prefix.
+   * @param options
+   *   the list of supported options.
+   * @return
+   *   the built parser.
    */
   def optionParser(prefix: String, options: Set[String]): Parser[Seq[String]] = {
     // Match a string provided in examples, prefixed by the provided prefix
-    val option = (prefix ~ exactStringParser(options)).map({ case (s1, s2) => s1 + s2 })
+    val option = (prefix ~ exactStringParser(options)).map { case (s1, s2) => s1 + s2 }
     // Match the option and the provided arg, with necessary spaces dropped from the parsed result
-    (token(Space) ~> ((option <~ token(Space)) ~ NotSpace)).map({ case (s1, s2) => List(s1, s2) })
+    (token(Space) ~> ((option <~ token(Space)) ~ NotSpace)).map { case (s1, s2) => List(s1, s2) }
   }
 
   /**
-   * The complete option parser, matching any option supported by the Recorder,
-   * whether it is its full or short version.
+   * The complete option parser, matching any option supported by the Recorder, whether it is its full or short version.
    */
   val optionsParser: Parser[Seq[String]] = {
     val optionsParser = (optionParser("-", shortRecorderOpts) | optionParser("--", fullRecorderOpts)).*.map(_.flatten)
@@ -87,19 +87,23 @@ private[gatling] object StartRecorderUtils {
   /**
    * Transforms a pair (short option, value) to the corresponding list of arguments.
    *
-   * @param optionAndValue the (short option, value) pair.
-   * @return the corresponding list of arguments.
+   * @param optionAndValue
+   *   the (short option, value) pair.
+   * @return
+   *   the corresponding list of arguments.
    */
   def toShortOptionAndValue(optionAndValue: (String, String)): Seq[String] =
     List("-" + optionAndValue._1, optionAndValue._2)
 
   /**
-   * Adds the ''package'' option, set to default to ''packageName'',
-   * if its hasn't already been specified by the user.
+   * Adds the ''package'' option, set to default to ''packageName'', if its hasn't already been specified by the user.
    *
-   * @param args the current list of arguments
-   * @param packageName the default package name
-   * @return the list of arguments, with the default package set if it wasn't already set.
+   * @param args
+   *   the current list of arguments
+   * @param packageName
+   *   the default package name
+   * @return
+   *   the list of arguments, with the default package set if it wasn't already set.
    */
   def addPackageIfNecessary(args: Seq[String], packageName: String): Seq[String] =
     if (args.contains("-pkg") || args.contains("--package")) args
@@ -107,8 +111,10 @@ private[gatling] object StartRecorderUtils {
 
   /**
    * Creates a parser that matches exactly one of the the strings from ''choices''
-   * @param choices the list of strings to match
-   * @return the built parser.
+   * @param choices
+   *   the list of strings to match
+   * @return
+   *   the built parser.
    */
   def exactStringParser(choices: Set[String]): Parser[String] =
     choices.map(_.id).reduceLeft(_ | _.id)

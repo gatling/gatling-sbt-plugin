@@ -22,7 +22,6 @@ import sbt._
 import sbt.Keys._
 
 object EnterpriseSettings {
-
   private val onLoadBreakIfLegacyPluginFound = Def.setting {
     (onLoad in Global).value.andThen { state =>
       val foundLegacyFrontLinePlugin =

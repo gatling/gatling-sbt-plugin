@@ -21,7 +21,6 @@ import io.gatling.plugin.{ BatchEnterprisePlugin, InteractiveEnterprisePlugin }
 import sbt._
 
 class EnterprisePrivateKeys {
-
   val batchEnterprisePlugin = settingKey[BatchEnterprisePlugin]("Batch enterprise client")
   val interactiveEnterprisePlugin = settingKey[InteractiveEnterprisePlugin]("Interactive enterprise client")
 

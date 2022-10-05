@@ -5,7 +5,6 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class BasicItExampleSimulationFails extends Simulation {
-
   val httpProtocol = http
     .baseUrl("http://computer-database.gatling.io")
     .disableFollowRedirect

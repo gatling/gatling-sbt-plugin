@@ -26,7 +26,6 @@ import sbt.io.IO
 import sbt.librarymanagement.ModuleID
 
 object FatJar {
-
   def packageFatJar(rootModule: ModuleID, classesDirectory: Seq[File], gatlingVersion: String, dependencies: Seq[File], target: File, jarName: String): File =
     IO.withTemporaryDirectory(
       workingDir => {

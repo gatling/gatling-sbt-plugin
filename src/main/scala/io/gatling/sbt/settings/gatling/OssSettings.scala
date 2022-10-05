@@ -27,7 +27,6 @@ import sbt._
 import sbt.Keys._
 
 object OssSettings {
-
   private val LeadingSpacesRegex = """^(\s+)"""
 
   private def forkOptionsWithRunJVMOptions(options: Seq[String]) =
@@ -103,9 +102,8 @@ object OssSettings {
     target
   }
 
-  private def buildClassPathArgument(classPathElements: Seq[File]): Seq[String] = {
+  private def buildClassPathArgument(classPathElements: Seq[File]): Seq[String] =
     Seq("-cp", classPathElements.mkString(File.pathSeparator))
-  }
 
   private def stateBasedParser[T, U](inputSource: SettingKey[T])(parserMaker: T => U) =
     Def.setting { state: State =>

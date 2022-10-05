@@ -27,7 +27,6 @@ import sbt._
 import sbt.Keys.streams
 
 class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
-
   val uploadEnterprisePackage: InitializeTask[Unit] = Def.task {
     val logger = streams.value.log
     val file = enterprisePackage.buildEnterprisePackage.value
