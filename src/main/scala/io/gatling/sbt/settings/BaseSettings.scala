@@ -27,7 +27,6 @@ import sbt.Keys._
 import sbt.Tests.{ Argument, Group }
 
 object BaseSettings {
-
   private[gatling] def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
     propagatedSystemProperties ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala ++ javaOptions
 
@@ -51,8 +50,10 @@ object BaseSettings {
   /**
    * Split test groups so that each test is in its own group.
    *
-   * @param group the original group
-   * @return the list of groups made up by moving each to its own group.
+   * @param group
+   *   the original group
+   * @return
+   *   the list of groups made up by moving each to its own group.
    */
   private def singleTestGroup(group: Group): Seq[Group] =
     group.tests map (test => Group(test.name, Seq(test), group.runPolicy))

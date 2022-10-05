@@ -25,7 +25,6 @@ import sbt.{ Configuration, Def }
 import sbt.Keys.streams
 
 object EnterpriseClient {
-
   def enterpriseClientTask(config: Configuration) = Def.task {
     val settingUrl = (config / enterpriseUrl).value
     val settingApiToken = (config / enterpriseApiToken).value

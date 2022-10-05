@@ -23,7 +23,6 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
 class StartRecorderUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
-
   "helpParser" should "parse '-h' and '--help'" in {
     helpParser should complete(" ", Set("-h", "--help"))
     helpParser should parse(" -h")

@@ -32,7 +32,6 @@ case class ArtifactWithoutVersion(organization: String, name: String)
 case class DependenciesAnalysisResult(gatlingVersion: String, nonGatlingDependencies: Vector[File])
 
 object DependenciesAnalyzer {
-
   private final case class Exclusion(organization: String, name: Option[String] = None)
   private object Exclusion {
     val All = Seq(

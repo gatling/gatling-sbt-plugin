@@ -32,7 +32,6 @@ import sbt.{ Configuration, Def }
 import sbt.Keys._
 
 class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
-
   private def enterprisePluginTask(batchMode: Boolean): InitializeTask[EnterprisePlugin] = Def.taskDyn[EnterprisePlugin] {
     if (batchMode) batchEnterprisePluginTask(config)
     else interactiveEnterprisePluginTask(config)
@@ -107,7 +106,6 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
 
     val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
     logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
-
   }
 
   private def selectProperties(propertiesMap: Map[String, String], propertiesString: String): ju.Map[String, String] =

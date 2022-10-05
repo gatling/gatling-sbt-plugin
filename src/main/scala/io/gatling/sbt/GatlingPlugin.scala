@@ -22,7 +22,6 @@ import sbt._
 import sbt.Keys._
 
 object GatlingPlugin extends AutoPlugin {
-
   // AutoPlugin setup
   override val requires = plugins.JvmPlugin
   val autoImport: GatlingKeys.type = GatlingKeys

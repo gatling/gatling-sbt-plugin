@@ -20,7 +20,6 @@ import sbt._
 import sbt.Keys._
 
 object ProjectBaseSettings {
-
   def settings(config: Configuration): Seq[Def.Setting[_]] = Seq(
     artifacts := {
       if ((config / publishArtifact).value)

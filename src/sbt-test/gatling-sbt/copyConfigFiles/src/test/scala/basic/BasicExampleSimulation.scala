@@ -5,7 +5,6 @@ import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
 class BasicExampleSimulation extends Simulation {
-
 	val httpProtocol = http
 		.baseURL("http://excilysbank.gatling.cloudbees.net")
 		.acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.7")
