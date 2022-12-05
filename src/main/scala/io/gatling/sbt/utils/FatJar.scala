@@ -61,6 +61,7 @@ object FatJar {
                       |Implementation-Version: ${rootModule.revision}
                       |Specification-Vendor: GatlingCorp
                       |Gatling-Version: $gatlingVersion
+                      |Gatling-Packager: sbt
                       |""".stripMargin
 
     IO.write(workingDir / "META-INF" / "MANIFEST.MF", manifest)
