@@ -6,4 +6,4 @@ val gatlingVersion = "3.4.1"
 
 libraryDependencies += "io.gatling.highcharts" % "gatling-charts-highcharts" % gatlingVersion % "it,test"
 libraryDependencies += "io.gatling" % "gatling-test-framework" % gatlingVersion % "it,test"
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.14"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15"
