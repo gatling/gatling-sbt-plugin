@@ -66,17 +66,32 @@ class RecoverEnterprisePluginException(config: Configuration) {
       if (e.isCreated) {
         logCreatedSimulation(logger, e.getSimulation)
       }
-      logSimulationConfiguration(logger, e.getSimulation.id)
+      logSimulationConfiguration(logger, simulationIdSetting = None, waitForRunEndSetting = false, e.getSimulation.id)
       Failure(e.getCause)
   }
 
   protected def logCreatedSimulation(logger: ManagedLogger, simulation: Simulation): Unit =
     logger.info(s"Created simulation named ${simulation.name} with ID '${simulation.id}'")
 
-  protected def logSimulationConfiguration(logger: ManagedLogger, simulationId: UUID): Unit =
-    logger.info(
-      s"""To start again the same simulation, specify -Dgatling.enterprise.simulationId=$simulationId, or add the configuration to your SBT settings, e.g.:
-         |${config.id} / enterpriseSimulationId := "$simulationId"
-         |""".stripMargin
-    )
+  protected def logSimulationConfiguration(
+      logger: ManagedLogger,
+      simulationIdSetting: Option[UUID],
+      waitForRunEndSetting: Boolean,
+      simulationId: UUID
+  ): Unit = {
+    if (simulationIdSetting.isEmpty) {
+      logger.info(
+        s"""To start again the same simulation, specify -Dgatling.enterprise.simulationId=$simulationId, or add the configuration to your SBT settings, e.g.:
+           |${config.id} / enterpriseSimulationId := "$simulationId"
+           |""".stripMargin
+      )
+    }
+    if (!waitForRunEndSetting) {
+      logger.info(
+        s"""To wait for the end of the run when starting a simulation on Gatling Enterprise, specify -Dgatling.enterprise.waitForRunEnd=true, or add the configuration to your SBT settings, e.g.:
+           |${config.id} / waitForRunEnd := true
+           |""".stripMargin
+      )
+    }
+  }
 }

@@ -16,6 +16,8 @@
 
 package io.gatling.sbt.settings.gatling
 
+import java.{ lang => jl }
+
 import io.gatling.sbt.GatlingKeys._
 
 import sbt._
@@ -55,6 +57,7 @@ object EnterpriseSettings {
       config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
       config / enterpriseTeamId := sys.props.get("gatling.enterprise.teamId").getOrElse(""),
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
+      config / waitForRunEnd := jl.Boolean.getBoolean("gatling.enterprise.waitForRunEnd"),
       config / enterpriseSimulationSystemProperties := Map.empty,
       config / enterpriseSimulationSystemPropertiesString := sys.props.get("gatling.enterprise.simulationSystemProperties").getOrElse(""),
       config / enterpriseSimulationEnvironmentVariables := Map.empty,

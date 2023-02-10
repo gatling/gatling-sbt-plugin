@@ -70,6 +70,14 @@ object GatlingKeys {
                           |$documentationReference.
                           |""".stripMargin)
 
+  val waitForRunEnd =
+    settingKey[Boolean](
+      s"""Wait for the result after starting the simulation on Gatling Enterprise, and complete with an error if the simulation ends with any error status.
+         |${systemPropertyDescription("gatling.enterprise.waitForRunEnd")}.
+         |$documentationReference.
+         |""".stripMargin
+    )
+
   val enterpriseSimulationSystemProperties = settingKey[Map[String, String]](
     s"""Provides additional system properties when starting a simulation, in addition to the ones which may already be defined for that simulation.
        |${systemPropertyDescription("gatling.enterprise.simulationSystemProperties")} with the format key1=value1,key2=value2
