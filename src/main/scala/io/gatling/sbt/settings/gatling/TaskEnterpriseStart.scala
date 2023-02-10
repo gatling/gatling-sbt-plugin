@@ -20,9 +20,10 @@ import java.{ util => ju }
 import java.util.UUID
 
 import scala.jdk.CollectionConverters._
-import scala.util.Try
+import scala.util.{ Failure, Success, Try }
 
 import io.gatling.plugin.EnterprisePlugin
+import io.gatling.plugin.model.{ RunSummary, SimulationStartResult }
 import io.gatling.plugin.util.PropertiesParserUtil
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterprisePluginTask._
@@ -30,82 +31,56 @@ import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
 import sbt.{ Configuration, Def }
 import sbt.Keys._
+import sbt.internal.util.ManagedLogger
 
 class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
-  private def enterprisePluginTask(batchMode: Boolean): InitializeTask[EnterprisePlugin] = Def.taskDyn[EnterprisePlugin] {
+
+  private val enterprisePluginTask = Def.inputTaskDyn[EnterprisePlugin] {
+    val enterpriseStartCommand = EnterpriseStartCommand.parser.parsed
+    val batchMode = enterpriseStartCommand.batchMode || System.console() == null
     if (batchMode) batchEnterprisePluginTask(config)
     else interactiveEnterprisePluginTask(config)
   }
 
-  private def startEnterpriseSimulation(batchMode: Boolean, simulationId: UUID) = Def.task {
-    val logger = streams.value.log
-    val systemProperties = selectProperties((config / enterpriseSimulationSystemProperties).value, (config / enterpriseSimulationSystemPropertiesString).value)
-    val environmentVariables =
-      selectProperties((config / enterpriseSimulationEnvironmentVariables).value, (config / enterpriseSimulationEnvironmentVariablesString).value)
-    val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
-    val file = enterprisePackage.buildEnterprisePackage.value
-    val enterprisePlugin = enterprisePluginTask(batchMode).value
-
-    Try {
-      logger.info(s"Uploading and starting simulation...")
-      enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
-    }.recoverWith(recoverEnterprisePluginException(logger)).get
-  }
-
-  private def createAndStartEnterpriseSimulation(batchMode: Boolean) = Def.task {
-    val logger = streams.value.log
-    val optionalDefaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
-    val optionalPackageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
-    val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
-    val systemProperties = selectProperties((config / enterpriseSimulationSystemProperties).value, (config / enterpriseSimulationSystemPropertiesString).value)
-    val environmentVariables =
-      selectProperties((config / enterpriseSimulationEnvironmentVariables).value, (config / enterpriseSimulationEnvironmentVariablesString).value)
-    val file = enterprisePackage.buildEnterprisePackage.value
-    val enterprisePlugin = enterprisePluginTask(batchMode).value
-
-    Try {
-      logger.info("Creating and starting simulation...")
-      enterprisePlugin.createAndStartSimulation(
-        optionalDefaultSimulationTeamId.orNull,
-        (config / organization).value,
-        (config / normalizedName).value,
-        simulationClassname.orNull,
-        optionalPackageId.orNull,
-        systemProperties,
-        environmentVariables,
-        file
-      )
-    }.recoverWith(recoverEnterprisePluginException(logger)).get
-  }
-
-  private val enterpriseSimulationStartResult = Def.inputTaskDyn {
-    val enterpriseStartCommand = EnterpriseStartCommand.parser.parsed
-    val settingSimulationId = configOptionalString(config / enterpriseSimulationId).value.map(UUID.fromString)
-    val batchMode = enterpriseStartCommand.batchMode || System.console() == null
-
-    settingSimulationId match {
-      case Some(simulationId) => startEnterpriseSimulation(batchMode, simulationId)
-      case _                  => createAndStartEnterpriseSimulation(batchMode)
-    }
-  }
-
   val enterpriseSimulationStart: InitializeInputTask[Unit] = Def.inputTask {
-    val baseUrl = (config / enterpriseUrl).value
-    val settingSimulationId = (config / enterpriseSimulationId).value
     val logger = streams.value.log
+    val enterprisePlugin = enterprisePluginTask.evaluated
+    val file = enterprisePackage.buildEnterprisePackage.value
+    val simulationIdSetting = configOptionalString(config / enterpriseSimulationId).value.map(UUID.fromString)
+    val simulationClassname = configOptionalString(config / enterpriseSimulationClass).value
+    val systemProperties = selectProperties((config / enterpriseSimulationSystemProperties).value, (config / enterpriseSimulationSystemPropertiesString).value)
+    val environmentVariables =
+      selectProperties((config / enterpriseSimulationEnvironmentVariables).value, (config / enterpriseSimulationEnvironmentVariablesString).value)
+    val waitForRunEndSetting = waitForRunEnd.value
 
-    val simulationStartResult = enterpriseSimulationStartResult.evaluated
+    val simulationStartResult =
+      Try {
+        simulationIdSetting match {
+          case Some(simulationId) =>
+            logger.info(s"Uploading and starting simulation...")
+            enterprisePlugin.uploadPackageAndStartSimulation(simulationId, systemProperties, environmentVariables, simulationClassname.orNull, file)
+          case _ =>
+            logger.info("Creating and starting simulation...")
+            val defaultSimulationTeamId = configOptionalString(config / enterpriseTeamId).value.map(UUID.fromString)
+            val packageId = configOptionalString(config / enterprisePackageId).value.map(UUID.fromString)
+            val groupId = (config / organization).value
+            val artifactId = (config / normalizedName).value
+            enterprisePlugin.createAndStartSimulation(
+              defaultSimulationTeamId.orNull,
+              groupId,
+              artifactId,
+              simulationClassname.orNull,
+              packageId.orNull,
+              systemProperties,
+              environmentVariables,
+              file
+            )
+        }
+      }.recoverWith(recoverEnterprisePluginException(logger)).get
 
-    if (simulationStartResult.createdSimulation) {
-      logCreatedSimulation(logger, simulationStartResult.simulation)
-    }
+    logStartResult(logger, simulationStartResult, simulationIdSetting, waitForRunEndSetting, baseUrl = (config / enterpriseUrl).value)
 
-    if (settingSimulationId.isEmpty) {
-      logSimulationConfiguration(logger, simulationStartResult.simulation.id)
-    }
-
-    val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
-    logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+    maybeWaitForRunEnd(logger, enterprisePlugin, waitForRunEndSetting, simulationStartResult.runSummary)
   }
 
   private def selectProperties(propertiesMap: Map[String, String], propertiesString: String): ju.Map[String, String] =
@@ -113,5 +88,40 @@ class TaskEnterpriseStart(config: Configuration, enterprisePackage: TaskEnterpri
       PropertiesParserUtil.parseProperties(propertiesString)
     } else {
       propertiesMap.asJava
+    }
+
+  private def logStartResult(
+      logger: ManagedLogger,
+      simulationStartResult: SimulationStartResult,
+      simulationIdSetting: Option[UUID],
+      waitForRunEndSetting: Boolean,
+      baseUrl: sbt.URL
+  ): Unit = {
+    if (simulationStartResult.createdSimulation) {
+      logCreatedSimulation(logger, simulationStartResult.simulation)
+    }
+
+    logSimulationConfiguration(logger, simulationIdSetting, waitForRunEndSetting, simulationStartResult.simulation.id)
+
+    val reportsUrl = baseUrl.toExternalForm + simulationStartResult.runSummary.reportsPath
+    logger.success(s"Simulation successfully started; once running, reports will be available at $reportsUrl")
+  }
+
+  private def maybeWaitForRunEnd(
+      logger: ManagedLogger,
+      enterprisePlugin: EnterprisePlugin,
+      waitForRunEnd: Boolean,
+      startedRun: RunSummary
+  ): Unit =
+    if (waitForRunEnd) {
+      Try(enterprisePlugin.waitForRunEnd(startedRun))
+        .flatMap {
+          case finishedRun if !finishedRun.status.successful =>
+            Failure(new IllegalStateException("Simulation failed."))
+          case _ =>
+            Success(())
+        }
+        .recoverWith(recoverEnterprisePluginException(logger))
+        .get
     }
 }
