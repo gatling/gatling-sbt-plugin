@@ -1,4 +1,4 @@
-# gatling-sbt   [![Build Status](https://travis-ci.org/gatling/gatling-sbt.svg?branch=master)](https://travis-ci.org/gatling/gatling-sbt)
+# gatling-sbt   [![Build Status](https://travis-ci.org/gatling/gatling-sbt-plugin.svg?branch=master)](https://travis-ci.org/gatling/gatling-sbt-plugin)
 
 ## /!\ The documentation has moved to [gatling.io](https://gatling.io) /!\
 

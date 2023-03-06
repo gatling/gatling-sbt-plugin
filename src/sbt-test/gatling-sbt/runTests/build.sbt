@@ -1,6 +1,6 @@
 enablePlugins(GatlingPlugin)
 
-scalaVersion := "2.12.12"
+scalaVersion := "2.13.10"
 
 val gatlingVersion = "3.4.1"
 
