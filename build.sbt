@@ -8,7 +8,7 @@ sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
 libraryDependencies ++= Seq(
-  "org.scalatest"     %% "scalatest"                         % "3.2.15" % Test,
+  "org.scalatest"     %% "scalatest"                         % "3.2.16" % Test,
   "org.zeroturnaround" % "zt-zip"                            % "1.15",
   "io.gatling"         % "gatling-enterprise-plugin-commons" % "1.5.3"
 )
