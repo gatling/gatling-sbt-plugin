@@ -70,6 +70,12 @@ object GatlingKeys {
                           |$documentationReference.
                           |""".stripMargin)
 
+  val enterprisePrivateControlPlaneUrl =
+    settingKey[Option[URL]](s"""(optional) URL of a private control plane for Gatling Enterprise providing a private repository.
+                               |If this parameter is provided, packages will be registered as private packages and uploaded through this private control plane.
+                               |$documentationReference.
+                               |""".stripMargin)
+
   val waitForRunEnd =
     settingKey[Boolean](
       s"""Wait for the result after starting the simulation on Gatling Enterprise, and complete with an error if the simulation ends with any error status.

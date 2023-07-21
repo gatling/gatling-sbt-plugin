@@ -28,6 +28,7 @@ object EnterpriseClient {
   def enterpriseClientTask(config: Configuration) = Def.task {
     val settingUrl = (config / enterpriseUrl).value
     val settingApiToken = (config / enterpriseApiToken).value
+    val settingPrivateControlPlaneUrl = (config / enterprisePrivateControlPlaneUrl).value
     val logger = streams.value.log
 
     if (settingApiToken.isEmpty) {
@@ -40,7 +41,7 @@ object EnterpriseClient {
     }
 
     try {
-      new HttpEnterpriseClient(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version)
+      new HttpEnterpriseClient(settingUrl, settingApiToken, BuildInfo.name, BuildInfo.version, settingPrivateControlPlaneUrl.orNull)
     } catch {
       case _: UnsupportedClientException =>
         logger.error(
