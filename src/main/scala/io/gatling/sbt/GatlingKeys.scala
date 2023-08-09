@@ -70,8 +70,8 @@ object GatlingKeys {
                           |$documentationReference.
                           |""".stripMargin)
 
-  val enterprisePrivateControlPlaneUrl =
-    settingKey[Option[URL]](s"""(optional) URL of a private control plane for Gatling Enterprise providing a private repository.
+  val enterpriseControlPlaneUrl =
+    settingKey[Option[URL]](s"""(optional) URL of a control plane for Gatling Enterprise providing a private repository.
                                |If this parameter is provided, packages will be registered as private packages and uploaded through this private control plane.
                                |$documentationReference.
                                |""".stripMargin)
