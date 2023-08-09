@@ -57,8 +57,8 @@ object EnterpriseSettings {
       config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
       config / enterpriseTeamId := sys.props.get("gatling.enterprise.teamId").getOrElse(""),
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
-      config / enterprisePrivateControlPlaneUrl := sys.props
-        .get("gatling.enterprise.privateControlPlaneUrl")
+      config / enterpriseControlPlaneUrl := sys.props
+        .get("gatling.enterprise.controlPlaneUrl")
         .map(configString => new URL(configString)),
       config / waitForRunEnd := jl.Boolean.getBoolean("gatling.enterprise.waitForRunEnd"),
       config / enterpriseSimulationSystemProperties := Map.empty,
