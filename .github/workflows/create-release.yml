@@ -34,13 +34,13 @@ jobs:
           github.event.inputs.releaseType != 'minor-milestone' &&
           github.event.inputs.releaseType != 'patch-milestone'
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # indicates all history for all branches and tags
           token: ${{ secrets.GATLING_CI_TOKEN }} # for tag to trigger other workflows (release)
 
       - name: Setup JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
           java-version: '8'
