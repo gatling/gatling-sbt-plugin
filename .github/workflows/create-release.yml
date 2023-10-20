@@ -4,8 +4,15 @@ on:
   workflow_dispatch:
     inputs:
       releaseType:
-        description: 'patch-milestone|minor-milestone|patch|minor'
+        description: 'Release type'
         required: true
+        type: choice
+        default: 'patch-milestone'
+        options:
+          - 'patch-milestone'
+          - 'minor-milestone'
+          - 'patch'
+          - 'minor'
 
 defaults:
   run:
