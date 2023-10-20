@@ -6,6 +6,10 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 defaults:
   run:
     shell: bash
@@ -18,11 +22,6 @@ jobs:
       JAVA_OPTS: "-Xmx6G"
       SBT_OPTS: "-Dsbt.ci=true"
     steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.8.0
-        with:
-          access_token: ${{ github.token }}
-
       - uses: actions/checkout@v2
 
       - name: Setup JDK
