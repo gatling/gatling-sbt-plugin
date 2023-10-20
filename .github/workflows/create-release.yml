@@ -44,18 +44,7 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '8'
-
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.m2/repository
-            ~/.ivy2/cache
-            ~/.cache/coursier
-            ~/.sbt/launchers
-            ~/.sbt/boot
-            ~/.sbt/preloaded
-          key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt', '**/plugins.sbt', '**/build.properties') }}
+          cache: 'sbt'
 
       - name: Next version
         id: tag
