@@ -1,5 +1,9 @@
-# gatling-sbt   [![Build Status](https://travis-ci.org/gatling/gatling-sbt.svg?branch=master)](https://travis-ci.org/gatling/gatling-sbt)
+# Gatling Plugin for SBT
 
-## /!\ The documentation has moved to [gatling.io](https://gatling.io) /!\
+[<img src="https://gatling.io/wp-content/uploads/2019/04/logo-gatling-transparent@15x.svg" alt="Gatling" width="50%">](https://gatling.io)
 
-The documentation for the latest version of Gatling's SBT plugin can be found [here](https://gatling.io/docs/current/extensions/sbt_plugin).
+[![Workflow Status (main)](https://img.shields.io/github/actions/workflow/status/gatling/gatling-sbt-plugin/build.yml?branch=main&logo=github&style=for-the-badge)](https://github.com/gatling/gatling-sbt-plugin/actions?query=branch%3Amain)
+[![Gatling Community](https://img.shields.io/badge/Community-Gatling-e28961?style=for-the-badge&logo=discourse)](https://community.gatling.io)
+
+> [!WARNING]
+> The documentation now lives on the Gatling website and can be found [here](https://gatling.io/docs/current/extensions/sbt_plugin/).
