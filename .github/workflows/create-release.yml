@@ -40,7 +40,7 @@ jobs:
           token: ${{ secrets.GATLING_CI_TOKEN }} # for tag to trigger other workflows (release)
 
       - name: Setup JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '8'
