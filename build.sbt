@@ -6,6 +6,7 @@ name := "gatling-sbt"
 scalaVersion := "2.12.18"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
+gatlingCompilerRelease := Some(11)
 
 libraryDependencies ++= Seq(
   "org.scalatest"     %% "scalatest"                         % "3.2.17" % Test,
@@ -24,7 +25,7 @@ scriptedLaunchOpts := {
 
 scriptedBufferLog := false
 
-pluginCrossBuild / sbtVersion := "1.5.5"
+pluginCrossBuild / sbtVersion := "1.9.7"
 gatlingDevelopers := Seq(
   GatlingDeveloper(
     "slandelle@gatling.io",
