@@ -10,7 +10,7 @@ githubPath := "gatling/gatling-sbt-plugin"
 libraryDependencies ++= Seq(
   "org.scalatest"     %% "scalatest"                         % "3.2.17" % Test,
   "org.zeroturnaround" % "zt-zip"                            % "1.16",
-  "io.gatling"         % "gatling-enterprise-plugin-commons" % "1.7.0"
+  "io.gatling"         % "gatling-enterprise-plugin-commons" % "1.8.0"
 )
 
 scriptedLaunchOpts := {
