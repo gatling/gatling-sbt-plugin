@@ -18,11 +18,20 @@ package io.gatling.sbt.settings.gatling
 
 import java.io.File
 
+import scala.collection.JavaConverters._
+
+import io.gatling.plugin.io.PluginLogger
+import io.gatling.plugin.pkg.EnterprisePackager
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
 
+import sbt._
 import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test }
 import sbt.Keys._
+
+object TaskEnterprisePackage {
+  private val SbtPackagerName = "sbt"
+}
 
 class TaskEnterprisePackage(config: Configuration) {
   private val moduleDescriptorConfig = Def.task {
@@ -38,7 +47,7 @@ class TaskEnterprisePackage(config: Configuration) {
   val buildEnterprisePackage: InitializeTask[File] = Def.task {
     val moduleDescriptor = moduleDescriptorConfig.value
 
-    val DependenciesAnalysisResult(gatlingVersion, dependencies) = DependenciesAnalyzer.analyze(
+    val DependenciesAnalysisResult(gatlingDependencies, nonGatlingDependencies) = DependenciesAnalyzer.analyze(
       dependencyResolution.value,
       updateConfiguration.value,
       (update / unresolvedWarningConfiguration).value,
@@ -49,10 +58,33 @@ class TaskEnterprisePackage(config: Configuration) {
 
     val classesDirectories = (config / fullClasspath).value.map(_.data).filter(_.isDirectory)
 
-    val jarName = s"${moduleName.value}-gatling-enterprise-${version.value}"
+    val pluginLogger: PluginLogger = new PluginLogger {
+      private val logger = streams.value.log
 
-    FatJar
-      .packageFatJar(moduleDescriptor.module, classesDirectories, gatlingVersion, dependencies, target.value, jarName)
+      override def info(s: String): Unit = logger.info(s)
+
+      override def error(s: String): Unit = logger.error(s)
+    }
+
+    val rootModule = moduleDescriptor.module
+
+    target.value.mkdirs()
+    val packageFile = target.value / s"${moduleName.value}-gatling-enterprise-${version.value}.jar"
+
+    new EnterprisePackager(pluginLogger)
+      .createEnterprisePackage(
+        classesDirectories.asJava,
+        gatlingDependencies.asJava,
+        nonGatlingDependencies.asJava,
+        rootModule.organization,
+        rootModule.name,
+        rootModule.revision,
+        TaskEnterprisePackage.SbtPackagerName,
+        getClass.getPackage.getImplementationVersion,
+        packageFile
+      )
+
+    packageFile
   }
 
   val legacyPackageEnterpriseJar: InitializeTask[File] = Def.sequential(
@@ -70,5 +102,4 @@ class TaskEnterprisePackage(config: Configuration) {
     },
     buildEnterprisePackage
   )
-
 }

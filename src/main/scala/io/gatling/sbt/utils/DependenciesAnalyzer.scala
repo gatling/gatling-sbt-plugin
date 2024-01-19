@@ -15,9 +15,10 @@
  */
 
 package io.gatling.sbt.utils
-import java.io.File
 
 import scala.annotation.tailrec
+
+import io.gatling.plugin.pkg.Dependency
 
 import sbt.librarymanagement._
 import sbt.util.Logger
@@ -29,28 +30,22 @@ object ArtifactWithoutVersion {
 
 case class ArtifactWithoutVersion(organization: String, name: String)
 
-case class DependenciesAnalysisResult(gatlingVersion: String, nonGatlingDependencies: Vector[File])
+case class DependenciesAnalysisResult(gatlingDependencies: Set[Dependency], nonGatlingDependencies: Set[Dependency])
 
 object DependenciesAnalyzer {
   private final case class Exclusion(organization: String, name: Option[String] = None)
   private object Exclusion {
-    val All = Seq(
+    private val All = Array(
       Exclusion("io.gatling"),
       Exclusion("io.gatling.highcharts"),
-      Exclusion("io.gatling.frontline"),
-      // having multiple slf4-j back-ends on the classpath is an issue
-      Exclusion("ch.qos.logback"),
       // scala-library and scala-reflect are always direct dependencies
       Exclusion("org.scala-lang", Some("scala-library")),
-      Exclusion("org.scala-lang", Some("scala-reflect")),
-      Exclusion("io.netty", Some("netty-all")),
-      Exclusion("io.netty", Some("netty-resolver-dns-classes-macos")),
-      Exclusion("io.netty", Some("netty-resolver-dns-native-macos"))
+      Exclusion("org.scala-lang", Some("scala-reflect"))
     )
-  }
 
-  private def exclude(dep: ArtifactWithoutVersion): Boolean =
-    Exclusion.All.exists(exclusion => exclusion.organization == dep.organization && exclusion.name.forall(_ == dep.name))
+    def exclude(dep: ArtifactWithoutVersion): Boolean =
+      Exclusion.All.exists(exclusion => exclusion.organization == dep.organization && exclusion.name.forall(_ == dep.name))
+  }
 
   def analyze(
       resolution: DependencyResolution,
@@ -64,26 +59,36 @@ object DependenciesAnalyzer {
 
     val updateReport = resolution
       .update(moduleDescriptor, updateConfig, unresolvedWarningConfig, logger)
-      .getOrElse(throw new IllegalStateException("Cannot build a fatjar with unresolved dependencies"))
+      .getOrElse(throw new IllegalStateException("Cannot build a package with unresolved dependencies"))
 
     val configurationReport = updateReport
       .configuration(ConfigRef.configToConfigRef(config))
       .getOrElse(throw new IllegalStateException(s"Could not find a report for configuration $config"))
 
-    val gatlingVersion = configurationReport.modules
-      .map(_.module)
-      .collectFirst { case module if module.organization == "io.gatling" && module.name.startsWith("gatling-app") => module.revision }
-      .getOrElse(throw new IllegalArgumentException("Couldn't locate Gatling libraries in the classpath"))
-
     val callers = moduleCallers(configurationReport.modules)
-    val excludedDeps = configurationReport.modules.filterNot(isTransitiveGatlingDependency(_, callers))
 
-    val nonGatlingDependencies = excludedDeps
-      .flatMap(_.artifacts)
-      .collect { case (artifact, file) if artifact.`type` == Artifact.DefaultType || artifact.`type` == "bundle" => file }
+    val (gatlingModules, nonGatlingModules) = configurationReport.modules.toSet.partition(isTransitiveGatlingDependency(_, callers))
 
-    DependenciesAnalysisResult(gatlingVersion, nonGatlingDependencies)
+    DependenciesAnalysisResult(toDependencies(gatlingModules), toDependencies(nonGatlingModules))
   }
+
+  private def toDependencies(moduleReports: Set[ModuleReport]): Set[Dependency] =
+    for {
+      module <- moduleReports
+      (artifact, file) <- module.artifacts
+      if isJar(artifact) || isBundle(artifact)
+    } yield new Dependency(
+      module.module.organization,
+      module.module.name,
+      module.module.revision,
+      file
+    )
+
+  private def isBundle(artifact: Artifact) =
+    artifact.`type` == "bundle"
+
+  private def isJar(artifact: Artifact) =
+    artifact.`type` == Artifact.DefaultType
 
   private def moduleCallers(reports: Vector[ModuleReport]): Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]] =
     reports
@@ -97,9 +102,9 @@ object DependenciesAnalyzer {
     @tailrec
     def isTransitiveGatlingDependencyRec(toCheck: List[ArtifactWithoutVersion]): Boolean =
       toCheck match {
-        case Nil                      => false
-        case dep :: _ if exclude(dep) => true
-        case dep :: rest              => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
+        case Nil                                => false
+        case dep :: _ if Exclusion.exclude(dep) => true
+        case dep :: rest                        => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
       }
 
     isTransitiveGatlingDependencyRec(List(ArtifactWithoutVersion(report.module.withConfigurations(None))))
