@@ -20,11 +20,12 @@ import java.util.UUID
 
 import scala.util.Try
 
+import io.gatling.plugin.configuration.PackageConfiguration
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
 import sbt._
-import sbt.Keys.streams
+import sbt.Keys.{ baseDirectory, streams }
 
 class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
   val uploadEnterprisePackage: InitializeTask[Unit] = Def.task {
@@ -35,7 +36,15 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
     val enterprisePlugin = EnterprisePluginTask.batchEnterprisePluginTask(config).value
 
     Try {
-      if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
+      val packageId = Option(PackageConfiguration.loadToJson(baseDirectory.value))
+        .map { jsonConfig =>
+          logger.info("Package configuration file detected, applying it.")
+          val id = enterprisePlugin.uploadPackageConfiguration(jsonConfig).toString
+          logger.info(s"Package id: $id")
+          id
+        }
+        .getOrElse(settingPackageId)
+      if (packageId.isEmpty && settingSimulationId.isEmpty) {
         logger.error(
           s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ , create a package and copy its ID.
              |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
@@ -47,9 +56,9 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
         throw ErrorAlreadyLoggedException
       }
 
-      if (settingPackageId.nonEmpty) {
-        val packageId = UUID.fromString(settingPackageId)
-        enterprisePlugin.uploadPackage(packageId, file)
+      if (packageId.nonEmpty) {
+        val packageUUID = UUID.fromString(packageId)
+        enterprisePlugin.uploadPackage(packageUUID, file)
       } else {
         val simulationId = UUID.fromString(settingSimulationId)
         enterprisePlugin.uploadPackageWithSimulationId(simulationId, file)
