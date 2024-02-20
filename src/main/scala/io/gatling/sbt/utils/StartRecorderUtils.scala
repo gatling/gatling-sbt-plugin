@@ -25,36 +25,22 @@ private[gatling] object StartRecorderUtils {
    * List of all CLI options supported by the Recorder, in their "short" version.
    */
   val shortRecorderOpts = Set(
-    "lp",
-    "lps",
-    "ph",
-    "pp",
-    "pps",
-    "ar",
-    "rbf",
+    "sf",
+    "rf",
     "cn",
     "pkg",
-    "enc",
-    "fr",
-    "fhr"
+    "fmt"
   )
 
   /**
    * List of all CLI options supported by the Recorder, in their "full" version.
    */
   val fullRecorderOpts = Set(
-    "local-port",
-    "local-port-ssl",
-    "proxy-host",
-    "proxy-port",
-    "proxy-port-ssl",
-    "request-bodies-folder",
+    "simulations-folder",
+    "resources-folder",
     "class-name",
     "package",
-    "encoding",
-    "follow-redirect",
-    "automatic-referer",
-    "fetch-html-resources"
+    "format"
   )
 
   /** Parser matching the help option, in short and full version. */

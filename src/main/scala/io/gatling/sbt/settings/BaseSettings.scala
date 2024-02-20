@@ -67,5 +67,4 @@ object BaseSettings {
     config / fork := true,
     config / testGrouping := (config / testGrouping).value flatMap singleTestGroup
   ) ++ OssSettings.settings(config, parent) ++ EnterpriseSettings.settings(config)
-
 }

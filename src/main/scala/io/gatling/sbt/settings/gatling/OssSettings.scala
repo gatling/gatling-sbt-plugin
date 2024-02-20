@@ -35,9 +35,10 @@ object OssSettings {
   private def recorderRunner(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Int]] = Def.inputTask {
     // Parse args and add missing args if necessary
     val args = optionsParser.parsed
-    val simulationsForlderArg = toShortOptionAndValue("sf" -> (config / scalaSource).value.getPath)
+    val simulationsFolderArg = toShortOptionAndValue("sf" -> (config / scalaSource).value.getPath)
     val resourcesFolderArg = toShortOptionAndValue("rf" -> (config / resourceDirectory).value.getPath)
-    val allArgs = addPackageIfNecessary(args ++ simulationsForlderArg ++ resourcesFolderArg, organization.value)
+    val formatArg = toShortOptionAndValue("fmt", "scala")
+    val allArgs = addPackageIfNecessary(args ++ simulationsFolderArg ++ resourcesFolderArg ++ formatArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
     val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
