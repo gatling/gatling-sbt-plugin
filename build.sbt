@@ -3,7 +3,7 @@ enablePlugins(BuildInfoPlugin, SbtPlugin, GatlingOssPlugin)
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 name := "gatling-sbt"
-scalaVersion := "2.12.19"
+scalaVersion := "2.13.13"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
 
