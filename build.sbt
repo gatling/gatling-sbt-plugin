@@ -23,7 +23,7 @@ scriptedLaunchOpts := {
 
 scriptedBufferLog := false
 
-pluginCrossBuild / sbtVersion := "1.9.8"
+pluginCrossBuild / sbtVersion := "1.9.9"
 gatlingDevelopers := Seq(
   GatlingDeveloper(
     "slandelle@gatling.io",
