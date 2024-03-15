@@ -29,17 +29,6 @@ private[gatling] object ReportUtils {
   private val allReportsFilter = DirectoryFilter && new PatternFilter(reportFolderRegex.pattern)
 
   /**
-   * Opens the selected URI in the default web browser.
-   * @param location
-   *   the URI to open.
-   */
-  def openInBrowser(location: URI): Unit =
-    if (!Desktop.isDesktopSupported || GraphicsEnvironment.isHeadless)
-      throw new UnsupportedOperationException("Opening a report from SBT is currently not supported on your platform.")
-    else
-      Desktop.getDesktop.browse(location)
-
-  /**
    * Builds the Parser matching one of the existing simulation IDs, or none.
    * @param allSimulationIds
    *   the list of all currently existing simulation IDs.
