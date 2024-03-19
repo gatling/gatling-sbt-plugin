@@ -129,6 +129,8 @@ object GatlingKeys {
                                           |$documentationReference.
                                           |""".stripMargin)
 
+  val enterpriseDeploy = taskKey[Unit]("Deploy a package and configured simulations")
+
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
