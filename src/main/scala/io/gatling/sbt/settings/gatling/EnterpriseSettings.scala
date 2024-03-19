@@ -48,12 +48,14 @@ object EnterpriseSettings {
     val taskPackage = new TaskEnterprisePackage(config)
     val taskUpload = new TaskEnterpriseUpload(config, taskPackage)
     val taskStart = new TaskEnterpriseStart(config, taskPackage)
+    val taskDeploy = new TaskEnterpriseDeploy(config, taskPackage)
 
     Seq(
       config / enterpriseUrl := new URL("https://cloud.gatling.io"),
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
+      config / enterpriseDeploy := taskDeploy.enterpriseDeploy.value,
       config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
       config / enterpriseTeamId := sys.props.get("gatling.enterprise.teamId").getOrElse(""),
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
