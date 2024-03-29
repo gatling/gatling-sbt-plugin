@@ -16,36 +16,19 @@
 
 package io.gatling.sbt.utils
 
-import scala.annotation.tailrec
+import scala.collection.mutable
 
 import io.gatling.plugin.pkg.Dependency
 
+import sbt.internal.graph.backend.SbtUpdateReport
 import sbt.librarymanagement._
 import sbt.util.Logger
 
-object ArtifactWithoutVersion {
-  def apply(moduleId: ModuleID): ArtifactWithoutVersion =
-    ArtifactWithoutVersion(moduleId.organization, moduleId.name)
-}
-
-case class ArtifactWithoutVersion(organization: String, name: String)
-
-case class DependenciesAnalysisResult(gatlingDependencies: Set[Dependency], nonGatlingDependencies: Set[Dependency])
+case class DependenciesAnalysisResult(gatlingDependencies: Set[Dependency], extraDependencies: Set[Dependency])
 
 object DependenciesAnalyzer {
-  private final case class Exclusion(organization: String, name: Option[String] = None)
-  private object Exclusion {
-    private val All = Array(
-      Exclusion("io.gatling"),
-      Exclusion("io.gatling.highcharts"),
-      // scala-library and scala-reflect are always direct dependencies
-      Exclusion("org.scala-lang", Some("scala-library")),
-      Exclusion("org.scala-lang", Some("scala-reflect"))
-    )
 
-    def exclude(dep: ArtifactWithoutVersion): Boolean =
-      Exclusion.All.exists(exclusion => exclusion.organization == dep.organization && exclusion.name.forall(_ == dep.name))
-  }
+  private case class ModuleWithoutVersion(organization: String, name: String)
 
   def analyze(
       resolution: DependencyResolution,
@@ -65,48 +48,52 @@ object DependenciesAnalyzer {
       .configuration(ConfigRef.configToConfigRef(config))
       .getOrElse(throw new IllegalStateException(s"Could not find a report for configuration $config"))
 
-    val callers = moduleCallers(configurationReport.modules)
+    val dependencyMap = SbtUpdateReport.fromConfigurationReport(configurationReport, rootModule.module).dependencyMap
 
-    val (gatlingModules, nonGatlingModules) = configurationReport.modules.toSet.partition(isTransitiveGatlingDependency(_, callers))
+    val moduleGraphWithoutVersions: Map[ModuleWithoutVersion, Set[ModuleWithoutVersion]] =
+      for {
+        (module, children) <- dependencyMap
+      } yield ModuleWithoutVersion(module.organization, module.name) -> children.map(child => ModuleWithoutVersion(child.id.organization, child.id.name)).toSet
 
-    DependenciesAnalysisResult(toDependencies(gatlingModules), toDependencies(nonGatlingModules))
+    val allModules = moduleGraphWithoutVersions.keySet ++ moduleGraphWithoutVersions.values.flatten
+    val gatlingModules = allModules.filter(module => module.organization == "io.gatling" || module.organization == "io.gatling.highcharts")
+    val gatlingGraphModules = collectDepAndChildren(gatlingModules, moduleGraphWithoutVersions)
+    val extraModules = allModules -- gatlingGraphModules - ModuleWithoutVersion(rootModule.module.organization, rootModule.module.name)
+
+    val moduleToDependency = dependencyMap.values.flatten.flatMap { graphModule =>
+      graphModule.jarFile.map { jarFile =>
+        val module = ModuleWithoutVersion(graphModule.id.organization, graphModule.id.name)
+        val dependency = new Dependency(
+          graphModule.id.organization,
+          graphModule.id.name,
+          graphModule.id.version,
+          jarFile
+        )
+
+        module -> dependency
+      }.toList
+    }.toMap
+
+    DependenciesAnalysisResult(
+      gatlingModules.flatMap(moduleToDependency.get(_).toList),
+      extraModules.flatMap(moduleToDependency.get(_).toList)
+    )
   }
 
-  private def toDependencies(moduleReports: Set[ModuleReport]): Set[Dependency] =
-    for {
-      module <- moduleReports
-      (artifact, file) <- module.artifacts
-      if isJar(artifact) || isBundle(artifact)
-    } yield new Dependency(
-      module.module.organization,
-      module.module.name,
-      module.module.revision,
-      file
-    )
-
-  private def isBundle(artifact: Artifact) =
-    artifact.`type` == "bundle"
-
-  private def isJar(artifact: Artifact) =
-    artifact.`type` == Artifact.DefaultType
-
-  private def moduleCallers(reports: Vector[ModuleReport]): Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]] =
-    reports
-      .map(report => ArtifactWithoutVersion(report.module) -> report.callers.map(caller => ArtifactWithoutVersion(caller.caller)))
-      .groupBy(_._1) // sadly Caller misses classifier, see https://github.com/sbt/sbt/issues/5491, so we merge modules
-      .mapValues(_.flatMap(_._2.toSet).toList)
-      .toVector // because mapValue is a view
-      .toMap
-
-  private def isTransitiveGatlingDependency(report: ModuleReport, callers: Map[ArtifactWithoutVersion, List[ArtifactWithoutVersion]]): Boolean = {
-    @tailrec
-    def isTransitiveGatlingDependencyRec(toCheck: List[ArtifactWithoutVersion]): Boolean =
-      toCheck match {
-        case Nil                                => false
-        case dep :: _ if Exclusion.exclude(dep) => true
-        case dep :: rest                        => isTransitiveGatlingDependencyRec(callers.getOrElse(dep, Nil) ::: rest)
+  private def collectDepAndChildren(
+      gatlingModules: Set[ModuleWithoutVersion],
+      moduleGraphWithoutVersions: Map[ModuleWithoutVersion, Set[ModuleWithoutVersion]]
+  ): Set[ModuleWithoutVersion] = {
+    def collectDepAndChildren(module: ModuleWithoutVersion, deps: mutable.Set[ModuleWithoutVersion]): Unit =
+      if (!deps.contains(module)) {
+        deps.add(module)
+        for {
+          children <- moduleGraphWithoutVersions.getOrElse(module, Set.empty)
+        } collectDepAndChildren(children, deps)
       }
 
-    isTransitiveGatlingDependencyRec(List(ArtifactWithoutVersion(report.module.withConfigurations(None))))
+    val seen = mutable.Set.empty[ModuleWithoutVersion]
+    gatlingModules.foreach(collectDepAndChildren(_, seen))
+    seen.toSet
   }
 }
