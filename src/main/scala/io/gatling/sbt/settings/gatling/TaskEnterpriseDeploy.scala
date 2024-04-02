@@ -19,16 +19,16 @@ package io.gatling.sbt.settings.gatling
 import scala.util.Try
 
 import io.gatling.plugin.deployment.DeploymentConfiguration
-import io.gatling.plugin.model.BuildTool
+import io.gatling.plugin.model._
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
-import io.gatling.sbt.settings.gatling.EnterpriseUtils.*
+import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
 import sbt._
 import sbt.Keys._
 
 class TaskEnterpriseDeploy(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
-  val enterpriseDeploy: InitializeTask[Unit] = Def.task {
+  val enterpriseDeploy: InitializeTask[DeploymentInfo] = Def.task {
     val logger = streams.value.log
     val enterprisePlugin = EnterprisePluginTask.batchEnterprisePluginTask(config).value
     val packageFile = enterprisePackage.buildEnterprisePackage.value

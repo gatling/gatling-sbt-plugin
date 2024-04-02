@@ -16,7 +16,7 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.plugin.client.http.HttpEnterpriseClient
+import io.gatling.plugin.client.HttpEnterpriseClient
 import io.gatling.plugin.exceptions.UnsupportedClientException
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._

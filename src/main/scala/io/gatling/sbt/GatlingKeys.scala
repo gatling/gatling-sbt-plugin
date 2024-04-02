@@ -51,18 +51,8 @@ object GatlingKeys {
                                                   |$documentationReference.
                                                   |""".stripMargin)
 
-  val enterpriseSimulationClass = settingKey[String](s"""Simulation class name, used when creating a simulation.
-                                                        |${systemPropertyDescription("gatling.enterprise.simulationClass")}.
-                                                        |$documentationReference.
-                                                        |""".stripMargin)
-
-  val enterpriseTeamId = settingKey[String](s"""Team ID on Gatling Enterprise. Used as default team on simulation and package on creation.
-                                               |${systemPropertyDescription("gatling.enterprise.teamId")}.
-                                               |$documentationReference.
-                                               |""".stripMargin)
-
   val enterpriseSimulationId =
-    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterpriseStart` (and `enterprisePackage` if `enterprisePackageId` isn't configured).
+    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterprisePackage` if `enterprisePackageId` isn't configured.
                           |${systemPropertyDescription("gatling.enterprise.simulationId")}.
                           |$documentationReference.
                           |""".stripMargin)
@@ -81,34 +71,6 @@ object GatlingKeys {
          |""".stripMargin
     )
 
-  val enterpriseSimulationSystemProperties = settingKey[Map[String, String]](
-    s"""Provides additional system properties when starting a simulation, in addition to the ones which may already be defined for that simulation.
-       |${systemPropertyDescription("gatling.enterprise.simulationSystemProperties")} with the format key1=value1,key2=value2
-       |$documentationReference.
-       |""".stripMargin
-  )
-
-  val enterpriseSimulationSystemPropertiesString = settingKey[String](
-    s"""Alternative to enterpriseSimulationSystemProperties. Use the format key1=value1,key2=value2
-       |${systemPropertyDescription("gatling.enterprise.simulationSystemProperties")}.
-       |$documentationReference.
-       |""".stripMargin
-  )
-
-  val enterpriseSimulationEnvironmentVariables = settingKey[Map[String, String]](
-    s"""Provides additional environment variables when starting a simulation, in addition to the ones which may already be defined for that simulation.
-       |${systemPropertyDescription("gatling.enterprise.simulationEnvironmentVariables")} with the format key1=value1,key2=value2
-       |$documentationReference.
-       |""".stripMargin
-  )
-
-  val enterpriseSimulationEnvironmentVariablesString = settingKey[String](
-    s"""Alternative to enterpriseSimulationEnvironmentVariables. Use the format key1=value1,key2=value2.
-       |${systemPropertyDescription("gatling.enterprise.simulationEnvironmentVariables")}.
-       |$documentationReference.
-       |""".stripMargin
-  )
-
   // Enterprise Tasks
   val enterprisePackage = taskKey[File](s"""Build a package for Gatling Enterprise.
                                            |$documentationReference.
@@ -120,16 +82,12 @@ object GatlingKeys {
        |""".stripMargin
   )
 
-  val enterpriseStart = inputKey[Unit](s"""Start a simulation for Gatling Enterprise. Require `enterpriseApiToken`.
-                                          |In batch mode, if `enterpriseSimulationId` isn't configured, requires:
-                                          |- `enterpriseSimulationClass` if there's more than one simulation class defined
-                                          |- `enterpriseTeamId` if there's more than one team related to the API Token
-                                          |- `enterpriseTeamId` if there's more than one team related to the API Token
-                                          |- `enterprisePackageId` if you want to use an existing package on created simulation
+  val enterpriseDeploy = taskKey[Unit]("Deploy a package and configured simulations")
+
+  val enterpriseStart = inputKey[Unit](s"""Start a simulation deployed with `enterpriseDeploy`. Require `enterpriseApiToken`.
+                                          |In batch mode, simulation name is required as first argument.
                                           |$documentationReference.
                                           |""".stripMargin)
-
-  val enterpriseDeploy = taskKey[Unit]("Deploy a package and configured simulations")
 
   val assembly = taskKey[File](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
