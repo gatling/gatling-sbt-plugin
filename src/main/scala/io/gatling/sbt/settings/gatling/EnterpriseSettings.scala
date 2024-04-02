@@ -47,29 +47,23 @@ object EnterpriseSettings {
   def settings(config: Configuration) = {
     val taskPackage = new TaskEnterprisePackage(config)
     val taskUpload = new TaskEnterpriseUpload(config, taskPackage)
-    val taskStart = new TaskEnterpriseStart(config, taskPackage)
     val taskDeploy = new TaskEnterpriseDeploy(config, taskPackage)
+    val taskStart = new TaskEnterpriseStart(config, taskDeploy)
 
     Seq(
       config / enterpriseUrl := new URL("https://cloud.gatling.io"),
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
-      config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.value,
+      config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
       config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
-      config / enterpriseTeamId := sys.props.get("gatling.enterprise.teamId").getOrElse(""),
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
       config / enterpriseControlPlaneUrl := sys.props
         .get("gatling.enterprise.controlPlaneUrl")
         .map(configString => new URL(configString)),
       config / waitForRunEnd := jl.Boolean.getBoolean("gatling.enterprise.waitForRunEnd"),
-      config / enterpriseSimulationSystemProperties := Map.empty,
-      config / enterpriseSimulationSystemPropertiesString := sys.props.get("gatling.enterprise.simulationSystemProperties").getOrElse(""),
-      config / enterpriseSimulationEnvironmentVariables := Map.empty,
-      config / enterpriseSimulationEnvironmentVariablesString := sys.props.get("gatling.enterprise.simulationEnvironmentVariables").getOrElse(""),
       config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
-      config / packageBin := (config / enterprisePackage).value, // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
-      config / enterpriseSimulationClass := sys.props.get("gatling.enterprise.simulationClass").getOrElse("")
+      config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
     )
   }
 
