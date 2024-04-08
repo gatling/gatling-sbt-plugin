@@ -16,40 +16,61 @@
 
 package io.gatling.sbt.settings.gatling
 
-import scala.util.{ Failure, Success, Try }
+import scala.util._
 
 import io.gatling.plugin.EnterprisePlugin
 import io.gatling.plugin.model.RunSummary
 import io.gatling.sbt.GatlingKeys._
-import io.gatling.sbt.settings.gatling.EnterprisePluginTask._
-import io.gatling.sbt.settings.gatling.EnterpriseUtils._
+import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeInputTask
+import io.gatling.sbt.settings.gatling.TaskEnterpriseStart.CommandArgs.CommandArgsParser
 
 import sbt.{ Configuration, Def }
 import sbt.Keys._
 import sbt.complete.DefaultParsers._
 import sbt.internal.util.ManagedLogger
+import sbt.internal.util.complete.Parser
+
+object TaskEnterpriseStart {
+  object CommandArgs {
+    private val Default = CommandArgs(simulationName = None, requireBatchMode = false)
+
+    private val SimulationNameParser: Parser[String] = StringBasic.examples("<simulation name>")
+
+    private val RequireBatchModeParser: Parser[CommandArgs => CommandArgs] =
+      token("--batch-mode" ^^^ (_.copy(requireBatchMode = true)))
+
+    private val NoBatchModeParser: Parser[CommandArgs => CommandArgs] =
+      token("--no-batch-mode" ^^^ (_.copy(requireBatchMode = System.console() == null)))
+
+    val CommandArgsParser: Parser[CommandArgs] =
+      ((Space ~> (NoBatchModeParser | RequireBatchModeParser)).* ~ (Space ~> SimulationNameParser).?)
+        .map { case (results, simulationName) =>
+          results
+            .foldLeft(Default) { (current, op) =>
+              op.apply(current)
+            }
+            .copy(simulationName = simulationName)
+        }
+  }
+  final case class CommandArgs(simulationName: Option[String], requireBatchMode: Boolean)
+}
 
 class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnterpriseDeploy) extends RecoverEnterprisePluginException(config) {
+  val enterpriseSimulationStart: InitializeInputTask[Unit] = Def.inputTaskDyn {
+    val commandArgs = CommandArgsParser.parsed
 
-  private val enterprisePluginTask = Def.inputTaskDyn[EnterprisePlugin] {
-    val enterpriseStartCommand = EnterpriseStartCommand.parser.parsed
-    val batchMode = enterpriseStartCommand.batchMode || System.console() == null
-    if (batchMode) batchEnterprisePluginTask(config)
-    else interactiveEnterprisePluginTask(config)
-  }
+    Def.task {
+      val logger = streams.value.log
+      val enterprisePlugin = EnterprisePluginTask.enterprisePluginTask(config, commandArgs.requireBatchMode).value
+      val deploymentInfo = taskEnterpriseDeploy.enterpriseDeploy.value
+      val waitForRunEndSetting = waitForRunEnd.value
 
-  val enterpriseSimulationStart: InitializeInputTask[Unit] = Def.inputTask {
-    val logger = streams.value.log
-    val enterprisePlugin = enterprisePluginTask.evaluated
-    val deploymentInfo = taskEnterpriseDeploy.enterpriseDeploy.value
-    val waitForRunEndSetting = waitForRunEnd.value
-    val simulationName = spaceDelimited("<arg>").parsed.headOption
+      val runSummary = enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo)
 
-    val runSummary = enterprisePlugin.startSimulation(simulationName.orNull, deploymentInfo)
+      logStartResult(logger, runSummary, waitForRunEndSetting, baseUrl = (config / enterpriseUrl).value)
 
-    logStartResult(logger, runSummary, waitForRunEndSetting, baseUrl = (config / enterpriseUrl).value)
-
-    maybeWaitForRunEnd(logger, enterprisePlugin, waitForRunEndSetting, runSummary)
+      maybeWaitForRunEnd(logger, enterprisePlugin, waitForRunEndSetting, runSummary)
+    }
   }
 
   private def logStartResult(logger: ManagedLogger, runSummary: RunSummary, waitForRunEndSetting: Boolean, baseUrl: sbt.URL): Unit = {

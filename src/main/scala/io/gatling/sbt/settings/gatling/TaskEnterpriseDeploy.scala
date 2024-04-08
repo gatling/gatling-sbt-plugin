@@ -20,7 +20,6 @@ import scala.util.Try
 
 import io.gatling.plugin.deployment.DeploymentConfiguration
 import io.gatling.plugin.model._
-import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
@@ -41,9 +40,7 @@ class TaskEnterpriseDeploy(config: Configuration, enterprisePackage: TaskEnterpr
         descriptorFile,
         packageFile,
         artifactId,
-        controlPlaneUrl.isDefined,
-        BuildTool.SBT,
-        BuildInfo.version
+        controlPlaneUrl.isDefined
       )
     }.recoverWith(recoverEnterprisePluginException(logger)).get
   }

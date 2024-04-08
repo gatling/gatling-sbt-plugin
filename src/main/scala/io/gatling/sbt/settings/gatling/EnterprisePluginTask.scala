@@ -16,23 +16,43 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.plugin.{ BatchEnterprisePlugin, BatchEnterprisePluginClient, InteractiveEnterprisePlugin, InteractiveEnterprisePluginClient }
-import io.gatling.sbt.settings.gatling.EnterpriseClient.enterpriseClientTask
-import io.gatling.sbt.settings.gatling.EnterprisePluginIO.{ enterprisePluginIOTask, enterprisePluginLoggerTask }
+import io.gatling.plugin.{ BatchEnterprisePlugin, EnterprisePlugin, EnterprisePluginProvider, PluginConfiguration }
+import io.gatling.plugin.model.BuildTool
+import io.gatling.sbt.BuildInfo
+import io.gatling.sbt.GatlingKeys._
+import io.gatling.sbt.settings.gatling.EnterprisePluginIO._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 
-import sbt.{ Configuration, Def }
+import sbt._
 
 object EnterprisePluginTask {
-  def batchEnterprisePluginTask[E >: BatchEnterprisePlugin](config: Configuration): InitializeTask[E] = Def.task {
-    val enterpriseClient = enterpriseClientTask(config).value
-    val logger = enterprisePluginLoggerTask.value
-    new BatchEnterprisePluginClient(enterpriseClient, logger)
+  def batchEnterprisePluginTask(config: Configuration): InitializeTask[BatchEnterprisePlugin] = Def.task {
+    val configuration = pluginConfiguration(config, requireBatchMode = true).value
+    EnterprisePluginProvider.getBatchInstance(configuration)
   }
 
-  def interactiveEnterprisePluginTask[E >: InteractiveEnterprisePlugin](config: Configuration): InitializeTask[E] = Def.task {
-    val enterpriseClient = enterpriseClientTask(config).value
-    val pluginIO = enterprisePluginIOTask.value
-    new InteractiveEnterprisePluginClient(enterpriseClient, pluginIO)
+  def enterprisePluginTask(config: Configuration, requireBatchMode: Boolean): InitializeTask[EnterprisePlugin] = Def.task {
+    val configuration = pluginConfiguration(config, requireBatchMode).value
+    EnterprisePluginProvider.getInstance(configuration)
   }
+
+  private def pluginConfiguration(config: Configuration, requireBatchMode: Boolean): InitializeTask[PluginConfiguration] =
+    Def.task {
+      val url = (config / enterpriseUrl).value
+      val apiToken = (config / enterpriseApiToken).value
+      val privateControlPlaneUrl = (config / enterpriseControlPlaneUrl).value
+      val pluginIO = enterprisePluginIOTask.value
+      val logger = enterprisePluginLoggerTask.value
+
+      if (apiToken.isEmpty) {
+        logger.error(
+          s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token with the role 'Configurer'.
+             |You can then set your API token's value in the environment variable GATLING_ENTERPRISE_API_TOKEN, pass it with -Dgatling.enterprise.apiToken=<apiToken>, or add the configuration to your SBT settings, e.g.:
+             |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE""".stripMargin
+        )
+        throw ErrorAlreadyLoggedException
+      }
+
+      new PluginConfiguration(url, apiToken, privateControlPlaneUrl.orNull, BuildTool.SBT, BuildInfo.version, requireBatchMode, pluginIO)
+    }
 }
