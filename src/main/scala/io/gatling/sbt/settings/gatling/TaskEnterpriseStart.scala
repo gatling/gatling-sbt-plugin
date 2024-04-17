@@ -19,7 +19,7 @@ package io.gatling.sbt.settings.gatling
 import scala.util._
 
 import io.gatling.plugin.EnterprisePlugin
-import io.gatling.plugin.model.RunSummary
+import io.gatling.plugin.model._
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeInputTask
 import io.gatling.sbt.settings.gatling.TaskEnterpriseStart.CommandArgs.CommandArgsParser
@@ -32,7 +32,13 @@ import sbt.internal.util.complete.Parser
 
 object TaskEnterpriseStart {
   object CommandArgs {
-    private val Default = CommandArgs(simulationName = None, requireBatchMode = false)
+    private val Default = CommandArgs(
+      simulationName = None,
+      requireBatchMode = false,
+      runTitle = None,
+      runDescription = None,
+      customFileName = None
+    )
 
     private val SimulationNameParser: Parser[String] = StringBasic.examples("<simulation name>")
 
@@ -42,8 +48,26 @@ object TaskEnterpriseStart {
     private val NoBatchModeParser: Parser[CommandArgs => CommandArgs] =
       token("--no-batch-mode" ^^^ (_.copy(requireBatchMode = System.console() == null)))
 
+    private val RunTitleParser: Parser[CommandArgs => CommandArgs] =
+      token("--run-title") ~> Space ~> StringBasic
+        .examples("<run title>")
+        .map(title => _.copy(runTitle = Some(title)))
+
+    private val RunDescriptionParser: Parser[CommandArgs => CommandArgs] =
+      token("--run-description") ~> Space ~> StringBasic
+        .examples("<run description>")
+        .map(description => _.copy(runDescription = Some(description)))
+
+    private val PackageDescriptorFileNameParser: Parser[CommandArgs => CommandArgs] =
+      token("--package-descriptor-filename") ~> Space ~> StringBasic
+        .examples("<package descriptor filename> (inside .gatling/)")
+        .map(customFileName => _.copy(customFileName = Some(customFileName)))
+
     val CommandArgsParser: Parser[CommandArgs] =
-      ((Space ~> (NoBatchModeParser | RequireBatchModeParser)).* ~ (Space ~> SimulationNameParser).?)
+      (
+        (Space ~> (NoBatchModeParser | RequireBatchModeParser | RunTitleParser | RunDescriptionParser | PackageDescriptorFileNameParser)).*
+          ~ (Space ~> SimulationNameParser).?
+      )
         .map { case (results, simulationName) =>
           results
             .foldLeft(Default) { (current, op) =>
@@ -52,7 +76,13 @@ object TaskEnterpriseStart {
             .copy(simulationName = simulationName)
         }
   }
-  final case class CommandArgs(simulationName: Option[String], requireBatchMode: Boolean)
+  final case class CommandArgs(
+      simulationName: Option[String],
+      requireBatchMode: Boolean,
+      runTitle: Option[String],
+      runDescription: Option[String],
+      customFileName: Option[String]
+  )
 }
 
 class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnterpriseDeploy) extends RecoverEnterprisePluginException(config) {
@@ -62,10 +92,11 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
     Def.task {
       val logger = streams.value.log
       val enterprisePlugin = EnterprisePluginTask.enterprisePluginTask(config, commandArgs.requireBatchMode).value
-      val deploymentInfo = taskEnterpriseDeploy.enterpriseDeploy.value
+      val deploymentInfo = taskEnterpriseDeploy.enterpriseDeployTask(commandArgs.customFileName).value
       val waitForRunEndSetting = waitForRunEnd.value
+      val runComment = new RunComment(commandArgs.runTitle.orNull, commandArgs.runDescription.orNull)
 
-      val runSummary = enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo)
+      val runSummary = enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo, runComment)
 
       logStartResult(logger, runSummary, waitForRunEndSetting, baseUrl = (config / enterpriseUrl).value)
 

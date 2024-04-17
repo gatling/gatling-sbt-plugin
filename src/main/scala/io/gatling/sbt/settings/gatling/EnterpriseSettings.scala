@@ -54,7 +54,7 @@ object EnterpriseSettings {
       config / enterpriseUrl := new URL("https://cloud.gatling.io"),
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
-      config / enterpriseDeploy := taskDeploy.enterpriseDeploy.value,
+      config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,
       config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
       config / enterprisePackageId := sys.props.get("gatling.enterprise.packageId").getOrElse(""),
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
