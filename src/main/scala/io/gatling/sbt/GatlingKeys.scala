@@ -82,7 +82,7 @@ object GatlingKeys {
        |""".stripMargin
   )
 
-  val enterpriseDeploy = taskKey[Unit]("Deploy a package and configured simulations")
+  val enterpriseDeploy = inputKey[Unit]("Deploy a package and configured simulations")
 
   val enterpriseStart = inputKey[Unit](s"""Start a simulation deployed with `enterpriseDeploy`. Require `enterpriseApiToken`.
                                           |In batch mode, simulation name is required as first argument.

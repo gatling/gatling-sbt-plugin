@@ -22,16 +22,46 @@ import io.gatling.plugin.deployment.DeploymentConfiguration
 import io.gatling.plugin.model._
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
+import io.gatling.sbt.settings.gatling.TaskEnterpriseDeploy.CommandArgs.CommandArgsParser
 
 import sbt._
 import sbt.Keys._
+import sbt.complete.DefaultParsers._
+import sbt.internal.util.complete.Parser
+
+object TaskEnterpriseDeploy {
+  object CommandArgs {
+    private val Default = CommandArgs(customFileName = None)
+
+    private val PackageDescriptorFileNameParser: Parser[CommandArgs => CommandArgs] =
+      token("--package-descriptor-filename") ~> Space ~> StringBasic
+        .examples("<package descriptor filename> (inside .gatling/)")
+        .map(customFileName => _.copy(customFileName = Some(customFileName)))
+
+    val CommandArgsParser: Parser[CommandArgs] =
+      (Space ~> PackageDescriptorFileNameParser).*.map { results =>
+        results
+          .foldLeft(Default) { (current, op) =>
+            op.apply(current)
+          }
+      }
+  }
+
+  final case class CommandArgs(customFileName: Option[String])
+}
 
 class TaskEnterpriseDeploy(config: Configuration, enterprisePackage: TaskEnterprisePackage) extends RecoverEnterprisePluginException(config) {
-  val enterpriseDeploy: InitializeTask[DeploymentInfo] = Def.task {
+  val enterpriseDeploy: InitializeInputTask[DeploymentInfo] = Def.inputTaskDyn {
+    val commandArgs = CommandArgsParser.parsed
+
+    enterpriseDeployTask(commandArgs.customFileName)
+  }
+
+  def enterpriseDeployTask(customFileName: Option[String]): InitializeTask[DeploymentInfo] = Def.task {
     val logger = streams.value.log
     val enterprisePlugin = EnterprisePluginTask.batchEnterprisePluginTask(config).value
     val packageFile = enterprisePackage.buildEnterprisePackage.value
-    val descriptorFile = DeploymentConfiguration.fromBaseDirectory((config / baseDirectory).value)
+    val descriptorFile = DeploymentConfiguration.fromBaseDirectory((config / baseDirectory).value, customFileName.orNull)
     val artifactId = (config / name).value
     val controlPlaneUrl = (config / enterpriseControlPlaneUrl).value
 
