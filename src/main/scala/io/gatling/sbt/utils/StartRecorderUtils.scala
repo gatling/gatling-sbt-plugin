@@ -16,6 +16,8 @@
 
 package io.gatling.sbt.utils
 
+import io.gatling.shared.cli.RecorderCliOptions
+
 import sbt.complete.DefaultParsers._
 import sbt.complete.Parser
 
@@ -25,22 +27,22 @@ private[gatling] object StartRecorderUtils {
    * List of all CLI options supported by the Recorder, in their "short" version.
    */
   val shortRecorderOpts = Set(
-    "sf",
-    "rf",
-    "cn",
-    "pkg",
-    "fmt"
+    RecorderCliOptions.SimulationsFolder.abbr,
+    RecorderCliOptions.ResourcesFolder.abbr,
+    RecorderCliOptions.ClassName.abbr,
+    RecorderCliOptions.Package.abbr,
+    RecorderCliOptions.Format.abbr
   )
 
   /**
    * List of all CLI options supported by the Recorder, in their "full" version.
    */
   val fullRecorderOpts = Set(
-    "simulations-folder",
-    "resources-folder",
-    "class-name",
-    "package",
-    "format"
+    RecorderCliOptions.SimulationsFolder.full,
+    RecorderCliOptions.ResourcesFolder.full,
+    RecorderCliOptions.ClassName.full,
+    RecorderCliOptions.Package.full,
+    RecorderCliOptions.Format.full
   )
 
   /** Parser matching the help option, in short and full version. */
