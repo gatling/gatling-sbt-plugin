@@ -27,22 +27,22 @@ private[gatling] object StartRecorderUtils {
    * List of all CLI options supported by the Recorder, in their "short" version.
    */
   val shortRecorderOpts = Set(
-    RecorderCliOptions.SimulationsFolder.abbr,
-    RecorderCliOptions.ResourcesFolder.abbr,
-    RecorderCliOptions.ClassName.abbr,
-    RecorderCliOptions.Package.abbr,
-    RecorderCliOptions.Format.abbr
+    RecorderCliOptions.SimulationsFolder.shortName,
+    RecorderCliOptions.ResourcesFolder.shortName,
+    RecorderCliOptions.ClassName.shortName,
+    RecorderCliOptions.Package.shortName,
+    RecorderCliOptions.Format.shortName
   )
 
   /**
    * List of all CLI options supported by the Recorder, in their "full" version.
    */
   val fullRecorderOpts = Set(
-    RecorderCliOptions.SimulationsFolder.full,
-    RecorderCliOptions.ResourcesFolder.full,
-    RecorderCliOptions.ClassName.full,
-    RecorderCliOptions.Package.full,
-    RecorderCliOptions.Format.full
+    RecorderCliOptions.SimulationsFolder.longName,
+    RecorderCliOptions.ResourcesFolder.longName,
+    RecorderCliOptions.ClassName.longName,
+    RecorderCliOptions.Package.longName,
+    RecorderCliOptions.Format.longName
   )
 
   /** Parser matching the help option, in short and full version. */
