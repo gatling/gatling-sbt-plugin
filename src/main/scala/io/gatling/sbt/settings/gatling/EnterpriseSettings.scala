@@ -17,6 +17,7 @@
 package io.gatling.sbt.settings.gatling
 
 import java.{ lang => jl }
+import java.net.URI
 
 import io.gatling.sbt.GatlingKeys._
 
@@ -51,7 +52,7 @@ object EnterpriseSettings {
     val taskStart = new TaskEnterpriseStart(config, taskDeploy)
 
     Seq(
-      config / enterpriseUrl := new URL("https://cloud.gatling.io"),
+      config / enterpriseUrl := URI.create("https://cloud.gatling.io").toURL,
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,
@@ -60,7 +61,7 @@ object EnterpriseSettings {
       config / enterpriseSimulationId := sys.props.get("gatling.enterprise.simulationId").getOrElse(""),
       config / enterpriseControlPlaneUrl := sys.props
         .get("gatling.enterprise.controlPlaneUrl")
-        .map(configString => new URL(configString)),
+        .map(configString => URI.create(configString).toURL),
       config / waitForRunEnd := jl.Boolean.getBoolean("gatling.enterprise.waitForRunEnd"),
       config / enterpriseApiToken := sys.props.get("gatling.enterprise.apiToken").orElse(sys.env.get("GATLING_ENTERPRISE_API_TOKEN")).getOrElse(""),
       config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
