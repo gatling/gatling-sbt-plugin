@@ -38,7 +38,8 @@ object EnterprisePluginTask {
 
   private def pluginConfiguration(config: Configuration, requireBatchMode: Boolean): InitializeTask[PluginConfiguration] =
     Def.task {
-      val url = (config / enterpriseUrl).value
+      val apiUrl = (config / enterpriseApiUrl).value
+      val webAppUrl = (config / enterpriseWebAppUrl).value
       val apiToken = (config / enterpriseApiToken).value
       val privateControlPlaneUrl = (config / enterpriseControlPlaneUrl).value
       val pluginIO = enterprisePluginIOTask.value
@@ -53,6 +54,6 @@ object EnterprisePluginTask {
         throw ErrorAlreadyLoggedException
       }
 
-      new PluginConfiguration(url, apiToken, privateControlPlaneUrl.orNull, BuildTool.SBT, BuildInfo.version, requireBatchMode, pluginIO)
+      new PluginConfiguration(apiUrl, webAppUrl, apiToken, privateControlPlaneUrl.orNull, BuildTool.SBT, BuildInfo.version, requireBatchMode, pluginIO)
     }
 }

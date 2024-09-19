@@ -39,7 +39,9 @@ object GatlingKeys {
   private val documentationReference =
     "See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/#running-your-simulations-on-gatling-enterprise-cloud for more information"
 
-  val enterpriseUrl = settingKey[URL]("URL of Gatling Enterprise.")
+  val enterpriseApiUrl = settingKey[URL]("URL of the Gatling Enterprise API.")
+
+  val enterpriseWebAppUrl = settingKey[URL]("URL of the Gatling Enterprise web app.")
 
   val enterpriseApiToken =
     settingKey[String](
