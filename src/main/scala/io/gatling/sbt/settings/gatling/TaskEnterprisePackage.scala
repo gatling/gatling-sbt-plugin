@@ -97,7 +97,7 @@ class TaskEnterprisePackage(config: Configuration) {
       streams.value.log.warn(
         s"""Task ${config.id} / assembly is deprecated and will be removed in a future version.
            |Please use $newCommand instead.
-           |See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/ for more information.""".stripMargin
+           |See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/ for more information.""".stripMargin
       )
     },
     buildEnterprisePackage

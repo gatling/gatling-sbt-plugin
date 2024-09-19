@@ -46,7 +46,7 @@ object EnterprisePluginTask {
 
       if (apiToken.isEmpty) {
         logger.error(
-          s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token with the role 'Configurer'.
+          s"""An API token is required to call the Gatling Enterprise server; see https://docs.gatling.io/reference/execute/cloud/admin/api-tokens/ and create a token with the role 'Configurer'.
              |You can then set your API token's value in the environment variable ${ConfigurationConstants.ApiToken.ENV_VAR}, pass it with -D${ConfigurationConstants.ApiToken.SYS_PROP}=<apiToken>, or add the configuration to your SBT settings, e.g.:
              |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE""".stripMargin
         )

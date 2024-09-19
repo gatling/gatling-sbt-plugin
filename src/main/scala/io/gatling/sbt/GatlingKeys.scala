@@ -37,7 +37,7 @@ object GatlingKeys {
     s"May be configured using `$systemProperty` system property"
 
   private val documentationReference =
-    "See https://gatling.io/docs/gatling/reference/current/extensions/sbt_plugin/#working-with-gatling-enterprise-cloud for more information"
+    "See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/#running-your-simulations-on-gatling-enterprise-cloud for more information"
 
   val enterpriseUrl = settingKey[URL]("URL of Gatling Enterprise.")
 
