@@ -52,7 +52,8 @@ object EnterpriseSettings {
     val taskStart = new TaskEnterpriseStart(config, taskDeploy)
 
     Seq(
-      config / enterpriseUrl := new URI(ConfigurationConstants.Url.value()).toURL,
+      config / enterpriseApiUrl := new URI(ConfigurationConstants.ApiUrl.value()).toURL,
+      config / enterpriseWebAppUrl := new URI(ConfigurationConstants.WebAppUrl.value()).toURL,
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,

@@ -98,16 +98,16 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
 
       val runSummary = enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo, runComment)
 
-      logStartResult(logger, runSummary, waitForRunEndSetting, baseUrl = (config / enterpriseUrl).value)
+      logStartResult(logger, runSummary, waitForRunEndSetting, webAppUrl = (config / enterpriseWebAppUrl).value)
 
       maybeWaitForRunEnd(logger, enterprisePlugin, waitForRunEndSetting, runSummary)
     }
   }
 
-  private def logStartResult(logger: ManagedLogger, runSummary: RunSummary, waitForRunEndSetting: Boolean, baseUrl: sbt.URL): Unit = {
+  private def logStartResult(logger: ManagedLogger, runSummary: RunSummary, waitForRunEndSetting: Boolean, webAppUrl: sbt.URL): Unit = {
     logSimulationConfiguration(logger, waitForRunEndSetting)
 
-    val reportsUrl = baseUrl.toExternalForm + runSummary.reportsPath
+    val reportsUrl = webAppUrl.toExternalForm + runSummary.reportsPath
     logger.success(s"Simulation successfully started; reports available at $reportsUrl")
   }
 
