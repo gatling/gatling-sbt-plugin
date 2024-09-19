@@ -16,7 +16,7 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.plugin.{ BatchEnterprisePlugin, EnterprisePlugin, EnterprisePluginProvider, PluginConfiguration }
+import io.gatling.plugin.{ BatchEnterprisePlugin, ConfigurationConstants, EnterprisePlugin, EnterprisePluginProvider, PluginConfiguration }
 import io.gatling.plugin.model.BuildTool
 import io.gatling.sbt.BuildInfo
 import io.gatling.sbt.GatlingKeys._
@@ -47,7 +47,7 @@ object EnterprisePluginTask {
       if (apiToken.isEmpty) {
         logger.error(
           s"""An API token is required to call the Gatling Enterprise server; see https://gatling.io/docs/enterprise/cloud/reference/admin/api_tokens/ and create a token with the role 'Configurer'.
-             |You can then set your API token's value in the environment variable GATLING_ENTERPRISE_API_TOKEN, pass it with -Dgatling.enterprise.apiToken=<apiToken>, or add the configuration to your SBT settings, e.g.:
+             |You can then set your API token's value in the environment variable ${ConfigurationConstants.ApiToken.ENV_VAR}, pass it with -D${ConfigurationConstants.ApiToken.SYS_PROP}=<apiToken>, or add the configuration to your SBT settings, e.g.:
              |${config.id} / enterpriseApiToken := MY_API_TOKEN_VALUE""".stripMargin
         )
         throw ErrorAlreadyLoggedException
