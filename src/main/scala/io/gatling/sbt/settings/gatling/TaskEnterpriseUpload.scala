@@ -20,6 +20,7 @@ import java.util.UUID
 
 import scala.util.Try
 
+import io.gatling.plugin.ConfigurationConstants
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
@@ -38,7 +39,7 @@ class TaskEnterpriseUpload(config: Configuration, enterprisePackage: TaskEnterpr
       if (settingPackageId.isEmpty && settingSimulationId.isEmpty) {
         logger.error(
           s"""A package ID is required to upload a package on Gatling Enterprise; see https://gatling.io/docs/enterprise/cloud/reference/user/package_conf/ , create a package and copy its ID.
-             |You can then set your package ID value by passing it with -Dgatling.enterprise.packageId=<packageId>, or add the configuration to your SBT settings, e.g.:
+             |You can then set your package ID value by passing it with -D${ConfigurationConstants.UploadOptions.PackageId.SYS_PROP}=<packageId>, or add the configuration to your SBT settings, e.g.:
              |${config.id} / enterprisePackageId := MY_PACKAGE_ID
              |
              |Alternately, if you don't configure a packageId, you can configure the simulationId of an existing simulation on Gatling Enterprise: your code will be uploaded to the package used by that simulation.

@@ -18,6 +18,7 @@ package io.gatling.sbt.settings.gatling
 
 import scala.util.{ Failure, Try }
 
+import io.gatling.plugin.ConfigurationConstants
 import io.gatling.plugin.exceptions._
 
 import sbt.Configuration
@@ -44,7 +45,7 @@ class RecoverEnterprisePluginException(config: Configuration) {
   protected def logSimulationConfiguration(logger: ManagedLogger, waitForRunEndSetting: Boolean): Unit =
     if (!waitForRunEndSetting) {
       logger.info(
-        s"""To wait for the end of the run when starting a simulation on Gatling Enterprise, specify -Dgatling.enterprise.waitForRunEnd=true, or add the configuration to your SBT settings, e.g.:
+        s"""To wait for the end of the run when starting a simulation on Gatling Enterprise, specify -D${ConfigurationConstants.StartOptions.WaitForRunEnd.SYS_PROP}=true, or add the configuration to your SBT settings, e.g.:
            |${config.id} / waitForRunEnd := true
            |""".stripMargin
       )

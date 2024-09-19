@@ -16,6 +16,7 @@
 
 package io.gatling.sbt
 
+import _root_.io.gatling.plugin.ConfigurationConstants
 import _root_.io.gatling.sbt.settings.BaseSettings
 
 import sbt._
@@ -41,19 +42,21 @@ object GatlingKeys {
   val enterpriseUrl = settingKey[URL]("URL of Gatling Enterprise.")
 
   val enterpriseApiToken =
-    settingKey[String](s"""API Token on Gatling Enterprise.
-                          |Prefer configuration using `GATLING_ENTERPRISE_API_TOKEN` environment variable, or `gatling.enterprise.apiToken` system property.
-                          |$documentationReference.
-                          |""".stripMargin)
+    settingKey[String](
+      s"""API Token on Gatling Enterprise.
+         |Prefer configuration using `${ConfigurationConstants.ApiToken.ENV_VAR}` environment variable, or `${ConfigurationConstants.ApiToken.SYS_PROP}` system property.
+         |$documentationReference.
+         |""".stripMargin
+    )
 
   val enterprisePackageId = settingKey[String](s"""Package ID on Gatling Enterprise (used by `enterpriseUpload` task).
-                                                  |${systemPropertyDescription("gatling.enterprise.packageId")}.
+                                                  |${systemPropertyDescription(ConfigurationConstants.UploadOptions.PackageId.SYS_PROP)}.
                                                   |$documentationReference.
                                                   |""".stripMargin)
 
   val enterpriseSimulationId =
     settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterprisePackage` if `enterprisePackageId` isn't configured.
-                          |${systemPropertyDescription("gatling.enterprise.simulationId")}.
+                          |${systemPropertyDescription(ConfigurationConstants.UploadOptions.SimulationId.SYS_PROP)}.
                           |$documentationReference.
                           |""".stripMargin)
 
@@ -66,7 +69,7 @@ object GatlingKeys {
   val waitForRunEnd =
     settingKey[Boolean](
       s"""Wait for the result after starting the simulation on Gatling Enterprise, and complete with an error if the simulation ends with any error status.
-         |${systemPropertyDescription("gatling.enterprise.waitForRunEnd")}.
+         |${systemPropertyDescription(ConfigurationConstants.StartOptions.WaitForRunEnd.SYS_PROP)}.
          |$documentationReference.
          |""".stripMargin
     )
