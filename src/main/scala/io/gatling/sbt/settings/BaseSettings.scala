@@ -28,6 +28,7 @@ import sbt.Tests.{ Argument, Group }
 
 object BaseSettings {
   private[gatling] def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] =
+    // the JVM gives precedence to the rightmost values
     propagatedSystemProperties ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala ++ javaOptions
 
   private val unPropagatedPropertiesRoots =
