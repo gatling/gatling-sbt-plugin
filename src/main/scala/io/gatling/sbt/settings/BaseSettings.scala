@@ -19,6 +19,7 @@ package io.gatling.sbt.settings
 import scala.jdk.CollectionConverters._
 
 import io.gatling.plugin.GatlingConstants
+import io.gatling.plugin.util.SystemProperties
 import io.gatling.sbt.GatlingPlugin.gatlingTestFramework
 import io.gatling.sbt.settings.gatling._
 
@@ -31,20 +32,11 @@ object BaseSettings {
     // the JVM gives precedence to the rightmost values
     propagatedSystemProperties ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala ++ javaOptions
 
-  private val unPropagatedPropertiesRoots =
-    List("java.", "sun.", "jline.", "file.", "awt.", "os.", "user.")
-
-  private def isPropagatedSystemProperty(name: String) =
-    !(unPropagatedPropertiesRoots.exists(name.startsWith) ||
-      name == "line.separator" ||
-      name == "path.separator" ||
-      name == "gopherProxySet")
-
   private def property(key: String, value: String) = s"-D$key=$value"
 
   private def propagatedSystemProperties: Seq[String] =
     sys.props
-      .filterKeys(isPropagatedSystemProperty)
+      .filterKeys(SystemProperties.isSystemPropertyPropagated)
       .map { case (key, value) => property(key, value) }
       .toSeq
 
