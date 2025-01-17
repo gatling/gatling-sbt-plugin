@@ -46,6 +46,9 @@ jobs:
           java-version: '8'
           cache: 'sbt'
 
+      - name: Setup sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Next version
         id: tag
         run: |
