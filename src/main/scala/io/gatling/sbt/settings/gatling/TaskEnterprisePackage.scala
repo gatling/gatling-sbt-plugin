@@ -25,8 +25,7 @@ import io.gatling.plugin.pkg.EnterprisePackager
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
 
-import sbt._
-import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test }
+import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test, _ }
 import sbt.Keys._
 
 object TaskEnterprisePackage {
