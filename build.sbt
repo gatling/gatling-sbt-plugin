@@ -9,7 +9,7 @@ githubPath := "gatling/gatling-sbt-plugin"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"                         % "3.2.19" % Test,
-  "io.gatling"     % "gatling-enterprise-plugin-commons" % "1.13.3",
+  "io.gatling"     % "gatling-enterprise-plugin-commons" % "1.13.4",
   "io.gatling"     % "gatling-shared-cli"                % "0.0.6"
 )
 
