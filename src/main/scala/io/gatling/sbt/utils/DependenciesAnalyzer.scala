@@ -57,7 +57,9 @@ object DependenciesAnalyzer {
 
     val allModules = moduleGraphWithoutVersions.keySet ++ moduleGraphWithoutVersions.values.flatten
     val gatlingModules = allModules.filter(module => module.organization == "io.gatling" || module.organization == "io.gatling.highcharts")
-    val gatlingGraphModules = collectDepAndChildren(gatlingModules, moduleGraphWithoutVersions)
+    // exclude protobuf from Gatling provided deps as only the user knows if he wants to use protobuf 3 or 4
+    val gatlingGraphModules = collectDepAndChildren(gatlingModules, moduleGraphWithoutVersions) - ModuleWithoutVersion("com.google.protobuf", "protobuf-java")
+
     val extraModules = allModules -- gatlingGraphModules - ModuleWithoutVersion(rootModule.module.organization, rootModule.module.name)
 
     val moduleToDependency = dependencyMap.values.flatten.flatMap { graphModule =>
