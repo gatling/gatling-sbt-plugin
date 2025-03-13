@@ -18,6 +18,9 @@ package io.gatling.sbt.settings.gatling
 
 import java.io.File
 
+import scala.jdk.CollectionConverters._
+
+import io.gatling.plugin.GatlingConstants
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.ReportUtils._
 import io.gatling.sbt.utils.StartRecorderUtils.{ addPackageIfNecessary, optionsParser, toShortOptionAndValue }
@@ -54,7 +57,7 @@ object OssSettings {
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
       val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
       val classpath = buildClassPathArgument(classpathElements)
-      fork(forkOptionsWithRunJVMOptions(classpath), opts)
+      fork(forkOptionsWithRunJVMOptions(classpath ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala), opts)
     }
   }
 
