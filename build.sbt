@@ -6,6 +6,7 @@ name := "gatling-sbt"
 scalaVersion := "2.12.20"
 sbtPlugin := true
 githubPath := "gatling/gatling-sbt-plugin"
+sbtPluginPublishLegacyMavenStyle := false
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"                         % "3.2.19" % Test,
