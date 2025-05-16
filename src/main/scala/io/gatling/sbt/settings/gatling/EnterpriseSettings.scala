@@ -47,6 +47,7 @@ object EnterpriseSettings {
 
   def settings(config: Configuration) = {
     val taskPackage = new TaskEnterprisePackage(config)
+    val taskUpload = new TaskEnterpriseUpload(config, taskPackage)
     val taskDeploy = new TaskEnterpriseDeploy(config, taskPackage)
     val taskStart = new TaskEnterpriseStart(config, taskDeploy)
 
@@ -54,8 +55,11 @@ object EnterpriseSettings {
       config / enterpriseApiUrl := new URI(ConfigurationConstants.ApiUrl.value()).toURL,
       config / enterpriseWebAppUrl := new URI(ConfigurationConstants.WebAppUrl.value()).toURL,
       config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
+      config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,
       config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
+      config / enterprisePackageId := Option(ConfigurationConstants.UploadOptions.PackageId.value()).getOrElse(""),
+      config / enterpriseSimulationId := Option(ConfigurationConstants.UploadOptions.SimulationId.value()).getOrElse(""),
       config / enterpriseControlPlaneUrl := Option(ConfigurationConstants.ControlPlaneUrl.value())
         .map(configString => new URI(configString).toURL),
       config / waitForRunEnd := ConfigurationConstants.StartOptions.WaitForRunEnd.value(),

@@ -51,6 +51,17 @@ object GatlingKeys {
          |""".stripMargin
     )
 
+  val enterprisePackageId = settingKey[String](s"""Package ID on Gatling Enterprise (used by `enterpriseUpload` task).
+                                                  |${systemPropertyDescription(ConfigurationConstants.UploadOptions.PackageId.SYS_PROP)}.
+                                                  |$documentationReference.
+                                                  |""".stripMargin)
+
+  val enterpriseSimulationId =
+    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterprisePackage` if `enterprisePackageId` isn't configured.
+                          |${systemPropertyDescription(ConfigurationConstants.UploadOptions.SimulationId.SYS_PROP)}.
+                          |$documentationReference.
+                          |""".stripMargin)
+
   val enterpriseControlPlaneUrl =
     settingKey[Option[URL]](s"""(optional) URL of a control plane for Gatling Enterprise providing a private repository.
                                |If this parameter is provided, packages will be registered as private packages and uploaded through this private control plane.
@@ -69,6 +80,12 @@ object GatlingKeys {
   val enterprisePackage = taskKey[File](s"""Build a package for Gatling Enterprise.
                                            |$documentationReference.
                                            |""".stripMargin)
+
+  val enterpriseUpload = taskKey[Unit](
+    s"""Upload a package for Gatling Enterprise. Require `enterpriseApiToken` and either `enterprisePackageId` or `enterpriseSimulationId` to be configured.
+       |$documentationReference.
+       |""".stripMargin
+  )
 
   val enterpriseDeploy = inputKey[Unit]("Deploy a package and configured simulations")
 
