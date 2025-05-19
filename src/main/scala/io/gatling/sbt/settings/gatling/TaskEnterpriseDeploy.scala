@@ -64,14 +64,26 @@ class TaskEnterpriseDeploy(config: Configuration, enterprisePackage: TaskEnterpr
     val descriptorFile = DeploymentConfiguration.fromBaseDirectory((config / baseDirectory).value, customFileName.orNull)
     val artifactId = (config / name).value
     val controlPlaneUrl = (config / enterpriseControlPlaneUrl).value
+    val validateSimulationId = (config / enterpriseValidateSimulationId).value
 
     Try {
-      enterprisePlugin.deployFromDescriptor(
-        descriptorFile,
-        packageFile,
-        artifactId,
-        controlPlaneUrl.isDefined
-      )
+      if (validateSimulationId.isEmpty) {
+        enterprisePlugin.deployFromDescriptor(
+          descriptorFile,
+          packageFile,
+          artifactId,
+          controlPlaneUrl.isDefined
+        )
+      } else {
+        enterprisePlugin.deployFromDescriptor(
+          descriptorFile,
+          packageFile,
+          artifactId,
+          controlPlaneUrl.isDefined,
+          validateSimulationId
+        )
+      }
+
     }.recoverWith(recoverEnterprisePluginException(logger)).get
   }
 }

@@ -56,6 +56,10 @@ object GatlingKeys {
 
   @deprecated
   val enterpriseSimulationId = settingKey[String]("Deprecated simulation ID setting")
+
+  val enterpriseValidateSimulationId =
+    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterpriseDeploy` to validate a simulation ID was part of the deployment.
+                          |${systemPropertyDescription(ConfigurationConstants.DeployOptions.ValidateSimulationId.SYS_PROP)}.
                           |$documentationReference.
                           |""".stripMargin)
 
