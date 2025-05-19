@@ -58,6 +58,7 @@ object EnterpriseSettings {
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,
       config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
+      config / enterpriseValidateSimulationId := Option(ConfigurationConstants.DeployOptions.ValidateSimulationId.value()).getOrElse(""),
       config / enterpriseControlPlaneUrl := Option(ConfigurationConstants.ControlPlaneUrl.value())
         .map(configString => new URI(configString).toURL),
       config / waitForRunEnd := ConfigurationConstants.StartOptions.WaitForRunEnd.value(),
