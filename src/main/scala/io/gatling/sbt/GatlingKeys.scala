@@ -51,14 +51,11 @@ object GatlingKeys {
          |""".stripMargin
     )
 
-  val enterprisePackageId = settingKey[String](s"""Package ID on Gatling Enterprise (used by `enterpriseUpload` task).
-                                                  |${systemPropertyDescription(ConfigurationConstants.UploadOptions.PackageId.SYS_PROP)}.
-                                                  |$documentationReference.
-                                                  |""".stripMargin)
+  @deprecated
+  val enterprisePackageId = settingKey[String]("Deprecated package ID setting")
 
-  val enterpriseSimulationId =
-    settingKey[String](s"""Simulation ID on Gatling Enterprise. Used by `enterprisePackage` if `enterprisePackageId` isn't configured.
-                          |${systemPropertyDescription(ConfigurationConstants.UploadOptions.SimulationId.SYS_PROP)}.
+  @deprecated
+  val enterpriseSimulationId = settingKey[String]("Deprecated simulation ID setting")
                           |$documentationReference.
                           |""".stripMargin)
 
@@ -81,10 +78,10 @@ object GatlingKeys {
                                            |$documentationReference.
                                            |""".stripMargin)
 
+  @deprecated
   val enterpriseUpload = taskKey[Unit](
-    s"""Upload a package for Gatling Enterprise. Require `enterpriseApiToken` and either `enterprisePackageId` or `enterpriseSimulationId` to be configured.
-       |$documentationReference.
-       |""".stripMargin
+    "The enterprise upload command is no longer supported. It has been replaced by the enterprise deploy command." +
+      " Refer to the documentation for more information: https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise"
   )
 
   val enterpriseDeploy = inputKey[Unit]("Deploy a package and configured simulations")
