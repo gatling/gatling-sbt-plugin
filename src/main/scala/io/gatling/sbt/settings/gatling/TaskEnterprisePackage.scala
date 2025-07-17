@@ -80,7 +80,8 @@ class TaskEnterprisePackage(config: Configuration) {
         rootModule.revision,
         TaskEnterprisePackage.SbtPackagerName,
         getClass.getPackage.getImplementationVersion,
-        packageFile
+        packageFile,
+        baseDirectory.value
       )
 
     packageFile
