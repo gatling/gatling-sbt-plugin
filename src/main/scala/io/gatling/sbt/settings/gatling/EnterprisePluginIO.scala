@@ -25,6 +25,7 @@ object EnterprisePluginIO {
   val enterprisePluginLoggerTask = Def.task {
     val logger = streams.value.log
     new PluginLogger {
+      override def debug(message: String): Unit = logger.debug(message)
       override def info(message: String): Unit = logger.info(message)
       override def error(message: String): Unit = logger.error(message)
     }

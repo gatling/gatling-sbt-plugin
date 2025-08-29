@@ -59,9 +59,8 @@ class TaskEnterprisePackage(config: Configuration) {
 
     val pluginLogger: PluginLogger = new PluginLogger {
       private val logger = streams.value.log
-
+      override def debug(s: String): Unit = logger.debug(s)
       override def info(s: String): Unit = logger.info(s)
-
       override def error(s: String): Unit = logger.error(s)
     }
 
