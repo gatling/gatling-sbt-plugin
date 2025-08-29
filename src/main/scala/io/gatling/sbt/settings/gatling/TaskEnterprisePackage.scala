@@ -57,12 +57,7 @@ class TaskEnterprisePackage(config: Configuration) {
 
     val classesDirectories = (config / fullClasspath).value.map(_.data).filter(_.isDirectory)
 
-    val pluginLogger: PluginLogger = new PluginLogger {
-      private val logger = streams.value.log
-      override def debug(s: String): Unit = logger.debug(s)
-      override def info(s: String): Unit = logger.info(s)
-      override def error(s: String): Unit = logger.error(s)
-    }
+    val pluginLogger = EnterprisePluginIO.enterprisePluginLoggerTask.value
 
     val rootModule = moduleDescriptor.module
 
