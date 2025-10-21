@@ -20,7 +20,6 @@ import java.io.File
 
 import scala.collection.JavaConverters._
 
-import io.gatling.plugin.io.PluginLogger
 import io.gatling.plugin.pkg.EnterprisePackager
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
