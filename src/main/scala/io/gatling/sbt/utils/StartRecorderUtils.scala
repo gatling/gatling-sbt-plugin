@@ -94,8 +94,12 @@ private[gatling] object StartRecorderUtils {
    *   the list of arguments, with the default package set if it wasn't already set.
    */
   def addPackageIfNecessary(args: Seq[String], packageName: String): Seq[String] =
-    if (args.contains("-pkg") || args.contains("--package")) args
-    else args ++ toShortOptionAndValue("pkg" -> packageName)
+    if (args.contains("-pkg") || args.contains("--package") || packageName == "default") {
+      // default is the default value of the organization setting, we don't want it
+      args
+    } else {
+      args ++ toShortOptionAndValue("pkg" -> packageName)
+    }
 
   /**
    * Creates a parser that matches exactly one of the the strings from ''choices''
