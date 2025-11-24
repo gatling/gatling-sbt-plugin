@@ -34,7 +34,7 @@ jobs:
           github.event.inputs.releaseType != 'minor-milestone' &&
           github.event.inputs.releaseType != 'patch-milestone'
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # indicates all history for all branches and tags
           token: ${{ secrets.GATLING_CI_TOKEN }} # for tag to trigger other workflows (release)
