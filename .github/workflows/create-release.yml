@@ -51,19 +51,26 @@ jobs:
 
       - name: Next version
         id: tag
+        env:
+          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
         run: |
-          sbt "gatlingWriteBumpVersion ${{ github.event.inputs.releaseType }}"
+          sbt "gatlingWriteBumpVersion $RELEASE_TYPE"
           export CURRENT_TAG="v$(cat target/gatlingNextVersion)"
           echo "tag='$CURRENT_TAG'"
           echo "::set-output name=tag::$CURRENT_TAG"
 
       - name: Git tag
+        env:
+          GIT_USER_NAME: ${{ secrets.GATLING_CI_NAME }}
+          GIT_USER_EMAIL: ${{ secrets.GATLING_CI_EMAIL }}
+          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
+          TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          git config user.name "${{ secrets.GATLING_CI_NAME }}"
-          git config user.email "${{ secrets.GATLING_CI_EMAIL }}"
-          if [ "${{github.event.inputs.releaseType}}" = "minor-milestone" || "${{github.event.inputs.releaseType}}" = "patch-milestone" ]; then
-            git tag "${{ steps.tag.outputs.tag }}"
+          git config user.name "$GIT_USER_NAME"
+          git config user.email "$GIT_USER_EMAIL"
+          if [ "$RELEASE_TYPE" = "minor-milestone" || "$RELEASE_TYPE" = "patch-milestone" ]; then
+            git tag "$TAG"
           else
-            git tag "${{ steps.tag.outputs.tag }}" -m "Version ${{ steps.tag.outputs.tag }}"
+            git tag "$TAG" -m "Version $TAG"
           fi
-          git push origin "${{ steps.tag.outputs.tag }}"
+          git push origin "$TAG"
