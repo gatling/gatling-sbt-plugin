@@ -20,6 +20,7 @@ import scala.util._
 
 import io.gatling.plugin.EnterprisePlugin
 import io.gatling.plugin.model._
+import io.gatling.plugin.util.WebAppUrlRenderer
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeInputTask
 import io.gatling.sbt.settings.gatling.TaskEnterpriseStart.CommandArgs.CommandArgsParser
@@ -107,7 +108,7 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
   private def logStartResult(logger: ManagedLogger, runSummary: RunSummary, waitForRunEndSetting: Boolean, webAppUrl: sbt.URL): Unit = {
     logSimulationConfiguration(logger, waitForRunEndSetting)
 
-    val reportsUrl = webAppUrl.toExternalForm + runSummary.reportsPath
+    val reportsUrl = WebAppUrlRenderer.toWebAppUrl(webAppUrl.toURI.toURL, runSummary.reportsUrl)
     logger.success(s"Simulation successfully started; reports available at $reportsUrl")
   }
 
@@ -120,7 +121,7 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
     if (waitForRunEnd) {
       Try(enterprisePlugin.waitForRunEnd(startedRun))
         .flatMap {
-          case finishedRun if !finishedRun.status.successful =>
+          case finishedRun if !finishedRun.successful =>
             Failure(new IllegalStateException("Simulation failed."))
           case _ =>
             Success(())
