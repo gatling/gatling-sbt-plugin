@@ -28,20 +28,20 @@ object GatlingPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, IntegrationTest)
-  override def projectSettings: Seq[Def.Setting[_]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
+  override def projectSettings: Seq[Def.Setting[?]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
 
   // Test framework definition
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
 
   // Settings
-  lazy val gatlingSettings: Seq[Def.Setting[_]] =
+  lazy val gatlingSettings: Seq[Def.Setting[?]] =
     inConfig(Gatling)(
       Defaults.testTasks ++
         (forkOptions := Defaults.forkOptionsTask.value) ++
         BaseSettings.settings(Gatling, Test)
     ) ++ ProjectBaseSettings.settings(Gatling)
 
-  lazy val gatlingItSettings: Seq[Def.Setting[_]] =
+  lazy val gatlingItSettings: Seq[Def.Setting[?]] =
     inConfig(GatlingIt)(
       Defaults.itSettings ++
         Defaults.testTasks ++
