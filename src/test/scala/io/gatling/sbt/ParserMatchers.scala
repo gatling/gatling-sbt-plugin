@@ -24,8 +24,8 @@ import sbt.complete.{ Completion, Completions, Parser }
 import sbt.complete.DefaultParsers.{ completions, matches }
 
 trait ParserMatchers {
-  def parse(expected: String) = new Matcher[Parser[_]] {
-    override def apply(parser: Parser[_]) =
+  def parse(expected: String) = new Matcher[Parser[?]] {
+    override def apply(parser: Parser[?]) =
       MatchResult(
         matches(parser, expected),
         s"$parser does not parse $expected",
@@ -33,8 +33,8 @@ trait ParserMatchers {
       )
   }
 
-  def complete(string: String, expected: Completions) = new Matcher[Parser[_]] {
-    override def apply(parser: Parser[_]) =
+  def complete(string: String, expected: Completions) = new Matcher[Parser[?]] {
+    override def apply(parser: Parser[?]) =
       MatchResult(
         completions(parser, string, 1) == expected,
         s"$parser does not complete $string with $expected",

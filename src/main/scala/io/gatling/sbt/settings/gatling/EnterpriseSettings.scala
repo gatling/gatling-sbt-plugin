@@ -75,6 +75,6 @@ object EnterpriseSettings {
   private val breakIfLegacyPluginFoundSetting =
     Global / onLoad := onLoadBreakIfLegacyPluginFound.value
 
-  lazy val projectSettings: Seq[Def.Setting[_]] =
+  lazy val projectSettings: Seq[Def.Setting[?]] =
     Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
 }

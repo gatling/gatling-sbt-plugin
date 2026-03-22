@@ -51,7 +51,7 @@ object BaseSettings {
   private def singleTestGroup(group: Group): Seq[Group] =
     group.tests map (test => Group(test.name, Seq(test), group.runPolicy))
 
-  def settings(config: Configuration, parent: Configuration): Seq[Def.Setting[_]] = Seq(
+  def settings(config: Configuration, parent: Configuration): Seq[Def.Setting[?]] = Seq(
     config / testFrameworks := Seq(gatlingTestFramework),
     config / target := target.value / config.name,
     config / testOptions += Argument(gatlingTestFramework, "-rf", (config / target).value.getPath),

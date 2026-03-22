@@ -21,5 +21,5 @@ import io.gatling.sbt.settings.gatling.EnterpriseSettings
 import sbt.Def
 
 object ProjectSettings {
-  lazy val projectSettings: Seq[Def.Setting[_]] = EnterpriseSettings.projectSettings
+  lazy val projectSettings: Seq[Def.Setting[?]] = EnterpriseSettings.projectSettings
 }
