@@ -19,10 +19,10 @@ package io.gatling.sbt.settings.gatling
 import java.net.URI
 
 import io.gatling.plugin.ConfigurationConstants
-import io.gatling.sbt.GatlingKeys._
+import io.gatling.sbt.GatlingKeys.*
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 object EnterpriseSettings {
   private val onLoadBreakIfLegacyPluginFound = Def.setting {
