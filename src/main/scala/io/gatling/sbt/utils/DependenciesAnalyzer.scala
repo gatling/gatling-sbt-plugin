@@ -21,7 +21,7 @@ import scala.collection.mutable
 import io.gatling.plugin.pkg.Dependency
 
 import sbt.internal.graph.backend.SbtUpdateReport
-import sbt.librarymanagement._
+import sbt.librarymanagement.*
 import sbt.util.Logger
 
 case class DependenciesAnalysisResult(gatlingDependencies: Set[Dependency], extraDependencies: Set[Dependency])

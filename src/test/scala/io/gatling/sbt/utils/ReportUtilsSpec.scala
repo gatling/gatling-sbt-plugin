@@ -17,11 +17,11 @@
 package io.gatling.sbt.utils
 
 import _root_.io.gatling.sbt.ParserMatchers
-import _root_.io.gatling.sbt.utils.ReportUtils._
+import _root_.io.gatling.sbt.utils.ReportUtils.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 
-import sbt._
+import sbt.*
 
 class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
   {

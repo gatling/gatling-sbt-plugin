@@ -16,7 +16,7 @@
 
 package io.gatling.sbt.settings.gatling
 
-import sbt._
+import sbt.*
 
 object EnterpriseUtils {
   type InitializeTask[E] = Def.Initialize[Task[E]]
