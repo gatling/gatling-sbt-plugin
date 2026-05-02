@@ -65,9 +65,12 @@ object DependenciesAnalyzer {
       graphModule.jarFile.map { jarFile =>
         val module = ModuleWithoutVersion(graphModule.id.organization, graphModule.id.name)
         val dependency = new Dependency(
-          graphModule.id.organization,
-          graphModule.id.name,
-          graphModule.id.version,
+          new Dependency.Id(
+            graphModule.id.organization,
+            graphModule.id.name,
+            graphModule.id.version,
+            null
+          ),
           jarFile
         )
 
