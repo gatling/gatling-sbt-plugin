@@ -48,6 +48,11 @@ object DependenciesAnalyzer {
       .configuration(ConfigRef.configToConfigRef(config))
       .getOrElse(throw new IllegalStateException(s"Could not find a report for configuration $config"))
 
+    val allArtifacts = for {
+      modReport <- configurationReport.modules
+      (artifact, file) <- modReport.artifacts if artifact.`type` == "jar" || artifact.extension == "jar"
+    } yield (ModuleWithoutVersion(modReport.module.organization, modReport.module.name), artifact, file)
+
     val dependencyMap = SbtUpdateReport.fromConfigurationReport(configurationReport, rootModule.module).dependencyMap
 
     val moduleGraphWithoutVersions: Map[ModuleWithoutVersion, Set[ModuleWithoutVersion]] =
@@ -61,26 +66,28 @@ object DependenciesAnalyzer {
 
     val extraModules = allModules -- gatlingGraphModules - ModuleWithoutVersion(rootModule.module.organization, rootModule.module.name)
 
-    val moduleToDependency = dependencyMap.values.flatten.flatMap { graphModule =>
-      graphModule.jarFile.map { jarFile =>
-        val module = ModuleWithoutVersion(graphModule.id.organization, graphModule.id.name)
-        val dependency = new Dependency(
+    val moduleToDependencies: Map[ModuleWithoutVersion, Seq[Dependency]] =
+      (for {
+        graphModule <- dependencyMap.values.flatten
+        moduleWithoutVersion = ModuleWithoutVersion(graphModule.id.organization, graphModule.id.name)
+      } yield {
+        val dependencies = for {
+          (_, artifact, jarFile) <- allArtifacts.filter(_._1 == moduleWithoutVersion)
+        } yield new Dependency(
           new Dependency.Id(
             graphModule.id.organization,
             graphModule.id.name,
             graphModule.id.version,
-            null
+            artifact.classifier.orNull
           ),
           jarFile
         )
-
-        module -> dependency
-      }.toList
-    }.toMap
+        moduleWithoutVersion -> dependencies
+      }).toMap
 
     DependenciesAnalysisResult(
-      gatlingModules.flatMap(moduleToDependency.get(_).toList),
-      extraModules.flatMap(moduleToDependency.get(_).toList)
+      gatlingModules.flatMap(moduleToDependencies.getOrElse(_, List.empty)),
+      extraModules.flatMap(moduleToDependencies.getOrElse(_, List.empty))
     )
   }
 
