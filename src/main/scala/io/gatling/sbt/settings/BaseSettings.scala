@@ -16,15 +16,15 @@
 
 package io.gatling.sbt.settings
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.SystemProperties
 import io.gatling.sbt.GatlingPlugin.gatlingTestFramework
-import io.gatling.sbt.settings.gatling._
+import io.gatling.sbt.settings.gatling.*
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 import sbt.Tests.{ Argument, Group }
 
 object BaseSettings {
