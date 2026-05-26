@@ -16,8 +16,8 @@
 
 package io.gatling.sbt.utils
 
-import sbt._
-import sbt.complete.DefaultParsers._
+import sbt.*
+import sbt.complete.DefaultParsers.*
 import sbt.complete.Parser
 
 private[gatling] object ReportUtils {
@@ -104,7 +104,7 @@ private[gatling] object ReportUtils {
   def allReports(reportsFolder: File): Seq[Report] = {
     val reports = for {
       directory <- (reportsFolder ** allReportsFilter).get
-      reportFolderRegex(simulationId, timestamp) <- reportFolderRegex findFirstIn directory.getName
+      case reportFolderRegex(simulationId, timestamp) <- reportFolderRegex findFirstIn directory.getName
     } yield Report(directory, directory.getName, simulationId, timestamp)
     reports.toList.sorted
   }

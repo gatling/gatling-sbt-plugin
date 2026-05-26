@@ -16,18 +16,18 @@
 
 package io.gatling.sbt.settings.gatling
 
-import scala.util._
+import scala.util.*
 
 import io.gatling.plugin.EnterprisePlugin
-import io.gatling.plugin.model._
+import io.gatling.plugin.model.*
 import io.gatling.plugin.util.WebAppUrlRenderer
-import io.gatling.sbt.GatlingKeys._
+import io.gatling.sbt.GatlingKeys.*
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeInputTask
 import io.gatling.sbt.settings.gatling.TaskEnterpriseStart.CommandArgs.CommandArgsParser
 
 import sbt.{ Configuration, Def }
-import sbt.Keys._
-import sbt.complete.DefaultParsers._
+import sbt.Keys.*
+import sbt.complete.DefaultParsers.*
 import sbt.internal.util.ManagedLogger
 import sbt.internal.util.complete.Parser
 

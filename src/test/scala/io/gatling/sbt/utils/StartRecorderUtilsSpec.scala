@@ -17,7 +17,7 @@
 package io.gatling.sbt.utils
 
 import io.gatling.sbt.ParserMatchers
-import io.gatling.sbt.utils.StartRecorderUtils._
+import io.gatling.sbt.utils.StartRecorderUtils.*
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers

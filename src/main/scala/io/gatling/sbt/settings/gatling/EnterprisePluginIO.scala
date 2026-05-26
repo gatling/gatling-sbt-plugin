@@ -16,10 +16,10 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.plugin.io._
+import io.gatling.plugin.io.*
 
 import sbt.Def
-import sbt.Keys._
+import sbt.Keys.*
 
 object EnterprisePluginIO {
   val enterprisePluginLoggerTask = Def.task {

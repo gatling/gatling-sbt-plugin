@@ -18,14 +18,14 @@ package io.gatling.sbt.settings.gatling
 
 import java.io.File
 
-import scala.collection.JavaConverters._
+import scala.collection.JavaConverters.*
 
 import io.gatling.plugin.pkg.EnterprisePackager
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
-import io.gatling.sbt.utils._
+import io.gatling.sbt.utils.*
 
-import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test, _ }
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 object TaskEnterprisePackage {
   private val SbtPackagerName = "sbt"

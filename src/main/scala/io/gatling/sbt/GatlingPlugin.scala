@@ -16,16 +16,16 @@
 
 package io.gatling.sbt
 
-import io.gatling.sbt.settings._
+import io.gatling.sbt.settings.*
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 object GatlingPlugin extends AutoPlugin {
   // AutoPlugin setup
   override val requires = plugins.JvmPlugin
   val autoImport: GatlingKeys.type = GatlingKeys
-  import autoImport._
+  import autoImport.*
 
   override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, IntegrationTest)
   override def projectSettings: Seq[Def.Setting[?]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
