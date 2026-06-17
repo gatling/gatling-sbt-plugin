@@ -10,7 +10,7 @@ sbtPluginPublishLegacyMavenStyle := false
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest"                         % "3.2.20" % Test,
-  "io.gatling"     % "gatling-enterprise-plugin-commons" % "1.24.4",
+  "io.gatling"     % "gatling-enterprise-plugin-commons" % "1.25.0",
   "io.gatling"     % "gatling-shared-cli"                % "0.0.7"
 )
 
