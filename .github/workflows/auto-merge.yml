@@ -7,6 +7,10 @@ on:
     types:
       - completed
 
+concurrency:
+  group: auto-merge
+  cancel-in-progress: false  # queue concurrent runs instead of cancelling them
+
 jobs:
   auto-merge:
     if: >
