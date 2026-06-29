@@ -18,7 +18,7 @@ package io.gatling.sbt.utils
 
 import io.gatling.shared.cli.RecorderCliOptions
 
-import sbt.complete.DefaultParsers._
+import sbt.complete.DefaultParsers.*
 import sbt.complete.Parser
 
 private[gatling] object StartRecorderUtils {

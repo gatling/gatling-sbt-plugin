@@ -19,7 +19,7 @@ package io.gatling.sbt.settings.gatling
 import scala.util.{ Failure, Try }
 
 import io.gatling.plugin.ConfigurationConstants
-import io.gatling.plugin.exceptions._
+import io.gatling.plugin.exceptions.*
 
 import sbt.Configuration
 import sbt.internal.util.ManagedLogger

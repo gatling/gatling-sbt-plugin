@@ -19,11 +19,11 @@ package io.gatling.sbt.settings.gatling
 import io.gatling.plugin.{ BatchEnterprisePlugin, ConfigurationConstants, EnterprisePlugin, EnterprisePluginProvider, PluginConfiguration }
 import io.gatling.plugin.model.BuildTool
 import io.gatling.sbt.BuildInfo
-import io.gatling.sbt.GatlingKeys._
-import io.gatling.sbt.settings.gatling.EnterprisePluginIO._
+import io.gatling.sbt.GatlingKeys.*
+import io.gatling.sbt.settings.gatling.EnterprisePluginIO.*
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 
-import sbt._
+import sbt.*
 
 object EnterprisePluginTask {
   def batchEnterprisePluginTask(config: Configuration): InitializeTask[BatchEnterprisePlugin] = Def.task {

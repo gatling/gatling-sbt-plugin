@@ -19,14 +19,14 @@ package io.gatling.sbt.settings.gatling
 import scala.util.Try
 
 import io.gatling.plugin.deployment.DeploymentConfiguration
-import io.gatling.plugin.model._
-import io.gatling.sbt.GatlingKeys._
-import io.gatling.sbt.settings.gatling.EnterpriseUtils._
+import io.gatling.plugin.model.*
+import io.gatling.sbt.GatlingKeys.*
+import io.gatling.sbt.settings.gatling.EnterpriseUtils.*
 import io.gatling.sbt.settings.gatling.TaskEnterpriseDeploy.CommandArgs.CommandArgsParser
 
-import sbt._
-import sbt.Keys._
-import sbt.complete.DefaultParsers._
+import sbt.*
+import sbt.Keys.*
+import sbt.complete.DefaultParsers.*
 import sbt.internal.util.complete.Parser
 
 object TaskEnterpriseDeploy {

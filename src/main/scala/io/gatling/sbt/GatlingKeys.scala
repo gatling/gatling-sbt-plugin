@@ -19,7 +19,7 @@ package io.gatling.sbt
 import _root_.io.gatling.plugin.ConfigurationConstants
 import _root_.io.gatling.sbt.settings.BaseSettings
 
-import sbt._
+import sbt.*
 
 /** List of SBT keys for Gatling specific tasks. */
 object GatlingKeys {
@@ -100,5 +100,5 @@ object GatlingKeys {
   )
 
   // kept for compatibility with older versions
-  def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] = BaseSettings.overrideDefaultJavaOptions(javaOptions: _*)
+  def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] = BaseSettings.overrideDefaultJavaOptions(javaOptions *)
 }

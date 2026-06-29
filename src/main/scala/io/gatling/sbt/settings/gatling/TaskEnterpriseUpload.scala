@@ -16,9 +16,9 @@
 
 package io.gatling.sbt.settings.gatling
 
-import io.gatling.sbt.settings.gatling.EnterpriseUtils._
+import io.gatling.sbt.settings.gatling.EnterpriseUtils.*
 
-import sbt._
+import sbt.*
 
 class TaskEnterpriseUpload(config: Configuration) extends RecoverEnterprisePluginException(config) {
   val uploadEnterprisePackage: InitializeTask[Unit] = Def.task {

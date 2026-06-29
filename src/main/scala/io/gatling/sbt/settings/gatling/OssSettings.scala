@@ -18,15 +18,15 @@ package io.gatling.sbt.settings.gatling
 
 import java.io.File
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import io.gatling.plugin.GatlingConstants
-import io.gatling.sbt.GatlingKeys._
-import io.gatling.sbt.utils.ReportUtils._
+import io.gatling.sbt.GatlingKeys.*
+import io.gatling.sbt.utils.ReportUtils.*
 import io.gatling.sbt.utils.StartRecorderUtils.{ addPackageIfNecessary, optionsParser, toShortOptionAndValue }
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 object OssSettings {
   private def forkOptionsWithRunJVMOptions(options: Seq[String]) =

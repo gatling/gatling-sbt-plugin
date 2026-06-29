@@ -16,8 +16,8 @@
 
 package io.gatling.sbt.settings
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
 
 object ProjectBaseSettings {
   def settings(config: Configuration): Seq[Def.Setting[?]] = Seq(
