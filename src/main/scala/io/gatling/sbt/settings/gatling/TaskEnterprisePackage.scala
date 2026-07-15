@@ -20,11 +20,12 @@ import java.io.File
 
 import scala.collection.JavaConverters._
 
-import io.gatling.plugin.pkg.EnterprisePackager
+import io.gatling.plugin.pkg.{ Dependency, EnterprisePackager }
+import io.gatling.sbt.Compat
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
 
-import sbt.{ Configuration, Def, IntegrationTest, ModuleDescriptorConfiguration, Test, _ }
+import sbt.{ Configuration, Def, ModuleDescriptorConfiguration, Test, _ }
 import sbt.Keys._
 
 object TaskEnterprisePackage {
@@ -54,11 +55,33 @@ class TaskEnterprisePackage(config: Configuration) {
       moduleDescriptor
     )
 
-    val classesDirectories = (config / fullClasspath).value.map(_.data).filter(_.isDirectory)
+    // The compiled simulations live in the project's own class directories. On sbt 1.x these appear in the
+    // classpath as directories; on sbt 2.x the classpath instead carries packaged jars, so we get the class
+    // directories from `classDirectory`. Evaluating `fullClasspath` triggers compilation on both versions.
+    val classesDirectories = Compat.classesDirectories(
+      (config / fullClasspath).value,
+      Seq((config / classDirectory).value, (Compile / classDirectory).value),
+      fileConverter.value
+    )
 
     val pluginLogger = EnterprisePluginIO.enterprisePluginLoggerTask.value
 
     val rootModule = moduleDescriptor.module
+
+    // Internal (inter-project) dependencies exported as jars are packaged as extra library jars, like the
+    // Maven and Gradle plugins do (`DependenciesAnalyzer` only sees external modules, and on sbt 2.x internal
+    // dependencies no longer appear on the classpath as class directories). The project's own products are
+    // excluded: their classes are already packaged through `classesDirectories`.
+    val internalDependencies = Compat
+      .internalDependencies((config / internalDependencyClasspath).value, fileConverter.value)
+      .collect {
+        case (moduleId, jar) if moduleId.organization != rootModule.organization || moduleId.name != rootModule.name =>
+          new Dependency(
+            new Dependency.Id(moduleId.organization, moduleId.name, moduleId.revision, null),
+            jar
+          )
+      }
+      .toSet
 
     target.value.mkdirs()
     val packageFile = target.value / s"${moduleName.value}-gatling-enterprise-${version.value}.jar"
@@ -67,7 +90,7 @@ class TaskEnterprisePackage(config: Configuration) {
       .createEnterprisePackage(
         classesDirectories.asJava,
         gatlingDependencies.asJava,
-        nonGatlingDependencies.asJava,
+        (nonGatlingDependencies ++ internalDependencies).asJava,
         rootModule.organization,
         rootModule.name,
         rootModule.revision,
@@ -83,9 +106,9 @@ class TaskEnterprisePackage(config: Configuration) {
   val legacyPackageEnterpriseJar: InitializeTask[File] = Def.sequential(
     Def.task {
       val newCommand = config.id match {
-        case Test.id            => "Gatling / enterprisePackage"
-        case IntegrationTest.id => "GatlingIt / enterprisePackage"
-        case _                  => "Gatling / enterprisePackage or GatlingIt / enterprisePackage"
+        case Test.id                   => "Gatling / enterprisePackage"
+        case Compat.IntegrationTest.id => "GatlingIt / enterprisePackage"
+        case _                         => "Gatling / enterprisePackage or GatlingIt / enterprisePackage"
       }
       streams.value.log.warn(
         s"""Task ${config.id} / assembly is deprecated and will be removed in a future version.

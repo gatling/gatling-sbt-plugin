@@ -1,0 +1,6 @@
+# Build the enterprise package of a module that depends on another module of the same build, and
+# verify that the package contains the classes of both. On sbt 1.x the internal dependency reaches
+# the package through the class directories found on the classpath; on sbt 2.x (where the classpath
+# carries packaged jars) it is packaged as an extra library jar and unpacked into the fat jar.
+
+> loadtest/checkPackage

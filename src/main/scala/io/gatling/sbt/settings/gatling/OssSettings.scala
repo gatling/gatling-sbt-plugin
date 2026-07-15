@@ -21,6 +21,7 @@ import java.io.File
 import scala.jdk.CollectionConverters._
 
 import io.gatling.plugin.GatlingConstants
+import io.gatling.sbt.Compat
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.ReportUtils._
 import io.gatling.sbt.utils.StartRecorderUtils.{ addPackageIfNecessary, optionsParser, toShortOptionAndValue }
@@ -41,7 +42,7 @@ object OssSettings {
     val allArgs = addPackageIfNecessary(args ++ simulationsFolderArg ++ resourcesFolderArg ++ formatArg, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
-    val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
+    val classpathElements = Compat.toFiles((parent / dependencyClasspath).value, fileConverter.value) :+ (config / resourceDirectory).value
     val classpath = buildClassPathArgument(classpathElements)
     fork(forkOptionsWithRunJVMOptions(classpath), allArgs)
   }
@@ -55,7 +56,7 @@ object OssSettings {
     reportsPaths.headOption.foreach { folderName =>
       val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (config / target).value.getPath)
       val fork = new Fork("java", Some("io.gatling.app.Gatling"))
-      val classpathElements = (parent / dependencyClasspath).value.map(_.data) :+ (config / resourceDirectory).value
+      val classpathElements = Compat.toFiles((parent / dependencyClasspath).value, fileConverter.value) :+ (config / resourceDirectory).value
       val classpath = buildClassPathArgument(classpathElements)
       fork(forkOptionsWithRunJVMOptions(classpath ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala), opts)
     }
@@ -65,7 +66,7 @@ object OssSettings {
     Seq("-cp", classPathElements.mkString(File.pathSeparator))
 
   private def stateBasedParser[T, U](inputSource: SettingKey[T])(parserMaker: T => U) =
-    Def.setting { state: State =>
+    Def.setting { (state: State) =>
       val extracted = Project.extract(state)
       val input = extracted.get(inputSource)
       parserMaker(input)
@@ -73,7 +74,9 @@ object OssSettings {
 
   def settings(config: Configuration, parent: Configuration) = Seq(
     config / startRecorder := recorderRunner(config, parent).evaluated,
-    config / clean := cleanReports((config / target).value),
+    // `clean` deletes report folders as a side effect and must not be memoised by sbt 2.x's task cache
+    // (otherwise a second config's clean can reuse the first's cached result and skip the deletion).
+    config / clean := Compat.uncached(cleanReports((config / target).value)),
     config / generateReport := generateGatlingReport(config, parent).evaluated
   )
 }

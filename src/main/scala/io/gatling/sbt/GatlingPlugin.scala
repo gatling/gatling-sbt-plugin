@@ -27,7 +27,7 @@ object GatlingPlugin extends AutoPlugin {
   val autoImport: GatlingKeys.type = GatlingKeys
   import autoImport._
 
-  override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, IntegrationTest)
+  override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, Compat.IntegrationTest)
   override def projectSettings: Seq[Def.Setting[?]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
 
   // Test framework definition
@@ -37,15 +37,15 @@ object GatlingPlugin extends AutoPlugin {
   lazy val gatlingSettings: Seq[Def.Setting[?]] =
     inConfig(Gatling)(
       Defaults.testTasks ++
-        (forkOptions := Defaults.forkOptionsTask.value) ++
+        (forkOptions := Compat.uncached(Defaults.forkOptionsTask.value)) ++
         BaseSettings.settings(Gatling, Test)
     ) ++ ProjectBaseSettings.settings(Gatling)
 
   lazy val gatlingItSettings: Seq[Def.Setting[?]] =
     inConfig(GatlingIt)(
-      Defaults.itSettings ++
+      Compat.integrationTestSettings ++
         Defaults.testTasks ++
-        (forkOptions := Defaults.forkOptionsTask.value) ++
-        BaseSettings.settings(GatlingIt, IntegrationTest)
+        (forkOptions := Compat.uncached(Defaults.forkOptionsTask.value)) ++
+        BaseSettings.settings(GatlingIt, Compat.IntegrationTest)
     ) ++ ProjectBaseSettings.settings(GatlingIt)
 }

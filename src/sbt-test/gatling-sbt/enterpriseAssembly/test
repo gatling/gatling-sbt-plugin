@@ -1,30 +1,38 @@
+# Paths are matched with a leading `**/` recursive glob so the assertions hold on both sbt 1.x
+# (flat `target/<config>` layout) and sbt 2.x (`target/out/jvm/scala-<v>/<project>/<config>` layout).
+# Each `clean` is followed by an `absent` assertion so a leftover jar from a previous section cannot
+# satisfy the next section's `exists` assertion.
+
 ######################################
 ## Gatling enterprisePackage tests ##
 ######################################
 
 > Gatling / enterprisePackage
-$ exists target/gatling/my-test-project-gatling-enterprise-1.2.3.jar
+$ exists **/gatling/my-test-project-gatling-enterprise-1.2.3.jar
 
 ########################################
 ## GatlingIt enterprisePackage tests ##
 ########################################
 
 > clean
+$ absent **/my-test-project-gatling-enterprise-1.2.3.jar
 > GatlingIt / enterprisePackage
-$ exists target/gatling-it/my-test-project-gatling-enterprise-1.2.3.jar
+$ exists **/gatling-it/my-test-project-gatling-enterprise-1.2.3.jar
 
 ##################################
 ## Legacy Test / assembly tests ##
 ##################################
 
 > clean
+$ absent **/my-test-project-gatling-enterprise-1.2.3.jar
 > Test / assembly
-$ exists target/my-test-project-gatling-enterprise-1.2.3.jar
+$ exists **/my-test-project-gatling-enterprise-1.2.3.jar
 
 ##################################
 ## Legacy It / assembly tests ##
 ##################################
 
 > clean
+$ absent **/my-test-project-gatling-enterprise-1.2.3.jar
 > It / assembly
-$ exists target/my-test-project-gatling-enterprise-1.2.3.jar
+$ exists **/my-test-project-gatling-enterprise-1.2.3.jar

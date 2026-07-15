@@ -25,7 +25,7 @@ import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeInputTask
 import io.gatling.sbt.settings.gatling.TaskEnterpriseStart.CommandArgs.CommandArgsParser
 
-import sbt.{ Configuration, Def }
+import sbt._
 import sbt.Keys._
 import sbt.complete.DefaultParsers._
 import sbt.internal.util.ManagedLogger

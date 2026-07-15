@@ -103,9 +103,9 @@ private[gatling] object ReportUtils {
    */
   def allReports(reportsFolder: File): Seq[Report] = {
     val reports = for {
-      directory <- (reportsFolder ** allReportsFilter).get
-      reportFolderRegex(simulationId, timestamp) <- reportFolderRegex findFirstIn directory.getName
-    } yield Report(directory, directory.getName, simulationId, timestamp)
+      directory <- (reportsFolder ** allReportsFilter).get()
+      matched <- reportFolderRegex.findFirstMatchIn(directory.getName)
+    } yield Report(directory, directory.getName, matched.group(1), matched.group(2))
     reports.toList.sorted
   }
 
