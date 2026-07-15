@@ -19,6 +19,7 @@ package io.gatling.sbt.settings.gatling
 import java.net.URI
 
 import io.gatling.plugin.ConfigurationConstants
+import io.gatling.sbt.Compat
 import io.gatling.sbt.GatlingKeys._
 
 import sbt._
@@ -26,7 +27,7 @@ import sbt.Keys._
 
 object EnterpriseSettings {
   private val onLoadBreakIfLegacyPluginFound = Def.setting {
-    (onLoad in Global).value.andThen { state =>
+    (Global / onLoad).value.andThen { state =>
       val foundLegacyFrontLinePlugin =
         Project.extract(state).structure.units.exists { case (_, build) =>
           build.projects.exists(
@@ -54,7 +55,7 @@ object EnterpriseSettings {
     Seq(
       config / enterpriseApiUrl := new URI(ConfigurationConstants.ApiUrl.value()).toURL,
       config / enterpriseWebAppUrl := new URI(ConfigurationConstants.WebAppUrl.value()).toURL,
-      config / enterprisePackage := taskPackage.buildEnterprisePackage.value,
+      config / enterprisePackage := Compat.uncached(taskPackage.buildEnterprisePackage.value),
       config / enterpriseUpload := taskUpload.uploadEnterprisePackage.value,
       config / enterpriseDeploy := taskDeploy.enterpriseDeploy.evaluated,
       config / enterpriseStart := taskStart.enterpriseSimulationStart.evaluated,
@@ -63,18 +64,20 @@ object EnterpriseSettings {
         .map(configString => new URI(configString).toURL),
       config / waitForRunEnd := ConfigurationConstants.StartOptions.WaitForRunEnd.value(),
       config / enterpriseApiToken := Option(ConfigurationConstants.ApiToken.value()).getOrElse(""),
-      config / packageBin := (config / enterprisePackage).value // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
+      config / packageBin := Compat.uncached(
+        Compat.toPackagedArtifact((config / enterprisePackage).value, fileConverter.value)
+      ) // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
     )
   }
 
   private def legacyAssemblySetting(config: Configuration) = {
     val taskPackage = new TaskEnterprisePackage(config)
-    config / assembly := taskPackage.legacyPackageEnterpriseJar.value
+    config / assembly := Compat.uncached(taskPackage.legacyPackageEnterpriseJar.value)
   }
 
   private val breakIfLegacyPluginFoundSetting =
     Global / onLoad := onLoadBreakIfLegacyPluginFound.value
 
   lazy val projectSettings: Seq[Def.Setting[?]] =
-    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(IntegrationTest), breakIfLegacyPluginFoundSetting)
+    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(Compat.IntegrationTest), breakIfLegacyPluginFoundSetting)
 }

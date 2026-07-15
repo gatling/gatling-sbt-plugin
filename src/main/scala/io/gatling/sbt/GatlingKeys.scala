@@ -25,7 +25,7 @@ import sbt._
 object GatlingKeys {
   // Configurations
   val Gatling = config("gatling") extend Test
-  val GatlingIt = config("gatling-it") extend IntegrationTest
+  val GatlingIt = config("gatling-it") extend Compat.IntegrationTest
 
   // OSS Tasks
   val startRecorder = inputKey[Unit]("Start Gatling's Recorder")

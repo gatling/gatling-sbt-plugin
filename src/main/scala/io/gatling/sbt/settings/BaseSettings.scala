@@ -20,6 +20,7 @@ import scala.jdk.CollectionConverters._
 
 import io.gatling.plugin.GatlingConstants
 import io.gatling.plugin.util.SystemProperties
+import io.gatling.sbt.Compat
 import io.gatling.sbt.GatlingPlugin.gatlingTestFramework
 import io.gatling.sbt.settings.gatling._
 
@@ -58,6 +59,6 @@ object BaseSettings {
     config / javaOptions ++= overrideDefaultJavaOptions(),
     config / parallelExecution := false,
     config / fork := true,
-    config / testGrouping := (config / testGrouping).value flatMap singleTestGroup
+    config / testGrouping := Compat.uncached((config / testGrouping).value flatMap singleTestGroup)
   ) ++ OssSettings.settings(config, parent) ++ EnterpriseSettings.settings(config)
 }
