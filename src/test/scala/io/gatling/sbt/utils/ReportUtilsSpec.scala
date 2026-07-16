@@ -121,8 +121,10 @@ class ReportUtilsSpec extends AnyFlatSpec with Matchers with ParserMatchers {
     val reportNames = allReportNames(new File("src/test/resources/reports"))
 
     reportNames should contain only (
-      "basicsimulation-20140404205455", "basicsimulation-20140406205455",
-      "basicsimulation-20140408205455", "advancedsimulation-20140404205455"
+      "basicsimulation-20140404205455",
+      "basicsimulation-20140406205455",
+      "basicsimulation-20140408205455",
+      "advancedsimulation-20140404205455"
     )
   }
 }
