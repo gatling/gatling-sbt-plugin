@@ -37,7 +37,7 @@ class TaskEnterprisePackage(config: Configuration) {
     val logger = streams.value.log
     moduleSettings.value match {
       case config: ModuleDescriptorConfiguration => config
-      case x =>
+      case x                                     =>
         logger.error(s"gatling-sbt expected a ModuleDescriptorConfiguration, but got a ${x.getClass}")
         throw ErrorAlreadyLoggedException
     }
