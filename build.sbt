@@ -1,14 +1,15 @@
 // Scala 2.12 builds the plugin for sbt 1.x, Scala 3 builds it for sbt 2.x.
-// sbt 2.0.x is built with Scala 3.8.4, and the plugin must use that exact version so it can read sbt's TASTy.
 val scala212 = "2.12.21"
-val scala3 = "3.8.4"
+// For sbt 2.0.x, the plugin must use the exact same version as sbt itself so it can read sbt's TASTy.
+val scala3 = settingKey[String]("The Scala 3 version used when building for for sbt 2.x")
+scala3 := scala_version_from_sbt_version.ScalaVersionFromSbtVersion(sbtVersion.value)
 
 lazy val gatlingSbt = rootProject
   .enablePlugins(BuildInfoPlugin, SbtPlugin, GatlingOssPlugin)
   .settings(
     name := "gatling-sbt",
     scalaVersion := scala212,
-    crossScalaVersions := Seq(scala212, scala3),
+    crossScalaVersions := Seq(scala212, scala3.value),
     sbtPlugin := true,
     githubPath := "gatling/gatling-sbt-plugin",
     sbtPluginPublishLegacyMavenStyle := false,
