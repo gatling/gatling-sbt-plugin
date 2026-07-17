@@ -13,6 +13,8 @@ lazy val gatlingSbt = rootProject
     githubPath := "gatling/gatling-sbt-plugin",
     sbtPluginPublishLegacyMavenStyle := false,
 
+    scalafmtConfig := (ThisBuild / baseDirectory).value / ".scalafmt.conf",
+
     // GatlingPublishPlugin sets `crossPaths := false`, which disables sbt's automatic `scala-<version>` source
     // directories. We add them back explicitly so sbt-1-only (Scala 2.12) and sbt-2-only (Scala 3) sources can
     // coexist: `src/main/scala-2.12` for sbt 1.x and `src/main/scala-3` for sbt 2.x.
