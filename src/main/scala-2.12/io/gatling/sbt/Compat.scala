@@ -48,22 +48,6 @@ private[gatling] object Compat {
     classpath.map(_.data)
 
   /**
-   * The project's own compiled class directories, used to scan for simulations. On sbt 1.x they appear directly in the classpath as directories, so we keep the
-   * historical behaviour of filtering the full classpath (which also captures inter-project class directories).
-   */
-  def classesDirectories(fullClasspath: Def.Classpath, classDirectories: Seq[File], converter: FileConverter): Seq[File] =
-    toFiles(fullClasspath, converter).filter(_.isDirectory)
-
-  /**
-   * The internal (inter-project) dependencies to package as extra library jars, with their module IDs. On sbt 1.x internal dependencies usually appear on the
-   * classpath as class directories and are already packaged through [[classesDirectories]], so only jar entries (`exportJars := true`) are returned here.
-   */
-  def internalDependencies(internalDependencyClasspath: Def.Classpath, converter: FileConverter): Seq[(ModuleID, File)] =
-    internalDependencyClasspath
-      .filter(_.data.isFile)
-      .flatMap(entry => entry.get(Keys.moduleID.key).map(_ -> entry.data))
-
-  /**
    * Adapts the file produced for the `packageBin` task to the value type that key expects. On sbt 1.x it is a plain [[java.io.File]].
    */
   def toPackagedArtifact(file: File, converter: FileConverter): File =
