@@ -51,27 +51,6 @@ private[gatling] object Compat {
     classpath.map(entry => converter.toPath(entry.data).toFile)
 
   /**
-   * The project's compiled class directories, used to scan for simulations. On sbt 2.x the classpath usually carries packaged jars rather than class
-   * directories, so we use the `classDirectory` locations directly (compilation is triggered by evaluating `fullClasspath` at the call site). Directory entries
-   * still found on the classpath (`exportJars := false`) are included as well, mirroring the sbt 1.x behaviour.
-   */
-  def classesDirectories(fullClasspath: Def.Classpath, classDirectories: Seq[File], converter: FileConverter): Seq[File] =
-    (classDirectories ++ toFiles(fullClasspath, converter)).filter(_.isDirectory).distinct
-
-  /**
-   * The internal (inter-project) dependencies to package as extra library jars, with their module IDs. On sbt 2.x internal dependencies appear on the classpath
-   * as packaged jars carrying their module ID as a string attribute.
-   */
-  def internalDependencies(internalDependencyClasspath: Def.Classpath, converter: FileConverter): Seq[(ModuleID, File)] =
-    internalDependencyClasspath
-      .flatMap { entry =>
-        entry.get(Keys.moduleIDStr).map { str =>
-          Classpaths.moduleIdJsonKeyFormat.read(str) -> converter.toPath(entry.data).toFile
-        }
-      }
-      .filter { case (_, file) => file.isFile }
-
-  /**
    * Adapts the file produced for the `packageBin` task to the value type that key expects. On sbt 2.x it is a virtual file reference resolved through the
    * build's [[xsbti.FileConverter]].
    */
