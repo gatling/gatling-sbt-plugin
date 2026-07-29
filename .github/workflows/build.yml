@@ -32,7 +32,7 @@ jobs:
           cache: 'sbt'
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@v1
+        uses: sbt/setup-sbt@v1.5.2
 
       - name: Test
         run: |
