@@ -26,7 +26,7 @@ jobs:
           java-version: '25'
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@v1.5.2
+        uses: sbt/setup-sbt@v1.5.4
 
       - name: Prepare environment
         env:

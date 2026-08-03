@@ -47,7 +47,7 @@ jobs:
           cache: 'sbt'
 
       - name: Setup sbt
-        uses: sbt/setup-sbt@v1.5.2
+        uses: sbt/setup-sbt@v1.5.4
 
       - name: Next version
         id: tag
