@@ -46,6 +46,3 @@ jobs:
           PGP_PASSPHRASE: ${{ secrets.SONATYPE_PGP_PASSPHRASE }}
         run: |
           sbt -v "release with-defaults"
-          export VERSION="$(cat target/release-info)"
-          echo "version=$VERSION" # DO NOT REMOVE, because of bad parsing for outputs
-          echo "::set-output name=version::$VERSION"
