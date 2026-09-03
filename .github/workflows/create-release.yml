@@ -61,8 +61,8 @@ jobs:
 
       - name: Git tag
         env:
-          GIT_USER_NAME: ${{ secrets.GATLING_CI_NAME }}
-          GIT_USER_EMAIL: ${{ secrets.GATLING_CI_EMAIL }}
+          GIT_USER_NAME: ${{ vars.GATLING_CI_NAME }}
+          GIT_USER_EMAIL: ${{ vars.GATLING_CI_EMAIL }}
           RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
