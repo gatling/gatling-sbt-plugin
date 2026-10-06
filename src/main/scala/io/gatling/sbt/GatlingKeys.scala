@@ -17,6 +17,7 @@
 package io.gatling.sbt
 
 import _root_.io.gatling.plugin.ConfigurationConstants
+import _root_.io.gatling.sbt.Compat.FileRef
 import _root_.io.gatling.sbt.settings.BaseSettings
 
 import sbt._
@@ -95,7 +96,7 @@ object GatlingKeys {
                                           |$documentationReference.
                                           |""".stripMargin)
 
-  val assembly = taskKey[File](
+  val assembly = taskKey[FileRef](
     "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
   )
 

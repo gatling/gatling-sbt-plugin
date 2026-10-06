@@ -72,7 +72,9 @@ object EnterpriseSettings {
 
   private def legacyAssemblySetting(config: Configuration) = {
     val taskPackage = new TaskEnterprisePackage(config)
-    config / assembly := Compat.uncached(taskPackage.legacyPackageEnterpriseJar.value)
+    config / assembly := Compat.uncached(
+      Compat.toFileRef(taskPackage.legacyPackageEnterpriseJar.value, fileConverter.value)
+    )
   }
 
   private val breakIfLegacyPluginFoundSetting =
