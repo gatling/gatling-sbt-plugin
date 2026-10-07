@@ -58,6 +58,18 @@ private[gatling] object Compat {
     converter.toVirtualFile(file.toPath)
 
   /**
+   * The value type of tasks producing a file. On sbt 2.x it is a virtual file reference, carrying a content hash and independent of the machine's paths. Same
+   * as `FileRef` in sbt2-compat, which plugins such as sbt-assembly use.
+   */
+  type FileRef = HashedVirtualFileRef
+
+  /**
+   * Adapts a file to [[FileRef]], resolving it through the build's [[xsbti.FileConverter]].
+   */
+  def toFileRef(file: File, converter: FileConverter): FileRef =
+    converter.toVirtualFile(file.toPath)
+
+  /**
    * Opts a task out of sbt 2.x's on-disk task caching, which rejects [[java.io.File]] results and requires a `JsonFormat` for other results. Delegates to sbt
    * 2.x's `Def.uncached` marker.
    */

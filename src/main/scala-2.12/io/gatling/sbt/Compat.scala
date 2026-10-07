@@ -54,6 +54,18 @@ private[gatling] object Compat {
     file
 
   /**
+   * The value type of tasks producing a file. On sbt 1.x it is a plain [[java.io.File]]. Same as `FileRef` in sbt2-compat, which plugins such as sbt-assembly
+   * use.
+   */
+  type FileRef = File
+
+  /**
+   * Adapts a file to [[FileRef]]. On sbt 1.x this is the identity.
+   */
+  def toFileRef(file: File, converter: FileConverter): FileRef =
+    file
+
+  /**
    * Opts a task out of sbt 2.x's on-disk task caching, which rejects [[java.io.File]] results and requires a `JsonFormat` for other results. sbt 1.x has no
    * such caching, so this is the identity.
    */
