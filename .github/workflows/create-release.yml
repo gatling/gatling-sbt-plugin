@@ -22,9 +22,6 @@ jobs:
   create-release:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    env:
-      JAVA_OPTS: "-Xmx6G"
-      SBT_OPTS: "-Dsbt.ci=true"
     steps:
       - name: Validate inputs
         run: exit 1
@@ -36,35 +33,21 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          fetch-depth: 0 # indicates all history for all branches and tags
           token: ${{ secrets.GATLING_CI_TOKEN }} # for tag to trigger other workflows (release)
-
-      - name: Setup JDK
-        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
-        with:
-          distribution: 'zulu'
-          java-version: '25'
-          cache: 'sbt'
-
-      - name: Setup sbt
-        uses: sbt/setup-sbt@6158cb0903b8ceeae04f830055f3155e1b6a5ad7 # v1.5.11
 
       - name: Next version
         id: tag
-        env:
-          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
-        run: |
-          sbt "gatlingWriteBumpVersion $RELEASE_TYPE"
-          export CURRENT_TAG="v$(cat target/out/jvm/u/gatling-sbt/gatlingNextVersion)"
-          echo "tag='$CURRENT_TAG'"
-          echo "::set-output name=tag::$CURRENT_TAG"
+        uses: gatling/internal-actions@28228e1450d8999d09290e603d50ee506f8d5522 # version-bump/v1.0.1
+        with:
+          prefix: 'v'
+          bump: ${{ github.event.inputs.releaseType }}
 
       - name: Git tag
         env:
           GIT_USER_NAME: ${{ vars.GATLING_CI_NAME }}
           GIT_USER_EMAIL: ${{ vars.GATLING_CI_EMAIL }}
           RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
-          TAG: ${{ steps.tag.outputs.tag }}
+          TAG: ${{ steps.tag.outputs.next-tag }}
         run: |
           git config user.name "$GIT_USER_NAME"
           git config user.email "$GIT_USER_EMAIL"
