@@ -68,7 +68,7 @@ jobs:
         run: |
           git config user.name "$GIT_USER_NAME"
           git config user.email "$GIT_USER_EMAIL"
-          if [ "$RELEASE_TYPE" = "minor-milestone" || "$RELEASE_TYPE" = "patch-milestone" ]; then
+          if [[ "$RELEASE_TYPE" == *-milestone ]]; then
             git tag "$TAG"
           else
             git tag "$TAG" -m "Version $TAG"
