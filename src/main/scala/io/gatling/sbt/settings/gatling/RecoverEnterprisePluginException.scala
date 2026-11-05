@@ -30,7 +30,7 @@ class RecoverEnterprisePluginException(config: Configuration) {
       logger.error(
         s"""${e.getMessage}
            |In order to target the supported Java version, please use the following sbt settings:
-           |scalacOptions ++= Seq("-target:${e.supportedVersion}", "-release", "${e.supportedVersion}")
+           |scalacOptions ++= Seq("-release", "${e.supportedVersion}")
            |javacOptions ++= Seq("--release", "${e.supportedVersion}")
            |See also the Scala compiler documentation: https://docs.scala-lang.org/overviews/compiler-options/index.html , and the Java compiler documentation: https://docs.oracle.com/en/java/javase/17/docs/specs/man/javac.html#compiling-for-earlier-releases-of-the-platform
            |Alternatively, the reported class may come from your project's dependencies, published targeting Java ${e.version}. In this case you need to use dependencies which target Java ${e.supportedVersion} or lower.
