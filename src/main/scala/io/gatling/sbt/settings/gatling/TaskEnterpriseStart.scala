@@ -94,7 +94,7 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
       val logger = streams.value.log
       val enterprisePlugin = EnterprisePluginTask.enterprisePluginTask(config, commandArgs.requireBatchMode).value
       val deploymentInfo = taskEnterpriseDeploy.enterpriseDeployTask(commandArgs.customFileName).value
-      val waitForRunEndSetting = waitForRunEnd.value
+      val waitForRunEndSetting = (config / waitForRunEnd).value
       val runComment = new RunComment(commandArgs.runTitle.orNull, commandArgs.runDescription.orNull)
 
       // in interactive mode, the user can quit when asked to pick a simulation
