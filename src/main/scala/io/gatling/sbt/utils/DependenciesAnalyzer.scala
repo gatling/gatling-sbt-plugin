@@ -48,10 +48,21 @@ object DependenciesAnalyzer {
       .configuration(ConfigRef.configToConfigRef(config))
       .getOrElse(throw new IllegalStateException(s"Could not find a report for configuration $config"))
 
-    val allArtifacts = for {
-      modReport <- configurationReport.modules
-      (artifact, file) <- modReport.artifacts if artifact.`type` == "jar" || artifact.extension == "jar"
-    } yield (ModuleWithoutVersion(modReport.module.organization, modReport.module.name), artifact, file)
+    // Dependencies are built from the update report (and not from the dependency graph, whose nodes include evicted versions),
+    // so that each jar is paired with the version that was actually resolved.
+    val moduleToDependencies: Map[ModuleWithoutVersion, Seq[Dependency]] =
+      (for {
+        modReport <- configurationReport.modules if !modReport.evicted
+        (artifact, file) <- modReport.artifacts if artifact.`type` == "jar" || artifact.extension == "jar"
+      } yield ModuleWithoutVersion(modReport.module.organization, modReport.module.name) -> new Dependency(
+        new Dependency.Id(
+          modReport.module.organization,
+          modReport.module.name,
+          modReport.module.revision,
+          artifact.classifier.orNull
+        ),
+        file
+      )).groupBy(_._1).map { case (module, entries) => module -> entries.map(_._2) }
 
     val dependencyMap = SbtUpdateReport.fromConfigurationReport(configurationReport, rootModule.module).dependencyMap
 
@@ -65,25 +76,6 @@ object DependenciesAnalyzer {
     val gatlingGraphModules = collectDepAndChildren(gatlingModules, moduleGraphWithoutVersions)
 
     val extraModules = allModules -- gatlingGraphModules - ModuleWithoutVersion(rootModule.module.organization, rootModule.module.name)
-
-    val moduleToDependencies: Map[ModuleWithoutVersion, Seq[Dependency]] =
-      (for {
-        graphModule <- dependencyMap.values.flatten
-        moduleWithoutVersion = ModuleWithoutVersion(graphModule.id.organization, graphModule.id.name)
-      } yield {
-        val dependencies = for {
-          (_, artifact, jarFile) <- allArtifacts.filter(_._1 == moduleWithoutVersion)
-        } yield new Dependency(
-          new Dependency.Id(
-            graphModule.id.organization,
-            graphModule.id.name,
-            graphModule.id.version,
-            artifact.classifier.orNull
-          ),
-          jarFile
-        )
-        moduleWithoutVersion -> dependencies
-      }).toMap
 
     DependenciesAnalysisResult(
       gatlingModules.flatMap(moduleToDependencies.getOrElse(_, List.empty)),
