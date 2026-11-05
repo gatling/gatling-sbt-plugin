@@ -33,3 +33,25 @@ lazy val loadtest = project
       checkContains("lib/SimulationConfig.class")
     }
   )
+
+// Reports folder of `loadtest`, resolved explicitly as the root project (which doesn't enable the plugin) is the current one
+def loadtestReportsFolder(state: State): File =
+  Project.extract(state).get(LocalProject("loadtest") / Gatling / target)
+
+def loadtestReports(state: State): Seq[File] =
+  Option(loadtestReportsFolder(state).listFiles()).toSeq.flatten.filter(dir => (dir / "simulation.log").isFile)
+
+// Deletes the HTML of the generated reports, keeping the simulation results so that they can be regenerated
+commands += Command.command("deleteLoadtestReportsHtml") { state =>
+  loadtestReports(state).foreach(dir => IO.delete(dir / "index.html"))
+  state
+}
+
+// Runs `loadtest/Gatling/generateReport <report name>` from the root project, so that the report name is parsed and
+// validated against the reports of `loadtest`, and not of the current project
+commands += Command.command("generateLoadtestReportByName") { state =>
+  loadtestReports(state) match {
+    case Seq(report) => s"loadtest/Gatling/generateReport ${report.getName}" :: state
+    case reports     => sys.error(s"Expected exactly one report, got: ${reports.mkString(", ")}")
+  }
+}

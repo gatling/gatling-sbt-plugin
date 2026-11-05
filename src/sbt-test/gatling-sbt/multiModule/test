@@ -4,3 +4,14 @@
 # carries packaged jars) it is packaged as an extra library jar and unpacked into the fat jar.
 
 > loadtest/checkPackage
+
+# Generate a report by name for a module from another project (here, the root project, which doesn't enable the
+# plugin): the report name must be parsed against the reports of that module, not of the current project.
+# Generating a report when there are no simulation results only logs a warning.
+> loadtest/Gatling/generateReport
+> loadtest/Gatling/testOnly basic.MultiModuleSimulation
+$ exists **/gatling/*/index.html
+> deleteLoadtestReportsHtml
+$ absent **/gatling/*/index.html
+> generateLoadtestReportByName
+$ exists **/gatling/*/index.html
