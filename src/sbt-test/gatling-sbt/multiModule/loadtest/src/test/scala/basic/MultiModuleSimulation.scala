@@ -8,12 +8,12 @@ import lib.SimulationConfig
 class MultiModuleSimulation extends Simulation {
   val httpProtocol = http
     .baseUrl(SimulationConfig.BaseUrl)
-    .disableFollowRedirect
+    .acceptHeader("application/json")
 
-  val scn = scenario("Scenario name")
-    .group("Login") {
-      exec(http("request_1").get("/").check(status.is(303)))
-    }
+  val scn = scenario("Scenario 1")
+    .exec(http("Session").get("/session"))
 
-  setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  setUp(scn.inject(atOnceUsers(1)))
+    .assertions(global.failedRequests.count.lt(1))
+    .protocols(httpProtocol)
 }
