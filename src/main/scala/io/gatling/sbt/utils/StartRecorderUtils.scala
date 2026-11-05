@@ -16,7 +16,7 @@
 
 package io.gatling.sbt.utils
 
-import io.gatling.shared.cli.RecorderCliOptions
+import io.gatling.shared.cli.{ CliOption, RecorderCliOptions }
 
 import sbt.complete.DefaultParsers._
 import sbt.complete.Parser
@@ -94,11 +94,31 @@ private[gatling] object StartRecorderUtils {
    *   the list of arguments, with the default package set if it wasn't already set.
    */
   def addPackageIfNecessary(args: Seq[String], packageName: String): Seq[String] =
-    if (args.contains("-pkg") || args.contains("--package") || packageName == "default") {
+    if (packageName == "default") {
       // default is the default value of the organization setting, we don't want it
       args
     } else {
-      args ++ toShortOptionAndValue("pkg" -> packageName)
+      addOptionIfNecessary(args, RecorderCliOptions.Package, packageName)
+    }
+
+  /**
+   * Adds ''option'' with ''defaultValue'' if the user hasn't already specified it, in either its short or full version. The Recorder keeps the last value of a
+   * repeated option, so blindly appending a default would override the user's value.
+   *
+   * @param args
+   *   the current list of arguments
+   * @param option
+   *   the option to add
+   * @param defaultValue
+   *   the value to use if the option wasn't already specified
+   * @return
+   *   the list of arguments, with the option set if it wasn't already set.
+   */
+  def addOptionIfNecessary(args: Seq[String], option: CliOption, defaultValue: String): Seq[String] =
+    if (args.contains("-" + option.shortName) || args.contains("--" + option.longName)) {
+      args
+    } else {
+      args ++ toShortOptionAndValue(option.shortName -> defaultValue)
     }
 
   /**

@@ -24,7 +24,8 @@ import io.gatling.plugin.GatlingConstants
 import io.gatling.sbt.Compat
 import io.gatling.sbt.GatlingKeys._
 import io.gatling.sbt.utils.ReportUtils._
-import io.gatling.sbt.utils.StartRecorderUtils.{ addPackageIfNecessary, optionsParser, toShortOptionAndValue }
+import io.gatling.sbt.utils.StartRecorderUtils.{ addOptionIfNecessary, addPackageIfNecessary, optionsParser, toShortOptionAndValue }
+import io.gatling.shared.cli.RecorderCliOptions
 
 import sbt._
 import sbt.Keys._
@@ -35,11 +36,12 @@ object OssSettings {
 
   private def recorderRunner(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Int]] = Def.inputTask {
     // Parse args and add missing args if necessary
+    // The Recorder keeps the last value of a repeated option, so defaults are only added when the user didn't specify them
     val args = optionsParser.parsed
-    val simulationsFolderArg = toShortOptionAndValue("sf" -> (config / scalaSource).value.getPath)
-    val resourcesFolderArg = toShortOptionAndValue("rf" -> (config / resourceDirectory).value.getPath)
-    val formatArg = toShortOptionAndValue("fmt", "scala")
-    val allArgs = addPackageIfNecessary(args ++ simulationsFolderArg ++ resourcesFolderArg ++ formatArg, organization.value)
+    val withSimulationsFolder = addOptionIfNecessary(args, RecorderCliOptions.SimulationsFolder, (config / scalaSource).value.getPath)
+    val withResourcesFolder = addOptionIfNecessary(withSimulationsFolder, RecorderCliOptions.ResourcesFolder, (config / resourceDirectory).value.getPath)
+    val withFormat = addOptionIfNecessary(withResourcesFolder, RecorderCliOptions.Format, "scala")
+    val allArgs = addPackageIfNecessary(withFormat, organization.value)
 
     val fork = new Fork("java", Some("io.gatling.recorder.GatlingRecorder"))
     val classpathElements = Compat.toFiles((parent / dependencyClasspath).value, fileConverter.value) :+ (config / resourceDirectory).value

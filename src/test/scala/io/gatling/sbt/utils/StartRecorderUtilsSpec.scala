@@ -18,6 +18,7 @@ package io.gatling.sbt.utils
 
 import io.gatling.sbt.ParserMatchers
 import io.gatling.sbt.utils.StartRecorderUtils._
+import io.gatling.shared.cli.RecorderCliOptions
 
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -63,6 +64,15 @@ class StartRecorderUtilsSpec extends AnyFlatSpec with Matchers with ParserMatche
 
   it should "add the package if it hasn't already been specified" in {
     addPackageIfNecessary(Seq.empty, "foo") should contain only ("-pkg", "foo")
+  }
+
+  "addOptionIfNecessary" should "not override an option the user specified, in its short or full version" in {
+    addOptionIfNecessary(Seq("-fmt", "java"), RecorderCliOptions.Format, "scala") should contain only ("-fmt", "java")
+    addOptionIfNecessary(Seq("--format", "java"), RecorderCliOptions.Format, "scala") should contain only ("--format", "java")
+  }
+
+  it should "add the option with its default value if it hasn't already been specified" in {
+    addOptionIfNecessary(Seq("-pkg", "foo"), RecorderCliOptions.Format, "scala") shouldBe Seq("-pkg", "foo", "-fmt", "scala")
   }
 
   "exactStringParser" should "creates a parser that matches only strings from the specified choices" in {
