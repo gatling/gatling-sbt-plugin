@@ -17,7 +17,6 @@
 package io.gatling.sbt
 
 import _root_.io.gatling.plugin.ConfigurationConstants
-import _root_.io.gatling.sbt.Compat.FileRef
 import _root_.io.gatling.sbt.settings.BaseSettings
 
 import sbt._
@@ -95,10 +94,6 @@ object GatlingKeys {
                                           |In batch mode, simulation name is required as first argument.
                                           |$documentationReference.
                                           |""".stripMargin)
-
-  val assembly = taskKey[FileRef](
-    "Builds a package for Gatling Enterprise (deprecated, please use 'Gatling / enterprisePackage' or 'GatlingIt / enterprisePackage' instead)."
-  )
 
   // kept for compatibility with older versions
   def overrideDefaultJavaOptions(javaOptions: String*): Seq[String] = BaseSettings.overrideDefaultJavaOptions(javaOptions: _*)

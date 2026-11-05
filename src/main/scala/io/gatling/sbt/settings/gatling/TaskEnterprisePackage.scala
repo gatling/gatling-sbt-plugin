@@ -25,7 +25,7 @@ import io.gatling.sbt.Compat
 import io.gatling.sbt.settings.gatling.EnterpriseUtils.InitializeTask
 import io.gatling.sbt.utils._
 
-import sbt.{ Configuration, Def, ModuleDescriptorConfiguration, Test, _ }
+import sbt.{ Configuration, Def, ModuleDescriptorConfiguration, _ }
 import sbt.Keys._
 
 object TaskEnterprisePackage {
@@ -100,20 +100,4 @@ class TaskEnterprisePackage(config: Configuration) {
 
     packageFile
   }
-
-  val legacyPackageEnterpriseJar: InitializeTask[File] = Def.sequential(
-    Def.task {
-      val newCommand = config.id match {
-        case Test.id                   => "Gatling / enterprisePackage"
-        case Compat.IntegrationTest.id => "GatlingIt / enterprisePackage"
-        case _                         => "Gatling / enterprisePackage or GatlingIt / enterprisePackage"
-      }
-      streams.value.log.warn(
-        s"""Task ${config.id} / assembly is deprecated and will be removed in a future version.
-           |Please use $newCommand instead.
-           |See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/ for more information.""".stripMargin
-      )
-    },
-    buildEnterprisePackage
-  )
 }

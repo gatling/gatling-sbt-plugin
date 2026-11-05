@@ -38,7 +38,7 @@ object EnterpriseSettings {
         throw new MessageOnlyException(
           """Plugin "io.gatling.frontline" % "sbt-frontline" is no longer needed, its functionality is now included in "io.gatling" % "gatling-sbt".
             |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
-            |Please use the Gatling / enterprisePackage task instead of Test / assembly (or GatlingIt / enterprisePackage instead of It / assembly).
+            |Use the Gatling / enterprisePackage (or GatlingIt / enterprisePackage) task to build a package for Gatling Enterprise.
             |See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/ for more information.""".stripMargin
         )
       }
@@ -70,16 +70,9 @@ object EnterpriseSettings {
     )
   }
 
-  private def legacyAssemblySetting(config: Configuration) = {
-    val taskPackage = new TaskEnterprisePackage(config)
-    config / assembly := Compat.uncached(
-      Compat.toFileRef(taskPackage.legacyPackageEnterpriseJar.value, fileConverter.value)
-    )
-  }
-
   private val breakIfLegacyPluginFoundSetting =
     Global / onLoad := onLoadBreakIfLegacyPluginFound.value
 
   lazy val projectSettings: Seq[Def.Setting[?]] =
-    Seq(legacyAssemblySetting(Test), legacyAssemblySetting(Compat.IntegrationTest), breakIfLegacyPluginFoundSetting)
+    Seq(breakIfLegacyPluginFoundSetting)
 }
