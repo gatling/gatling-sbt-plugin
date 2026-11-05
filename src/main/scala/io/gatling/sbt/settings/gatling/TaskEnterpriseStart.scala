@@ -97,7 +97,10 @@ class TaskEnterpriseStart(config: Configuration, taskEnterpriseDeploy: TaskEnter
       val waitForRunEndSetting = waitForRunEnd.value
       val runComment = new RunComment(commandArgs.runTitle.orNull, commandArgs.runDescription.orNull)
 
-      val runSummary = enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo, runComment)
+      // in interactive mode, the user can quit when asked to pick a simulation
+      val runSummary = Try(enterprisePlugin.startSimulation(commandArgs.simulationName.orNull, deploymentInfo, runComment))
+        .recoverWith(recoverEnterprisePluginException(logger))
+        .get
 
       logStartResult(logger, runSummary, waitForRunEndSetting, webAppUrl = (config / enterpriseWebAppUrl).value)
 
