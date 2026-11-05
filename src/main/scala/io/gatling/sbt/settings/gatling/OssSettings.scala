@@ -53,14 +53,23 @@ object OssSettings {
 
   private def generateGatlingReport(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
     val selectedReportName = reportNameParserFor(config).parsed
-    val filteredReports = filterReportsIfReportNameIdSelected(allReports((config / target).value), selectedReportName)
-    val reportsPaths = filteredReports.map(_.path.getName)
-    reportsPaths.headOption.foreach { folderName =>
-      val opts = toShortOptionAndValue("ro" -> folderName) ++ toShortOptionAndValue("rf" -> (config / target).value.getPath)
-      val fork = new Fork("java", Some("io.gatling.app.Gatling"))
-      val classpathElements = Compat.toFiles((parent / dependencyClasspath).value, fileConverter.value) :+ (config / resourceDirectory).value
-      val classpath = buildClassPathArgument(classpathElements)
-      fork(forkOptionsWithRunJVMOptions(classpath ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala), opts)
+    val reportsFolder = (config / target).value
+    val logger = streams.value.log
+    val classpathElements = Compat.toFiles((parent / dependencyClasspath).value, fileConverter.value) :+ (config / resourceDirectory).value
+    val filteredReports = filterReportsIfReportNameIdSelected(allReports(reportsFolder), selectedReportName)
+
+    filteredReports.headOption match {
+      case Some(report) =>
+        val opts = toShortOptionAndValue("ro" -> report.path.getName) ++ toShortOptionAndValue("rf" -> reportsFolder.getPath)
+        val fork = new Fork("java", Some("io.gatling.app.Gatling"))
+        val classpath = buildClassPathArgument(classpathElements)
+        val exitCode = fork(forkOptionsWithRunJVMOptions(classpath ++ GatlingConstants.DEFAULT_JVM_OPTIONS_GATLING.asScala), opts)
+        if (exitCode != 0) {
+          logger.error(s"Failed to generate the report for ${report.name} (exit code $exitCode)")
+          throw ErrorAlreadyLoggedException
+        }
+      case None =>
+        logger.warn(s"No report to generate: no simulation results found in $reportsFolder")
     }
   }
 
