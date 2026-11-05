@@ -26,26 +26,6 @@ import sbt._
 import sbt.Keys._
 
 object EnterpriseSettings {
-  private val onLoadBreakIfLegacyPluginFound = Def.setting {
-    (Global / onLoad).value.andThen { state =>
-      val foundLegacyFrontLinePlugin =
-        Project.extract(state).structure.units.exists { case (_, build) =>
-          build.projects.exists(
-            _.autoPlugins.exists(_.label == "io.gatling.frontline.sbt.FrontLinePlugin")
-          )
-        }
-      if (foundLegacyFrontLinePlugin) {
-        throw new MessageOnlyException(
-          """Plugin "io.gatling.frontline" % "sbt-frontline" is no longer needed, its functionality is now included in "io.gatling" % "gatling-sbt".
-            |Please remove "io.gatling.frontline" % "sbt-frontline" from your plugins.sbt configuration file.
-            |Use the Gatling / enterprisePackage (or GatlingIt / enterprisePackage) task to build a package for Gatling Enterprise.
-            |See https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/ for more information.""".stripMargin
-        )
-      }
-      state
-    }
-  }
-
   def settings(config: Configuration) = {
     val taskPackage = new TaskEnterprisePackage(config)
     val taskUpload = new TaskEnterpriseUpload(config)
@@ -69,10 +49,4 @@ object EnterpriseSettings {
       ) // If we directly use config / enterprisePackage for publishing, classifiers (-tests or -it) are not correctly handled.
     )
   }
-
-  private val breakIfLegacyPluginFoundSetting =
-    Global / onLoad := onLoadBreakIfLegacyPluginFound.value
-
-  lazy val projectSettings: Seq[Def.Setting[?]] =
-    Seq(breakIfLegacyPluginFoundSetting)
 }

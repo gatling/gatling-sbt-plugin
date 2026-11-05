@@ -28,7 +28,7 @@ object GatlingPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectConfigurations: Seq[Configuration] = Seq(Gatling, GatlingIt, Compat.IntegrationTest)
-  override def projectSettings: Seq[Def.Setting[?]] = gatlingSettings ++ gatlingItSettings ++ ProjectSettings.projectSettings
+  override def projectSettings: Seq[Def.Setting[?]] = gatlingSettings ++ gatlingItSettings
 
   // Test framework definition
   val gatlingTestFramework = TestFramework("io.gatling.sbt.GatlingFramework")
