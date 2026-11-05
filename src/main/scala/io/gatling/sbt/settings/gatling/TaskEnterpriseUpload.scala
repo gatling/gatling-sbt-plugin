@@ -19,12 +19,14 @@ package io.gatling.sbt.settings.gatling
 import io.gatling.sbt.settings.gatling.EnterpriseUtils._
 
 import sbt._
+import sbt.Keys._
 
 class TaskEnterpriseUpload(config: Configuration) extends RecoverEnterprisePluginException(config) {
   val uploadEnterprisePackage: InitializeTask[Unit] = Def.task {
-    throw new NotImplementedError(
+    streams.value.log.error(
       "The enterprise upload command is no longer supported. It has been replaced by the enterprise deploy command." +
         " Refer to the documentation for more information: https://docs.gatling.io/reference/integrations/build-tools/sbt-plugin/#deploying-on-gatling-enterprise"
     )
+    throw ErrorAlreadyLoggedException
   }
 }
