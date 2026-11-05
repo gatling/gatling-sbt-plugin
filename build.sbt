@@ -48,7 +48,14 @@ lazy val gatlingSbt = rootProject
           "-Xmx512m",
           "-Dgatling.data.enableAnalytics=false",
           "-Dplugin.version=" + version.value
-        )
+        ) ++
+        // Scripted forces `-Dsbt.global.base=<test dir>/global` for each test, so the tested sbt never sees the user's
+        // global configuration. It doesn't force `sbt.global.settings` and `sbt.global.plugins` though, so an extra
+        // global configuration (e.g. private repositories) can be provided through `SCRIPTED_SBT_GLOBAL`.
+        // It must compile with both sbt 1.x and sbt 2.x, as scripted tests run with both.
+        sys.env.get("SCRIPTED_SBT_GLOBAL").toSeq.flatMap { dir =>
+          Seq(s"-Dsbt.global.settings=$dir", s"-Dsbt.global.plugins=$dir/plugins")
+        }
     },
 
     scriptedBufferLog := false,
