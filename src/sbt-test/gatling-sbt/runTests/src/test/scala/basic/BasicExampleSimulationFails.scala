@@ -6,12 +6,13 @@ import scala.concurrent.duration._
 
 class BasicExampleSimulationFails extends Simulation {
   val httpProtocol = http
-    .baseUrl("http://computer-database.gatling.io")
-    .disableFollowRedirect
+    .baseUrl("https://api-ecomm.gatling.io")
+    .acceptHeader("application/json")
 
   val scn = scenario("Scenario name")
     .group("Login") {
-      exec(http("request_1").get("/").check(status.is(303)))
+      // deliberately wrong expected status, so that the simulation fails
+      exec(http("Session").get("/session").check(status.is(404)))
         .feed(csv("foo.csv"))
     }
 
