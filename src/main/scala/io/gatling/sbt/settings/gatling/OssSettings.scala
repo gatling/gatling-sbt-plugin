@@ -52,7 +52,7 @@ object OssSettings {
   private def cleanReports(folder: File): Unit = IO.delete(folder)
 
   private def generateGatlingReport(config: Configuration, parent: Configuration): Def.Initialize[InputTask[Unit]] = Def.inputTask {
-    val selectedReportName = stateBasedParser(config / target)(target => reportNameParser(allReportNames(target))).parsed
+    val selectedReportName = reportNameParserFor(config).parsed
     val filteredReports = filterReportsIfReportNameIdSelected(allReports((config / target).value), selectedReportName)
     val reportsPaths = filteredReports.map(_.path.getName)
     reportsPaths.headOption.foreach { folderName =>
@@ -67,11 +67,12 @@ object OssSettings {
   private def buildClassPathArgument(classPathElements: Seq[File]): Seq[String] =
     Seq("-cp", classPathElements.mkString(File.pathSeparator))
 
-  private def stateBasedParser[T, U](inputSource: SettingKey[T])(parserMaker: T => U) =
-    Def.setting { (state: State) =>
-      val extracted = Project.extract(state)
-      val input = extracted.get(inputSource)
-      parserMaker(input)
+  // The reports folder is resolved in the scope of the task (and not from the current project of the state), so that it's the right one
+  // when running e.g. `sub/Gatling/generateReport` from another project. It's listed when parsing, so that newly generated reports are offered.
+  private def reportNameParserFor(config: Configuration) =
+    Def.setting {
+      val reportsFolder = (config / target).value
+      (_: State) => reportNameParser(allReportNames(reportsFolder))
     }
 
   def settings(config: Configuration, parent: Configuration) = Seq(
