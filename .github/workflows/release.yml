@@ -45,6 +45,14 @@ jobs:
         run: |
           mkdir --parents ~/.config/sbt/2 || true
           echo "$PRIVATE_REPOSITORY_SBT" > ~/.config/sbt/2/privateRepository.sbt
+
+          # Scripted tests don't see the global configuration above, see SCRIPTED_SBT_GLOBAL in build.sbt
+          scripted_global="$RUNNER_TEMP/scripted-sbt-global"
+          mkdir --parents "$scripted_global/plugins"
+          echo "$PRIVATE_REPOSITORY_SBT" > "$scripted_global/privateRepository.sbt"
+          echo "$PRIVATE_REPOSITORY_SBT" > "$scripted_global/plugins/privateRepository.sbt"
+          echo "SCRIPTED_SBT_GLOBAL=$scripted_global" >> "$GITHUB_ENV"
+
           echo -n "$SONATYPE_PGP_SECRET" | base64 --decode | gpg --batch --import
 
       #     - name: Cache
