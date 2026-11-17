@@ -21,6 +21,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        java: [17, 21, 25]
     timeout-minutes: 30
     env:
       JAVA_OPTS: "-Xmx6G"
@@ -32,7 +36,7 @@ jobs:
         uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           distribution: 'zulu'
-          java-version: '25'
+          java-version: ${{ matrix.java }}
           cache: 'sbt'
 
       - name: Setup sbt
