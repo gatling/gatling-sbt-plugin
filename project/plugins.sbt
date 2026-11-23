@@ -1,5 +1,5 @@
 addSbtPlugin("io.gatling"   % "gatling-build-plugin" % "7.2.1")
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo"        % "0.13.2")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo"        % "0.14.0")
 
 libraryDependencies ++= Seq(
   "org.scala-sbt"      %% "scripted-plugin"                % sbtVersion.value,
