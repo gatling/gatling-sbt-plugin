@@ -41,7 +41,7 @@ lazy val gatlingSbt = rootProject
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest"                         % "3.2.20" % Test,
       "io.gatling"     % "gatling-enterprise-plugin-commons" % "1.28.1",
-      "io.gatling"     % "gatling-shared-cli"                % "0.0.7"
+      "io.gatling"     % "gatling-shared-cli"                % "0.1.0"
     ),
 
     scriptedLaunchOpts := {
